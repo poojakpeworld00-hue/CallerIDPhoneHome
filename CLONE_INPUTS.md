@@ -45,7 +45,7 @@ Legend:
 | # | Item | Where | Status |
 |---|---|---|---|
 | D1 | Backend URL + API credentials | `services/RetrofitClient.kt`, `ServiceCredentials.kt` | **[KEPT]** your own backend |
-| D2 | `google-services.json` | `app/` | **[NEEDS YOU]** package_name rewritten so the build resolves, but still project `caller-id-home` |
+| D2 | `google-services.json` | `app/` | **[SET]** real file for project `caller-id-phone-home` (`797289773894`), package matches A1 |
 | D3 | LightHouse API key / base URL | `local.properties` | **[NEEDS YOU]** commented out — the SDK is visibly unconfigured rather than silently empty |
 | D4 | Remote Config | `docs/remote-config.json` | **[NEEDS YOU]** not published for this app; screen names still match the source's class names |
 | D5 | AdMob app id | `AndroidManifest.xml` | **[NEEDS YOU]** Google's test id |
@@ -67,6 +67,6 @@ Legend:
 
 1. **Stage 3 refactor** — class, layout, drawable and view-id renames. Everything currently matches the source app name-for-name.
 2. **Brand visuals** (section C) — icon and palette.
-3. **Firebase project + google-services.json** (D2), then publish Remote Config (D4).
+3. **Publish Remote Config** to `caller-id-phone-home` (D4).
 4. **Real AdMob ids** (D5, D6) and **LightHouse key** (D3).
 5. **Own signing keystore** (D7) and **policy URLs** (D8).
