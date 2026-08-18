@@ -59,7 +59,7 @@ class LapTimerActivity : CanvasActivity<ViewStopwatchBinding>() {
         running = true
         startRealtime = SystemClock.elapsedRealtime()
         binding.btnStartPause.setText(R.string.action_pause)
-        binding.btnStartPause.setIconResource(R.drawable.ic_pause)
+        binding.btnStartPause.setIconResource(R.drawable.glyph_pause)
         binding.btnLap.isEnabled = true
         handler.post(tick)
     }
@@ -69,7 +69,7 @@ class LapTimerActivity : CanvasActivity<ViewStopwatchBinding>() {
         handler.removeCallbacks(tick)
         accumulatedMs += SystemClock.elapsedRealtime() - startRealtime
         binding.btnStartPause.setText(R.string.action_start)
-        binding.btnStartPause.setIconResource(R.drawable.ic_play)
+        binding.btnStartPause.setIconResource(R.drawable.glyph_play)
         binding.btnLap.isEnabled = false
         renderTime()
     }
@@ -81,7 +81,7 @@ class LapTimerActivity : CanvasActivity<ViewStopwatchBinding>() {
         lastLapTotal = 0L
         lapCount = 0
         binding.btnStartPause.setText(R.string.action_start)
-        binding.btnStartPause.setIconResource(R.drawable.ic_play)
+        binding.btnStartPause.setIconResource(R.drawable.glyph_play)
         binding.btnLap.isEnabled = false
         binding.llLaps.removeAllViews()
         binding.llLaps.visibility = View.GONE

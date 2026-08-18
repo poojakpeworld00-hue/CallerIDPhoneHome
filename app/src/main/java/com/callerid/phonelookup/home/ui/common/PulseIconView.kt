@@ -43,10 +43,10 @@ class PulseIconView @JvmOverloads constructor(
         val a = context.obtainStyledAttributes(attrs, R.styleable.PulseIconView)
         val iconRes = a.getResourceId(R.styleable.PulseIconView_biv_icon, 0)
         val discRes = a.getResourceId(
-            R.styleable.PulseIconView_biv_disc, R.drawable.bg_empty_circle_tools
+            R.styleable.PulseIconView_biv_disc, R.drawable.shape_empty_circle_tools
         )
         val ringRes = a.getResourceId(
-            R.styleable.PulseIconView_biv_ring, R.drawable.bg_ring_tools
+            R.styleable.PulseIconView_biv_ring, R.drawable.shape_ring_tools
         )
         val iconSize = a.getDimensionPixelSize(R.styleable.PulseIconView_biv_iconSize, 0)
         val hasTint = a.hasValue(R.styleable.PulseIconView_biv_iconTint)

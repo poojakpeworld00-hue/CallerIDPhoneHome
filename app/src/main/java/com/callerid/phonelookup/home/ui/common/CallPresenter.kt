@@ -42,10 +42,10 @@ object CallPresenter {
     }
 
     fun typeIconRes(type: CallKind): Int = when (type) {
-        CallKind.INCOMING -> R.drawable.ic_call_received
-        CallKind.OUTGOING -> R.drawable.ic_call_made
-        CallKind.MISSED -> R.drawable.ic_call_missed
-        CallKind.SPAM -> R.drawable.ic_warning
+        CallKind.INCOMING -> R.drawable.glyph_call_received
+        CallKind.OUTGOING -> R.drawable.glyph_call_made
+        CallKind.MISSED -> R.drawable.glyph_call_missed
+        CallKind.SPAM -> R.drawable.glyph_warning
     }
 
     fun typeColorRes(type: CallKind): Int = when (type) {

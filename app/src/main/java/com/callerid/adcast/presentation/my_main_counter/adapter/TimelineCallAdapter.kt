@@ -61,9 +61,9 @@ class TimelineCallAdapter(
         }
 
         private fun iconFor(type: CallKind): Int = when (type) {
-            CallKind.INCOMING -> R.drawable.ic_call_received
-            CallKind.OUTGOING -> R.drawable.ic_call_made
-            CallKind.MISSED, CallKind.SPAM -> R.drawable.ic_call_missed
+            CallKind.INCOMING -> R.drawable.glyph_call_received
+            CallKind.OUTGOING -> R.drawable.glyph_call_made
+            CallKind.MISSED, CallKind.SPAM -> R.drawable.glyph_call_missed
         }
 
         private fun colorFor(type: CallKind): Int = when (type) {

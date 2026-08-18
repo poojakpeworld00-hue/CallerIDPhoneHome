@@ -77,13 +77,13 @@ class CallReportActivity : CanvasActivity<ViewCallDetailBinding>() {
     private fun bindHero(ui: CallInsightUi) {
         val identified = ui.verified
         if (identified) {
-            binding.avatarRing.setBackgroundResource(R.drawable.bg_detail_avatar_ring)
-            binding.tvAvatar.setBackgroundResource(R.drawable.bg_avatar)
+            binding.avatarRing.setBackgroundResource(R.drawable.shape_detail_avatar_ring)
+            binding.tvAvatar.setBackgroundResource(R.drawable.shape_avatar)
             binding.tvAvatar.setTextColor(ContextCompat.getColor(this, R.color.white))
             binding.tvAvatar.text = CallPresenter.initials(ui.name, ui.number)
             binding.tvName.typeface = Typeface.DEFAULT_BOLD
         } else {
-            binding.avatarRing.setBackgroundResource(R.drawable.bg_circle_surface)
+            binding.avatarRing.setBackgroundResource(R.drawable.shape_circle_surface)
             binding.tvAvatar.setBackgroundResource(0)
             binding.tvAvatar.setTextColor(ContextCompat.getColor(this, R.color.on_surface_variant))
             binding.tvAvatar.text = "?"

@@ -75,7 +75,7 @@ class PrefsHubActivity : CanvasActivity<ViewSettingsBinding>() {
         // Preferences grid — Theme is an inline segmented toggle.
         setupThemeToggle()
         bindCard(
-            binding.cardLanguage, R.drawable.ic_language, R.string.settings_language,
+            binding.cardLanguage, R.drawable.glyph_language, R.string.settings_language,
             currentLanguageName(), chevron = true
         ) {
             openActivity(LangChooserActivity.newIntent(this, standalone = true))
@@ -87,7 +87,7 @@ class PrefsHubActivity : CanvasActivity<ViewSettingsBinding>() {
             openActivity<BlockVaultActivity>()
         }
         bindCard(
-            binding.cardSim, R.drawable.ic_sim_card, R.string.settings_sim,
+            binding.cardSim, R.drawable.glyph_sim_card, R.string.settings_sim,
             getString(R.string.settings_sim_sub), chevron = false
         ) { openSimManagement() }
 
@@ -104,7 +104,7 @@ class PrefsHubActivity : CanvasActivity<ViewSettingsBinding>() {
         if (showRate) {
             bindRow(
                 binding.rowRate,
-                R.drawable.ic_star,
+                R.drawable.glyph_star,
                 R.string.settings_rate,
                 R.string.settings_rate_sub
             ) {
@@ -129,10 +129,10 @@ class PrefsHubActivity : CanvasActivity<ViewSettingsBinding>() {
             if (showRate || showShare) View.VISIBLE else View.GONE
 
         // Legal
-        binding.rowPrivacy.ivIcon.setImageResource(R.drawable.ic_policy)
+        binding.rowPrivacy.ivIcon.setImageResource(R.drawable.glyph_policy)
         binding.rowPrivacy.tvTitle.setText(R.string.settings_privacy)
         binding.rowPrivacy.root.setOnClickListener { openPolicyLink() }
-        binding.rowTerms.ivIcon.setImageResource(R.drawable.ic_terms)
+        binding.rowTerms.ivIcon.setImageResource(R.drawable.glyph_terms)
         binding.rowTerms.tvTitle.setText(R.string.settings_terms)
         binding.rowTerms.root.setOnClickListener { openTermLink() }
 
@@ -306,7 +306,7 @@ class PrefsHubActivity : CanvasActivity<ViewSettingsBinding>() {
     private fun highlightTheme(cells: List<ImageView>, selected: Int) {
         cells.forEachIndexed { i, cell ->
             val active = i == selected
-            cell.setBackgroundResource(if (active) R.drawable.bg_theme_selected else 0)
+            cell.setBackgroundResource(if (active) R.drawable.shape_theme_selected else 0)
             val color = ContextCompat.getColor(
                 this, if (active) R.color.white else R.color.on_surface_variant
             )

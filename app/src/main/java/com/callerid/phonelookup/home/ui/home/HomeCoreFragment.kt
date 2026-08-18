@@ -91,19 +91,19 @@ class HomeCoreFragment : CarrierFragment<PanelHomeShellBinding>() {
         tabs = listOf(
             Tab(
                 binding.navHome, OverviewFragment(),
-                R.drawable.ob_home_selected, R.drawable.ob_home_unselected, R.string.nav_home
+                R.drawable.onb_home_selected, R.drawable.onb_home_unselected, R.string.nav_home
             ),
             Tab(
                 binding.navRecents, FeedFragment(),
-                R.drawable.ob_recent_selected, R.drawable.ob_recent_unselected, R.string.nav_recents
+                R.drawable.onb_recent_selected, R.drawable.onb_recent_unselected, R.string.nav_recents
             ),
             Tab(
                 binding.navContacts, PhonebookFragment(),
-                R.drawable.ob_contact_selected, R.drawable.ob_contact_unselected, R.string.nav_contacts
+                R.drawable.onb_contact_selected, R.drawable.onb_contact_unselected, R.string.nav_contacts
             ),
             Tab(
                 binding.navLookup, CallerLookupFragment(),
-                R.drawable.ob_lookup_selected, R.drawable.ob_lookup_unselected, R.string.nav_lookup
+                R.drawable.onb_lookup_selected, R.drawable.onb_lookup_unselected, R.string.nav_lookup
             )
         )
 

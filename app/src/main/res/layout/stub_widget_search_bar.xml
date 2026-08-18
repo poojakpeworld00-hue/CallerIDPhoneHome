@@ -20,7 +20,7 @@
         android:layout_width="20dp"
         android:layout_height="20dp"
         android:contentDescription="@string/pseudo_widget_search_bar"
-        android:src="@drawable/ic_pseudo_search_vector" />
+        android:src="@drawable/glyph_pseudo_search_vector" />
 
     <TextView
         android:id="@+id/search_bar_hint"

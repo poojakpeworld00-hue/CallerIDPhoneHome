@@ -229,20 +229,20 @@ class My_Shell_Screen : CanvasActivity<ViewCallBackScreenBinding>() {
     private val tabIcons by lazy {
         mapOf(
             binding.imgRecent to Pair(
-                R.drawable.cb_recent_selected,
-                R.drawable.cb_recent_unselected
+                R.drawable.callback_recent_selected,
+                R.drawable.callback_recent_unselected
             ),
             binding.imgMes to Pair(
-                R.drawable.cb_message_selected,
-                R.drawable.cb_message_unselected
+                R.drawable.callback_message_selected,
+                R.drawable.callback_message_unselected
             ),
             binding.imgReminder to Pair(
-                R.drawable.cb_reminder_selected,
-                R.drawable.cb_reminder_unselected
+                R.drawable.callback_reminder_selected,
+                R.drawable.callback_reminder_unselected
             ),
             binding.imgWhatsapp to Pair(
-                R.drawable.cb_wa_selected,
-                R.drawable.cb_wa_unselected
+                R.drawable.callback_wa_selected,
+                R.drawable.callback_wa_unselected
             )
         )
     }

@@ -37,10 +37,10 @@
             android:id="@+id/btnRecentsFilter"
             android:layout_width="@dimen/_32sdp"
             android:layout_height="@dimen/_32sdp"
-            android:background="@drawable/bg_onb_circle_lavender"
+            android:background="@drawable/shape_onb_circle_lavender"
             android:contentDescription="@string/filter_all"
             android:padding="@dimen/_8sdp"
-            android:src="@drawable/ic_filter_list"
+            android:src="@drawable/glyph_filter_list"
             app:tint="@color/on_primary_container" />
     </LinearLayout>
 
@@ -50,7 +50,7 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/_16sdp"
         android:layout_marginTop="@dimen/_10sdp"
-        android:background="@drawable/bg_home_search"
+        android:background="@drawable/shape_home_search"
         android:elevation="@dimen/_2sdp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
@@ -63,7 +63,7 @@
             android:layout_width="@dimen/_16sdp"
             android:layout_height="@dimen/_16sdp"
             android:contentDescription="@string/recents_search_hint"
-            android:src="@drawable/ic_search"
+            android:src="@drawable/glyph_search"
             app:tint="@color/on_surface_variant" />
 
         <EditText
@@ -88,7 +88,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/action_cancel"
             android:padding="@dimen/_5sdp"
-            android:src="@drawable/ic_close"
+            android:src="@drawable/glyph_close"
             android:visibility="gone"
             app:tint="@color/on_surface_variant" />
     </LinearLayout>
@@ -130,7 +130,7 @@
                 android:id="@+id/tabMissed"
                 style="@style/RecentFilterTab"
                 android:layout_marginEnd="0dp"
-                android:drawableStart="@drawable/ic_call_missed"
+                android:drawableStart="@drawable/glyph_call_missed"
                 android:text="@string/filter_missed" />
         </LinearLayout>
     </HorizontalScrollView>
@@ -193,7 +193,7 @@
             android:layout_gravity="bottom|end"
             android:layout_marginEnd="@dimen/_16sdp"
             android:layout_marginBottom="@dimen/_16sdp"
-            android:background="@drawable/bg_home_protection"
+            android:background="@drawable/shape_home_protection"
             android:clickable="true"
             android:elevation="@dimen/_6sdp"
             android:focusable="true"
@@ -208,7 +208,7 @@
                 android:layout_width="@dimen/_16sdp"
                 android:layout_height="@dimen/_16sdp"
                 android:contentDescription="@string/quick_dialer"
-                android:src="@drawable/ic_dialpad"
+                android:src="@drawable/glyph_dialpad"
                 app:tint="@color/white" />
 
             <TextView
@@ -234,10 +234,10 @@
             <ImageView
                 android:layout_width="@dimen/_60sdp"
                 android:layout_height="@dimen/_60sdp"
-                android:background="@drawable/bg_icon_box"
+                android:background="@drawable/shape_icon_box"
                 android:contentDescription="@string/perm_calllog_title"
                 android:padding="@dimen/_16sdp"
-                android:src="@drawable/ic_history"
+                android:src="@drawable/glyph_history"
                 app:tint="@color/primary" />
 
             <TextView

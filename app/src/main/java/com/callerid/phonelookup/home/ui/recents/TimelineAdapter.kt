@@ -90,7 +90,7 @@ class TimelineAdapter(
             // Verdict-tinted row + avatar (matches the Home list): spam reads red,
             // everything else sits on a neutral card with a primary-container avatar.
             binding.rowCall.setBackgroundResource(
-                if (isSpam) R.drawable.bg_home_tile_spam else R.drawable.bg_home_tile
+                if (isSpam) R.drawable.shape_home_tile_spam else R.drawable.shape_home_tile
             )
             binding.tvAvatar.backgroundTintList =
                 tint(if (isSpam) R.color.spam_avatar_bg else R.color.primary_container)

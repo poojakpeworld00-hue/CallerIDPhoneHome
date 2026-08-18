@@ -26,7 +26,7 @@
             android:layout_marginStart="5dp"
             android:contentDescription="@string/search"
             android:padding="4dp"
-            android:src="@drawable/ic_pseudo_search_vector" />
+            android:src="@drawable/glyph_pseudo_search_vector" />
 
         <ImageView
             android:id="@+id/panel_search_clear"
