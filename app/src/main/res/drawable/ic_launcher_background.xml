@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Adaptive-icon background: the source artwork's own diagonal sweep, sampled
-    from ICON_3.png — cyan at the top-left corner through to deep blue at the
-    bottom-right. The foreground art is white, so nothing here needs to change
-    between light and dark.
+    Adaptive-icon background: the artwork's own diagonal sweep, sampled from the
+    recoloured source — electric violet at the top-left through to purple at the
+    bottom-right. The foreground art is white, so nothing here changes between
+    light and dark.
 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:aapt="http://schemas.android.com/aapt"
@@ -21,13 +21,13 @@
                 android:endX="108"
                 android:endY="108">
                 <item
-                    android:color="#FF0BD1FF"
+                    android:color="#FF0E0BFF"
                     android:offset="0" />
                 <item
-                    android:color="#FF0A95FF"
+                    android:color="#FF470CFF"
                     android:offset="0.5" />
                 <item
-                    android:color="#FF046DFF"
+                    android:color="#FF7705FF"
                     android:offset="1" />
             </gradient>
         </aapt:attr>
