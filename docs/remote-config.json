@@ -79,16 +79,16 @@
     "NativeTheme": {
       "default": {
         "NativeLight": {
-          "btnColor": "#0B5ED7",
+          "btnColor": "#5B3FD9",
           "btnText": "#FFFFFF",
           "bgColor": "#FFFFFF",
-          "textColor": "#0A2647"
+          "textColor": "#241A4D"
         },
         "NativeDark": {
-          "btnColor": "#7FB2EE",
-          "btnText": "#08111D",
-          "bgColor": "#10161D",
-          "textColor": "#DCEBFF"
+          "btnColor": "#B7A6F5",
+          "btnText": "#14102B",
+          "bgColor": "#14121E",
+          "textColor": "#E7E0FF"
         }
       }
     },
