@@ -15,7 +15,7 @@ import org.fossify.commons.helpers.ensureBackgroundThread
 import org.fossify.commons.interfaces.RefreshRecyclerViewListener
 import org.fossify.commons.views.MyRecyclerView
 import com.callerid.phonelookup.home.R
-import com.callerid.phonelookup.home.databinding.CellHiddenIconBinding
+import com.callerid.phonelookup.home.databinding.TileHiddenIconBinding
 import com.callerid.phonelookup.home.launcher.extensions.hiddenIconsDB
 import com.callerid.phonelookup.home.launcher.models.HiddenIcon
 
@@ -57,7 +57,7 @@ class HiddenIconsAdapter(
     override fun onActionModeDestroyed() {}
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return createViewHolder(CellHiddenIconBinding.inflate(layoutInflater, parent, false).root)
+        return createViewHolder(TileHiddenIconBinding.inflate(layoutInflater, parent, false).root)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -103,7 +103,7 @@ class HiddenIconsAdapter(
     }
 
     private fun setupView(view: View, icon: HiddenIcon) {
-        CellHiddenIconBinding.bind(view).apply {
+        TileHiddenIconBinding.bind(view).apply {
             hiddenIconHolder.isSelected = selectedKeys.contains(icon.hashCode())
             hiddenIconLabel.text = icon.title
             hiddenIconLabel.setTextColor(textColor)

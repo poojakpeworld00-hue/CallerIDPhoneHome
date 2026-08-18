@@ -13,7 +13,7 @@ import com.callerid.phonelookup.home.data.PeopleSource
 import com.callerid.phonelookup.home.ui.common.CallPresenter
 
 /**
- * Resolves caller details and renders them into [R.layout.part_caller_id].
+ * Resolves caller details and renders them into [R.layout.piece_caller_id].
  *
  * Shared by [com.callerid.phonelookup.home.services.onincomming.IdentFloatService] (floating window, device unlocked) and
  * IncomingRingActivity (full screen, device locked) so the card looks and reads

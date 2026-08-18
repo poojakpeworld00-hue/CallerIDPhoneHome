@@ -15,16 +15,16 @@ import androidx.core.view.WindowInsetsCompat
 import com.callerid.phonelookup.home.R
 import com.callerid.phonelookup.home.base.CanvasActivity
 import com.callerid.adcast.presentation.NativePromo
-import com.callerid.phonelookup.home.databinding.ScreenSoundMeterBinding
+import com.callerid.phonelookup.home.databinding.ViewSoundMeterBinding
 import java.io.File
 import java.util.Locale
 import kotlin.math.log10
 import kotlin.math.roundToInt
 
 /** Approximate sound-level meter using [MediaRecorder.getMaxAmplitude]. */
-class SoundToolActivity : CanvasActivity<ScreenSoundMeterBinding>() {
+class SoundToolActivity : CanvasActivity<ViewSoundMeterBinding>() {
 
-    override val layoutId: Int = R.layout.screen_sound_meter
+    override val layoutId: Int = R.layout.view_sound_meter
 
     private var recorder: MediaRecorder? = null
     private val handler = Handler(Looper.getMainLooper())

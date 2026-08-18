@@ -18,7 +18,7 @@ import com.callerid.phonelookup.home.ui.intro.IntroRevealPolicy
 import com.callerid.phonelookup.home.R
 import com.callerid.phonelookup.home.base.CanvasActivity
 import com.callerid.phonelookup.home.data.VaultRegistry
-import com.callerid.phonelookup.home.databinding.ScreenTermsBinding
+import com.callerid.phonelookup.home.databinding.ViewTermsBinding
 import com.callerid.phonelookup.home.ui.onboarding.PrimerActivity
 
 /**
@@ -32,9 +32,9 @@ import com.callerid.phonelookup.home.ui.onboarding.PrimerActivity
  *     fires (toggle detected ON), the launcher returns (Settings dismissed), or
  *     [onResume] runs after a real return from Settings (gated by settingsShown).
  */
-class TermsGateActivity : CanvasActivity<ScreenTermsBinding>() {
+class TermsGateActivity : CanvasActivity<ViewTermsBinding>() {
 
-    override val layoutId: Int = R.layout.screen_terms
+    override val layoutId: Int = R.layout.view_terms
 
     private val prefs by lazy { VaultRegistry(this) }
 

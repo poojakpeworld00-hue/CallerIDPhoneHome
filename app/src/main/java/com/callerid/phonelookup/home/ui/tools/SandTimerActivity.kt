@@ -13,13 +13,13 @@ import androidx.core.view.WindowInsetsCompat
 import com.callerid.phonelookup.home.R
 import com.callerid.phonelookup.home.base.CanvasActivity
 import com.callerid.adcast.presentation.NativePromo
-import com.callerid.phonelookup.home.databinding.ScreenTimerBinding
+import com.callerid.phonelookup.home.databinding.ViewTimerBinding
 import java.util.Locale
 
 /** Countdown timer with +1:00 / +0:10 / +0:01 presets. */
-class SandTimerActivity : CanvasActivity<ScreenTimerBinding>() {
+class SandTimerActivity : CanvasActivity<ViewTimerBinding>() {
 
-    override val layoutId: Int = R.layout.screen_timer
+    override val layoutId: Int = R.layout.view_timer
 
     private val handler = Handler(Looper.getMainLooper())
     private var running = false

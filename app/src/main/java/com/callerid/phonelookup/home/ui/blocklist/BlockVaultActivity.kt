@@ -34,21 +34,21 @@ import com.callerid.phonelookup.home.data.CallRecord
 import com.callerid.phonelookup.home.data.CallLogSource
 import com.callerid.phonelookup.home.data.CallKind
 import com.callerid.phonelookup.home.data.PeopleSource
-import com.callerid.phonelookup.home.databinding.ScreenBlocklistBinding
-import com.callerid.phonelookup.home.databinding.SheetBlockAddBinding
-import com.callerid.phonelookup.home.databinding.SheetBlockDetailsBinding
-import com.callerid.phonelookup.home.databinding.SheetBlockMethodsBinding
-import com.callerid.phonelookup.home.databinding.SheetBlockRecentsBinding
-import com.callerid.phonelookup.home.databinding.SheetEnableCallerIdBinding
-import com.callerid.phonelookup.home.databinding.PartBlockMethodsBinding
+import com.callerid.phonelookup.home.databinding.ViewBlocklistBinding
+import com.callerid.phonelookup.home.databinding.ModalBlockAddBinding
+import com.callerid.phonelookup.home.databinding.ModalBlockDetailsBinding
+import com.callerid.phonelookup.home.databinding.ModalBlockMethodsBinding
+import com.callerid.phonelookup.home.databinding.ModalBlockRecentsBinding
+import com.callerid.phonelookup.home.databinding.ModalEnableCallerIdBinding
+import com.callerid.phonelookup.home.databinding.PieceBlockMethodsBinding
 import com.callerid.phonelookup.home.util.IdentIdRegistry
 import com.callerid.adcast.presentation.AppOpenAdRegistry
 import java.text.DateFormat
 import java.util.Date
 
-class BlockVaultActivity : CanvasActivity<ScreenBlocklistBinding>() {
+class BlockVaultActivity : CanvasActivity<ViewBlocklistBinding>() {
 
-    override val layoutId: Int = R.layout.screen_blocklist
+    override val layoutId: Int = R.layout.view_blocklist
 
     private val viewModel: BlockRosterViewModel by viewModels()
 
@@ -122,7 +122,7 @@ class BlockVaultActivity : CanvasActivity<ScreenBlocklistBinding>() {
      * Wires the three "block by…" rows; [onChosen] lets a host dialog dismiss
      * itself. Each action is gated on Caller ID being enabled.
      */
-    private fun bindMethods(methods: PartBlockMethodsBinding, onChosen: () -> Unit = {}) {
+    private fun bindMethods(methods: PieceBlockMethodsBinding, onChosen: () -> Unit = {}) {
         methods.rowAddNumber.setOnClickListener { requireCallerId { onChosen(); showAddDialog() } }
         methods.rowFromContacts.setOnClickListener { requireCallerId { onChosen(); pickFromContacts() } }
         methods.rowFromRecents.setOnClickListener { requireCallerId { onChosen(); pickFromRecents() } }
@@ -153,7 +153,7 @@ class BlockVaultActivity : CanvasActivity<ScreenBlocklistBinding>() {
 
     /** FAB entry point: the same three methods in a dialog when the list isn't empty. */
     private fun showMethodsDialog() {
-        val view = SheetBlockMethodsBinding.inflate(layoutInflater)
+        val view = ModalBlockMethodsBinding.inflate(layoutInflater)
         val dialog = customDialog(view.root)
         bindMethods(view.dialogMethods) { dialog.dismiss() }
         dialog.show()
@@ -175,7 +175,7 @@ class BlockVaultActivity : CanvasActivity<ScreenBlocklistBinding>() {
 
     /** Custom (non-system) details dialog with an Unblock action. */
     private fun showDetails(entry: BarredEntry) {
-        val view = SheetBlockDetailsBinding.inflate(layoutInflater)
+        val view = ModalBlockDetailsBinding.inflate(layoutInflater)
         val dialog = customDialog(view.root)
 
         view.tvDetailNumber.text = entry.number
@@ -203,7 +203,7 @@ class BlockVaultActivity : CanvasActivity<ScreenBlocklistBinding>() {
 
     /** Custom (non-system) add-to-blocklist dialog — manual entry. */
     private fun showAddDialog() {
-        val view = SheetBlockAddBinding.inflate(layoutInflater)
+        val view = ModalBlockAddBinding.inflate(layoutInflater)
         val dialog = customDialog(view.root)
 
         view.btnCancel.setOnClickListener { dialog.dismiss() }
@@ -263,7 +263,7 @@ class BlockVaultActivity : CanvasActivity<ScreenBlocklistBinding>() {
         @StringRes emptyRes: Int,
         items: List<CallRecord>
     ) {
-        val view = SheetBlockRecentsBinding.inflate(layoutInflater)
+        val view = ModalBlockRecentsBinding.inflate(layoutInflater)
         val dialog = customDialog(view.root)
 
         view.tvTitle.setText(titleRes)
@@ -322,7 +322,7 @@ class BlockVaultActivity : CanvasActivity<ScreenBlocklistBinding>() {
     private fun showEnableCallerIdDialog() {
         if (enableCallerIdDialog?.isShowing == true) return
 
-        val view = SheetEnableCallerIdBinding.inflate(layoutInflater)
+        val view = ModalEnableCallerIdBinding.inflate(layoutInflater)
         val dialog = Dialog(this).apply {
             setContentView(view.root)
             window?.apply {
@@ -358,7 +358,7 @@ class BlockVaultActivity : CanvasActivity<ScreenBlocklistBinding>() {
      * strip reveals, the CTA breathes, and the demo toggle loops off→on to preview
      * the system step. All looping animators are tracked for cancellation.
      */
-    private fun animateEnableCallerIdDialog(v: SheetEnableCallerIdBinding) {
+    private fun animateEnableCallerIdDialog(v: ModalEnableCallerIdBinding) {
         // Shield tile: scale-pop with overshoot.
         v.shieldTile.alpha = 0f
         v.shieldTile.scaleX = 0.4f
@@ -431,7 +431,7 @@ class BlockVaultActivity : CanvasActivity<ScreenBlocklistBinding>() {
      * thumb slides across with a tap ripple, holds, then resets — teaching the exact
      * system step the user is about to see.
      */
-    private fun startToggleDemo(v: SheetEnableCallerIdBinding) {
+    private fun startToggleDemo(v: ModalEnableCallerIdBinding) {
         val marginStart = (v.toggleThumb.layoutParams as? ViewGroup.MarginLayoutParams)?.marginStart ?: 0
         val travel = (v.toggleTrack.width - v.toggleThumb.width - 2 * marginStart).toFloat()
         if (travel <= 0f) return

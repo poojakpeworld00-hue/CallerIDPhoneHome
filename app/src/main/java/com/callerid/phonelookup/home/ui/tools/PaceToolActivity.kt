@@ -9,7 +9,7 @@ import androidx.lifecycle.lifecycleScope
 import com.callerid.phonelookup.home.R
 import com.callerid.phonelookup.home.base.CanvasActivity
 import com.callerid.adcast.presentation.NativePromo
-import com.callerid.phonelookup.home.databinding.ScreenSpeedometerBinding
+import com.callerid.phonelookup.home.databinding.ViewSpeedometerBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.isActive
@@ -22,9 +22,9 @@ import kotlin.math.abs
 import kotlin.math.roundToInt
 
 /** Internet speed test: download / upload throughput, latency and jitter over HTTP. */
-class PaceToolActivity : CanvasActivity<ScreenSpeedometerBinding>() {
+class PaceToolActivity : CanvasActivity<ViewSpeedometerBinding>() {
 
-    override val layoutId: Int = R.layout.screen_speedometer
+    override val layoutId: Int = R.layout.view_speedometer
 
     private var job: Job? = null
 

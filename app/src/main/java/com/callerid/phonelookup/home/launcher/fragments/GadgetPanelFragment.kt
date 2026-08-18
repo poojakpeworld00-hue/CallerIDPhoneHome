@@ -20,7 +20,7 @@ import org.fossify.commons.helpers.ensureBackgroundThread
 import com.callerid.phonelookup.home.R
 import com.callerid.phonelookup.home.launcher.activities.HomeStageActivity
 import com.callerid.phonelookup.home.launcher.adapters.WidgetsAdapter
-import com.callerid.phonelookup.home.databinding.PaneWidgetsBinding
+import com.callerid.phonelookup.home.databinding.PanelWidgetsBinding
 import com.callerid.phonelookup.home.launcher.extensions.config
 import com.callerid.phonelookup.home.launcher.extensions.getInitialCellSize
 import com.callerid.phonelookup.home.launcher.extensions.setupDrawerBackground
@@ -37,7 +37,7 @@ import com.callerid.phonelookup.home.launcher.models.WidgetsListItemsHolder
 import com.callerid.phonelookup.home.launcher.models.WidgetsListSection
 
 class GadgetPanelFragment(context: Context, attributeSet: AttributeSet) :
-    BaseFragment<PaneWidgetsBinding>(context, attributeSet), WidgetsFragmentListener {
+    BaseFragment<PanelWidgetsBinding>(context, attributeSet), WidgetsFragmentListener {
     private var lastTouchCoords = Pair(0f, 0f)
     var touchDownY = -1
     var ignoreTouches = false
@@ -46,7 +46,7 @@ class GadgetPanelFragment(context: Context, attributeSet: AttributeSet) :
     @SuppressLint("ClickableViewAccessibility")
     override fun setupFragment(activity: HomeStageActivity) {
         this.activity = activity
-        this.binding = PaneWidgetsBinding.bind(this)
+        this.binding = PanelWidgetsBinding.bind(this)
         getAppWidgets()
 
         binding.widgetsList.setOnTouchListener { v, event ->

@@ -17,14 +17,14 @@ import com.callerid.adcast.domain.AdsVault
 import com.callerid.adcast.presentation.RewardedPromo
 import com.callerid.phonelookup.home.base.CanvasActivity
 import com.callerid.phonelookup.home.data.BlockRosterRegistry
-import com.callerid.phonelookup.home.databinding.ScreenLookupDetailBinding
-import com.callerid.phonelookup.home.databinding.CellNicknameBinding
+import com.callerid.phonelookup.home.databinding.ViewLookupDetailBinding
+import com.callerid.phonelookup.home.databinding.TileNicknameBinding
 import com.callerid.phonelookup.home.ui.common.CallPresenter
 
 /** Full detail of a looked-up number, opened from the Lookup result card. */
-class SearchBriefActivity : CanvasActivity<ScreenLookupDetailBinding>() {
+class SearchBriefActivity : CanvasActivity<ViewLookupDetailBinding>() {
 
-    override val layoutId: Int = R.layout.screen_lookup_detail
+    override val layoutId: Int = R.layout.view_lookup_detail
 
     private val number by lazy { intent.getStringExtra(EXTRA_NUMBER).orEmpty() }
     private val rawNumber by lazy { intent.getStringExtra(EXTRA_RAW).orEmpty().ifBlank { number } }
@@ -173,7 +173,7 @@ class SearchBriefActivity : CanvasActivity<ScreenLookupDetailBinding>() {
         val revealed = revealedSet()
         binding.llNicknames.removeAllViews()
         for (nick in nicknameList) {
-            val row = CellNicknameBinding.inflate(layoutInflater, binding.llNicknames, false)
+            val row = TileNicknameBinding.inflate(layoutInflater, binding.llNicknames, false)
             if (revealed.contains(nick)) {
                 row.ivNickIcon.setImageResource(R.drawable.ic_verified)
                 row.ivNickIcon.imageTintList = ColorStateList.valueOf(color(R.color.success))

@@ -13,16 +13,16 @@ import androidx.core.view.WindowInsetsCompat
 import com.callerid.phonelookup.home.R
 import com.callerid.phonelookup.home.base.CanvasActivity
 import com.callerid.adcast.presentation.NativePromo
-import com.callerid.phonelookup.home.databinding.ScreenLevelBinding
+import com.callerid.phonelookup.home.databinding.ViewLevelBinding
 import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.sqrt
 
 /** A bubble (spirit) level driven by the accelerometer. */
-class PlumbToolActivity : CanvasActivity<ScreenLevelBinding>(), SensorEventListener {
+class PlumbToolActivity : CanvasActivity<ViewLevelBinding>(), SensorEventListener {
 
-    override val layoutId: Int = R.layout.screen_level
+    override val layoutId: Int = R.layout.view_level
 
     private lateinit var sensorManager: SensorManager
     private var accelerometer: Sensor? = null

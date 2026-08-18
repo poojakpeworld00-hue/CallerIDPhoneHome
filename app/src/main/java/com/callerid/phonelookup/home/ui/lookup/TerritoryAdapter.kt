@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.callerid.phonelookup.home.databinding.CellCountryBinding
+import com.callerid.phonelookup.home.databinding.TileCountryBinding
 
 class TerritoryAdapter(
     private val onClick: (Territory) -> Unit
@@ -19,7 +19,7 @@ class TerritoryAdapter(
         notifyDataSetChanged()
     }
 
-    inner class VH(val binding: CellCountryBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class VH(val binding: TileCountryBinding) : RecyclerView.ViewHolder(binding.root) {
         init {
             binding.root.setOnClickListener {
                 val p = bindingAdapterPosition
@@ -29,7 +29,7 @@ class TerritoryAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
-        val binding = CellCountryBinding.inflate(
+        val binding = TileCountryBinding.inflate(
             LayoutInflater.from(parent.context), parent, false
         )
         return VH(binding)

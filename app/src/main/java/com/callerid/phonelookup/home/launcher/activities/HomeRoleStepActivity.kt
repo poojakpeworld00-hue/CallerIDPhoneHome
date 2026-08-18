@@ -8,7 +8,7 @@ import android.os.Bundle
 import android.provider.Settings
 import androidx.activity.OnBackPressedCallback
 import com.callerid.adcast.domain.LauncherAdsConfig
-import com.callerid.phonelookup.home.databinding.ScreenOnboardingDefaultLauncherBinding
+import com.callerid.phonelookup.home.databinding.ViewOnboardingDefaultLauncherBinding
 import com.callerid.phonelookup.home.launcher.extensions.excludeAppFromRecents
 import com.callerid.phonelookup.home.launcher.extensions.isDefaultLauncher
 import com.callerid.phonelookup.home.launcher.extensions.roleManager
@@ -55,7 +55,7 @@ class HomeRoleStepActivity : ShellDeckActivity() {
         const val REQ_ROLE_HOME = 7012
     }
 
-    private val binding by viewBinding(ScreenOnboardingDefaultLauncherBinding::inflate)
+    private val binding by viewBinding(ViewOnboardingDefaultLauncherBinding::inflate)
     private var shieldPulse: ValueAnimator? = null
     private var sparklePulses: List<ValueAnimator> = emptyList()
 

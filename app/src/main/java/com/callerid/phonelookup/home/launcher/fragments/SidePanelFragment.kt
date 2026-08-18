@@ -19,7 +19,7 @@ import com.callerid.adcast.presentation.NativePromo
 import com.callerid.phonelookup.home.R
 import com.callerid.phonelookup.home.launcher.activities.HomeStageActivity
 import com.callerid.phonelookup.home.launcher.adapters.PanelAppsAdapter
-import com.callerid.phonelookup.home.databinding.PaneLeftPanelBinding
+import com.callerid.phonelookup.home.databinding.PanelLeftPanelBinding
 import com.callerid.phonelookup.home.launcher.extensions.launchApp
 import com.callerid.phonelookup.home.launcher.models.AppLauncher
 import com.callerid.phonelookup.home.launcher.models.appLauncherComparator
@@ -31,7 +31,7 @@ import kotlin.math.abs
 class SidePanelFragment(
     context: Context,
     attributeSet: AttributeSet,
-) : BaseFragment<PaneLeftPanelBinding>(context, attributeSet) {
+) : BaseFragment<PanelLeftPanelBinding>(context, attributeSet) {
 
     private var launchers = emptyList<AppLauncher>()
     private var resultsCap = COLLAPSED_RESULTS
@@ -79,7 +79,7 @@ class SidePanelFragment(
 
     override fun setupFragment(activity: HomeStageActivity) {
         this.activity = activity
-        this.binding = PaneLeftPanelBinding.bind(this)
+        this.binding = PanelLeftPanelBinding.bind(this)
 
         // Only warm the slot here. Showing it now would be too early: the native renderers
         // draw whatever NativePromo has already preloaded, and at HomeStageActivity.onCreate that
@@ -92,10 +92,10 @@ class SidePanelFragment(
             nativePromo.loadNativeADs(activity)
         }
 
-        suggestedAdapter = PanelAppsAdapter(R.layout.cell_panel_grid_app, ::launchLauncher)
-        recentAdapter = PanelAppsAdapter(R.layout.cell_panel_grid_app, ::launchLauncher)
-        resultsAdapter = PanelAppsAdapter(R.layout.cell_panel_result, ::launchLauncher)
-        searchInAdapter = PanelAppsAdapter(R.layout.cell_panel_search_in, ::searchInApp)
+        suggestedAdapter = PanelAppsAdapter(R.layout.tile_panel_grid_app, ::launchLauncher)
+        recentAdapter = PanelAppsAdapter(R.layout.tile_panel_grid_app, ::launchLauncher)
+        resultsAdapter = PanelAppsAdapter(R.layout.tile_panel_result, ::launchLauncher)
+        searchInAdapter = PanelAppsAdapter(R.layout.tile_panel_search_in, ::searchInApp)
 
         binding.panelSuggestedGrid.adapter = suggestedAdapter
         binding.panelRecentGrid.adapter = recentAdapter

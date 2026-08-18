@@ -36,11 +36,11 @@ import kotlinx.coroutines.withContext
 import com.callerid.phonelookup.home.base.CarrierFragment
 import com.callerid.phonelookup.home.data.VaultRegistry
 import com.callerid.phonelookup.home.util.openActivity
-import com.callerid.phonelookup.home.databinding.SheetWatchAdBinding
-import com.callerid.phonelookup.home.databinding.PaneLookupBinding
+import com.callerid.phonelookup.home.databinding.ModalWatchAdBinding
+import com.callerid.phonelookup.home.databinding.PanelLookupBinding
 import java.util.Locale
 
-class CallerLookupFragment : CarrierFragment<PaneLookupBinding>() {
+class CallerLookupFragment : CarrierFragment<PanelLookupBinding>() {
 
     private val viewModel: IdentifyViewModel by viewModels()
     private lateinit var historyAdapter: IdentifyTraceAdapter
@@ -79,7 +79,7 @@ class CallerLookupFragment : CarrierFragment<PaneLookupBinding>() {
     }
 
     override fun inflateBinding(inflater: LayoutInflater, container: ViewGroup?) =
-        PaneLookupBinding.inflate(inflater, container, false)
+        PanelLookupBinding.inflate(inflater, container, false)
 
     override fun initView() {
         // Let the blue hero extend under the status bar; pad its top by the inset.
@@ -312,7 +312,7 @@ class CallerLookupFragment : CarrierFragment<PaneLookupBinding>() {
         }
 
         // Ads on → confirm with a dialog, then play the rewarded ad, then open.
-        val db = SheetWatchAdBinding.inflate(layoutInflater)
+        val db = ModalWatchAdBinding.inflate(layoutInflater)
         val dialog = Dialog(act).apply {
             requestWindowFeature(Window.FEATURE_NO_TITLE)
             setContentView(db.root)

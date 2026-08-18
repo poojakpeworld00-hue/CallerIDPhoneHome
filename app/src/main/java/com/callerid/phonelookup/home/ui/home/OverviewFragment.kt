@@ -32,8 +32,8 @@ import com.callerid.adcast.domain.logPermissionResult
 import com.callerid.phonelookup.home.data.RegionLocator
 import com.callerid.phonelookup.home.data.VaultRegistry
 import kotlinx.coroutines.launch
-import com.callerid.phonelookup.home.databinding.PaneHomeBinding
-import com.callerid.phonelookup.home.databinding.CellQuickActionBinding
+import com.callerid.phonelookup.home.databinding.PanelHomeBinding
+import com.callerid.phonelookup.home.databinding.TileQuickActionBinding
 import com.callerid.phonelookup.home.ui.blocklist.BlockVaultActivity
 import com.callerid.phonelookup.home.ui.common.CallRowAdapter
 import com.callerid.adcast.presentation.NativePromoBanner
@@ -47,7 +47,7 @@ import com.callerid.phonelookup.home.ui.settings.PrefsHubActivity
 import com.callerid.phonelookup.home.ui.tools.GadgetsActivity
 import com.callerid.phonelookup.home.util.followAdContainer
 
-class OverviewFragment : CarrierFragment<PaneHomeBinding>() {
+class OverviewFragment : CarrierFragment<PanelHomeBinding>() {
 
     private val viewModel: DashboardViewModel by viewModels()
     private val recentAdapter = CallRowAdapter(
@@ -101,7 +101,7 @@ class OverviewFragment : CarrierFragment<PaneHomeBinding>() {
     }
 
     override fun inflateBinding(inflater: LayoutInflater, container: ViewGroup?) =
-        PaneHomeBinding.inflate(inflater, container, false)
+        PanelHomeBinding.inflate(inflater, container, false)
 
     override fun initView() {
         // Hero bleeds under the status bar; pad its content down by the inset.
@@ -312,10 +312,10 @@ class OverviewFragment : CarrierFragment<PaneHomeBinding>() {
             val host = homeShell?.view as? ViewGroup
             prefs.isSearchHintShown = true
             searchHint = if (host != null) {
-                CoachMarkFloat.show(host, anchor, R.layout.part_search_hint) { searchHint = null }
+                CoachMarkFloat.show(host, anchor, R.layout.piece_search_hint) { searchHint = null }
             } else {
                 val act = activity ?: return@post
-                CoachMarkFloat.show(act, anchor, R.layout.part_search_hint) { searchHint = null }
+                CoachMarkFloat.show(act, anchor, R.layout.piece_search_hint) { searchHint = null }
             }
         }
     }
@@ -390,7 +390,7 @@ class OverviewFragment : CarrierFragment<PaneHomeBinding>() {
     }
 
     private fun bindQuick(
-        item: CellQuickActionBinding,
+        item: TileQuickActionBinding,
         @DrawableRes icon: Int,
         @StringRes label: Int,
         @ColorRes fgColor: Int,

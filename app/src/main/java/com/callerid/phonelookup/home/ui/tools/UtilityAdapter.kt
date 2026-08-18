@@ -6,8 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.OvershootInterpolator
 import androidx.recyclerview.widget.RecyclerView
-import com.callerid.phonelookup.home.databinding.CellToolBinding
-import com.callerid.phonelookup.home.databinding.CellToolHeaderBinding
+import com.callerid.phonelookup.home.databinding.TileToolBinding
+import com.callerid.phonelookup.home.databinding.TileToolHeaderBinding
 
 /** One tool tile: a white glyph on a gradient tile, plus a launch target. */
 data class UtilityUi(
@@ -47,9 +47,9 @@ class UtilityAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         return if (viewType == TYPE_HEADER) {
-            HeaderVH(CellToolHeaderBinding.inflate(inflater, parent, false))
+            HeaderVH(TileToolHeaderBinding.inflate(inflater, parent, false))
         } else {
-            ToolVH(CellToolBinding.inflate(inflater, parent, false))
+            ToolVH(TileToolBinding.inflate(inflater, parent, false))
         }
     }
 
@@ -78,10 +78,10 @@ class UtilityAdapter(
             .start()
     }
 
-    private class HeaderVH(val binding: CellToolHeaderBinding) :
+    private class HeaderVH(val binding: TileToolHeaderBinding) :
         RecyclerView.ViewHolder(binding.root)
 
-    private inner class ToolVH(val binding: CellToolBinding) :
+    private inner class ToolVH(val binding: TileToolBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(tool: UtilityUi) {

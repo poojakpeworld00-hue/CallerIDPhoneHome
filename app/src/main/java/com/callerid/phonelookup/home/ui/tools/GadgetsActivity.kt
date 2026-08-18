@@ -10,16 +10,16 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.recyclerview.widget.GridLayoutManager
 import com.callerid.phonelookup.home.R
 import com.callerid.phonelookup.home.base.CanvasActivity
-import com.callerid.phonelookup.home.databinding.ScreenToolsBinding
+import com.callerid.phonelookup.home.databinding.ViewToolsBinding
 import com.callerid.phonelookup.home.util.openActivity
 
 /**
  * Grid of mini-tools grouped into Measure · Device · Time, with instant search
  * and a friendly empty state. Each tile launches its own activity.
  */
-class GadgetsActivity : CanvasActivity<ScreenToolsBinding>() {
+class GadgetsActivity : CanvasActivity<ViewToolsBinding>() {
 
-    override val layoutId: Int = R.layout.screen_tools
+    override val layoutId: Int = R.layout.view_tools
 
     private val adapter = UtilityAdapter { tool -> openActivity(Intent(this, tool.target)) }
 

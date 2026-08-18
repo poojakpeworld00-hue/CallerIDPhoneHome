@@ -13,14 +13,14 @@ import androidx.core.view.WindowInsetsCompat
 import com.callerid.phonelookup.home.R
 import com.callerid.phonelookup.home.base.CanvasActivity
 import com.callerid.adcast.presentation.NativePromo
-import com.callerid.phonelookup.home.databinding.ScreenBatteryBinding
+import com.callerid.phonelookup.home.databinding.ViewBatteryBinding
 import java.util.Locale
 import kotlin.math.roundToInt
 
 /** Live battery stats, read from sticky ACTION_BATTERY_CHANGED broadcasts. */
-class ChargeToolActivity : CanvasActivity<ScreenBatteryBinding>() {
+class ChargeToolActivity : CanvasActivity<ViewBatteryBinding>() {
 
-    override val layoutId: Int = R.layout.screen_battery
+    override val layoutId: Int = R.layout.view_battery
 
     private val receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {

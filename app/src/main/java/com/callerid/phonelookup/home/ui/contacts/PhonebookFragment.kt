@@ -27,12 +27,12 @@ import com.callerid.phonelookup.home.R
 import com.callerid.adcast.presentation.NativePromoBanner
 import com.callerid.phonelookup.home.base.CarrierFragment
 import com.callerid.phonelookup.home.util.openActivity
-import com.callerid.phonelookup.home.databinding.PaneContactsBinding
+import com.callerid.phonelookup.home.databinding.PanelContactsBinding
 import com.callerid.phonelookup.home.ui.detail.CallReportActivity
 import com.callerid.phonelookup.home.util.followAdContainer
 import com.callerid.phonelookup.home.ui.home.homeShellController
 
-class PhonebookFragment : CarrierFragment<PaneContactsBinding>() {
+class PhonebookFragment : CarrierFragment<PanelContactsBinding>() {
 
     private val viewModel: PeopleViewModel by viewModels()
     private val adapter = PeopleAdapter(::dialNumber, ::openDetail)
@@ -42,7 +42,7 @@ class PhonebookFragment : CarrierFragment<PaneContactsBinding>() {
     private var letterToPosition: Map<String, Int> = emptyMap()
 
     override fun inflateBinding(inflater: LayoutInflater, container: ViewGroup?) =
-        PaneContactsBinding.inflate(inflater, container, false)
+        PanelContactsBinding.inflate(inflater, container, false)
 
     override fun initView() {
         // Hero bleeds under the status bar; pad its content down by the inset.

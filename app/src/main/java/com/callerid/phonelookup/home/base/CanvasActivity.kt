@@ -46,8 +46,8 @@ import kotlin.sequences.ifEmpty
  *
  * Usage:
  * ```
- * class AppCoreActivity : CanvasActivity<ScreenMainBinding>() {
- *     override val layoutId = R.layout.screen_main
+ * class AppCoreActivity : CanvasActivity<ViewMainBinding>() {
+ *     override val layoutId = R.layout.view_main
  *     override fun initView() { ... }
  * }
  * ```
@@ -85,7 +85,7 @@ abstract class CanvasActivity<DB : ViewDataBinding> : AdBeaconActivity() {
         initObservers()
 
         // Auto on-load bottom banner for any screen whose layout includes
-        // @layout/part_bottom_banner (no-op otherwise).
+        // @layout/piece_bottom_banner (no-op otherwise).
         showBottomBanner()
     }
 
@@ -110,7 +110,7 @@ abstract class CanvasActivity<DB : ViewDataBinding> : AdBeaconActivity() {
 
     /**
      * Auto-loads the on-load bottom banner — but only if this screen's layout
-     * includes `@layout/part_bottom_banner` (ids `bannerAdFrame` + `bannerShimmer`).
+     * includes `@layout/piece_bottom_banner` (ids `bannerAdFrame` + `bannerShimmer`).
      * Called automatically after [initView]; screens without the include are a
      * no-op. The screen key is the activity's simple class name (e.g.
      * "BlocklistActivity"), which must match a key under `ScreenAds` in Remote

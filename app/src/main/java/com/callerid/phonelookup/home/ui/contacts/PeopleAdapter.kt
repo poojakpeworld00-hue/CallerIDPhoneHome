@@ -10,8 +10,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.callerid.phonelookup.home.R
 import com.callerid.phonelookup.home.data.PersonItem
-import com.callerid.phonelookup.home.databinding.CellContactBinding
-import com.callerid.phonelookup.home.databinding.CellSectionHeaderBinding
+import com.callerid.phonelookup.home.databinding.TileContactBinding
+import com.callerid.phonelookup.home.databinding.TileSectionHeaderBinding
 import com.callerid.phonelookup.home.ui.common.HomeMotion
 
 class PeopleAdapter(
@@ -37,9 +37,9 @@ class PeopleAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         return if (viewType == TYPE_HEADER) {
-            HeaderVH(CellSectionHeaderBinding.inflate(inflater, parent, false))
+            HeaderVH(TileSectionHeaderBinding.inflate(inflater, parent, false))
         } else {
-            ContactVH(CellContactBinding.inflate(inflater, parent, false))
+            ContactVH(TileContactBinding.inflate(inflater, parent, false))
         }
     }
 
@@ -63,7 +63,7 @@ class PeopleAdapter(
 
     override fun getItemCount(): Int = rows.size
 
-    class HeaderVH(private val binding: CellSectionHeaderBinding) :
+    class HeaderVH(private val binding: TileSectionHeaderBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(letter: String) {
             binding.tvHeader.text = letter
@@ -73,7 +73,7 @@ class PeopleAdapter(
         }
     }
 
-    inner class ContactVH(val binding: CellContactBinding) :
+    inner class ContactVH(val binding: TileContactBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(row: PersonRow.Item) {
             val c = row.contact

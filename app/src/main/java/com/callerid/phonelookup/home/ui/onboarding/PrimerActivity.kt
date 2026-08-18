@@ -14,7 +14,7 @@ import com.callerid.adcast.domain.logKeyEvent
 import com.callerid.phonelookup.home.R
 import com.callerid.phonelookup.home.base.CanvasActivity
 import com.callerid.phonelookup.home.data.VaultRegistry
-import com.callerid.phonelookup.home.databinding.ScreenOnboardingBinding
+import com.callerid.phonelookup.home.databinding.ViewOnboardingBinding
 import com.callerid.phonelookup.home.launcher.helpers.LauncherFlow
 import com.callerid.phonelookup.home.permission.AccessEngine
 import com.callerid.phonelookup.home.ui.AppCoreActivity
@@ -23,9 +23,9 @@ import com.callerid.phonelookup.home.ui.intro.IntroRevealPolicy
 import com.callerid.phonelookup.home.util.followAdContainer
 import org.fossify.commons.extensions.beVisibleIf
 
-class PrimerActivity : CanvasActivity<ScreenOnboardingBinding>() {
+class PrimerActivity : CanvasActivity<ViewOnboardingBinding>() {
 
-    override val layoutId: Int = R.layout.screen_onboarding
+    override val layoutId: Int = R.layout.view_onboarding
 
     private val prefs by lazy { VaultRegistry(this) }
     private val pages = IntroPages.all

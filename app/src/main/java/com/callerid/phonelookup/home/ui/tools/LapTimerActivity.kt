@@ -12,14 +12,14 @@ import androidx.core.view.WindowInsetsCompat
 import com.callerid.phonelookup.home.R
 import com.callerid.phonelookup.home.base.CanvasActivity
 import com.callerid.adcast.presentation.NativePromo
-import com.callerid.phonelookup.home.databinding.ScreenStopwatchBinding
-import com.callerid.phonelookup.home.databinding.CellLapBinding
+import com.callerid.phonelookup.home.databinding.ViewStopwatchBinding
+import com.callerid.phonelookup.home.databinding.TileLapBinding
 import java.util.Locale
 
 /** Stopwatch with lap recording. */
-class LapTimerActivity : CanvasActivity<ScreenStopwatchBinding>() {
+class LapTimerActivity : CanvasActivity<ViewStopwatchBinding>() {
 
-    override val layoutId: Int = R.layout.screen_stopwatch
+    override val layoutId: Int = R.layout.view_stopwatch
 
     private val handler = Handler(Looper.getMainLooper())
     private var running = false
@@ -97,7 +97,7 @@ class LapTimerActivity : CanvasActivity<ScreenStopwatchBinding>() {
         lastLapTotal = total
         lapCount++
 
-        val row = CellLapBinding.inflate(LayoutInflater.from(this), binding.llLaps, false)
+        val row = TileLapBinding.inflate(LayoutInflater.from(this), binding.llLaps, false)
         row.tvLapName.text = getString(R.string.stopwatch_lap_n, lapCount)
         row.tvLapSplit.text = format(split)
         row.tvLapTotal.text = format(total)

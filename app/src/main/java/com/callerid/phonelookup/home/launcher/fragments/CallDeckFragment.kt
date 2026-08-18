@@ -11,7 +11,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import com.callerid.adcast.domain.ScreenPromoConfig
 import com.callerid.phonelookup.home.R
-import com.callerid.phonelookup.home.databinding.PaneCallerPanelBinding
+import com.callerid.phonelookup.home.databinding.PanelCallerPanelBinding
 import com.callerid.phonelookup.home.launcher.activities.HomeStageActivity
 import com.callerid.phonelookup.home.ui.home.HomeCoreFragment
 import com.callerid.phonelookup.home.util.followAdContainer
@@ -27,7 +27,7 @@ import kotlin.math.abs
 class CallDeckFragment(
     context: Context,
     attributeSet: AttributeSet,
-) : BaseFragment<PaneCallerPanelBinding>(context, attributeSet) {
+) : BaseFragment<PanelCallerPanelBinding>(context, attributeSet) {
 
     private var bannerRequested = false
     private var lastBannerAt = 0L
@@ -59,7 +59,7 @@ class CallDeckFragment(
 
     override fun setupFragment(activity: HomeStageActivity) {
         this.activity = activity
-        this.binding = PaneCallerPanelBinding.bind(this)
+        this.binding = PanelCallerPanelBinding.bind(this)
 
         // Keeps the banner clear of the navigation bar. Insets are returned unchanged so the
         // shell inside still receives them for its own per-tab status-bar padding.

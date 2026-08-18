@@ -7,7 +7,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.core.view.doOnLayout
 import androidx.recyclerview.widget.RecyclerView
-import com.callerid.phonelookup.home.databinding.CellOnboardingBinding
+import com.callerid.phonelookup.home.databinding.TileOnboardingBinding
 
 class IntroAdapter(
     private val pages: List<IntroPage>
@@ -18,7 +18,7 @@ class IntroAdapter(
         const val MIN_ART_SCALE = 0.45f
     }
 
-    inner class VH(val binding: CellOnboardingBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class VH(val binding: TileOnboardingBinding) : RecyclerView.ViewHolder(binding.root) {
 
         /** Looping animators for the current page's illustration; cancelled on recycle. */
         private val anims = mutableListOf<Animator>()
@@ -77,7 +77,7 @@ class IntroAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
-        val binding = CellOnboardingBinding.inflate(
+        val binding = TileOnboardingBinding.inflate(
             LayoutInflater.from(parent.context), parent, false
         )
         return VH(binding)

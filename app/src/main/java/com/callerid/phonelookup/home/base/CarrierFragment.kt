@@ -27,9 +27,9 @@ import java.util.Locale
  *
  * Usage:
  * ```
- * class OverviewFragment : CarrierFragment<PaneHomeBinding>() {
+ * class OverviewFragment : CarrierFragment<PanelHomeBinding>() {
  *     override fun inflateBinding(inflater, container) =
- *         PaneHomeBinding.inflate(inflater, container, false)
+ *         PanelHomeBinding.inflate(inflater, container, false)
  * }
  * ```
  */

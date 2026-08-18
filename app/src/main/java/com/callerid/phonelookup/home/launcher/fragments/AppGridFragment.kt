@@ -21,7 +21,7 @@ import com.callerid.adcast.presentation.NativePromo
 import com.callerid.phonelookup.home.R
 import com.callerid.phonelookup.home.launcher.activities.HomeStageActivity
 import com.callerid.phonelookup.home.launcher.adapters.LaunchersAdapter
-import com.callerid.phonelookup.home.databinding.PaneAllAppsBinding
+import com.callerid.phonelookup.home.databinding.PanelAllAppsBinding
 import com.callerid.phonelookup.home.launcher.extensions.applyDrawerSkin
 import com.callerid.phonelookup.home.launcher.extensions.config
 import com.callerid.phonelookup.home.launcher.extensions.launchApp
@@ -35,7 +35,7 @@ import com.callerid.phonelookup.home.launcher.models.appLauncherComparator
 class AppGridFragment(
     context: Context,
     attributeSet: AttributeSet
-) : BaseFragment<PaneAllAppsBinding>(context, attributeSet), AllAppsListener {
+) : BaseFragment<PanelAllAppsBinding>(context, attributeSet), AllAppsListener {
 
     private var lastTouchCoords = Pair(0f, 0f)
     var touchDownY = -1
@@ -56,7 +56,7 @@ class AppGridFragment(
     @SuppressLint("ClickableViewAccessibility")
     override fun setupFragment(activity: HomeStageActivity) {
         this.activity = activity
-        this.binding = PaneAllAppsBinding.bind(this)
+        this.binding = PanelAllAppsBinding.bind(this)
 
         binding.allAppsGrid.setOnTouchListener { _, event ->
             if (event.actionMasked == MotionEvent.ACTION_UP || event.actionMasked == MotionEvent.ACTION_CANCEL) {

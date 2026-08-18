@@ -4,16 +4,16 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.callerid.phonelookup.home.data.PersonItem
-import com.callerid.phonelookup.home.databinding.CellContactBinding
+import com.callerid.phonelookup.home.databinding.TileContactBinding
 
 class PersonAdapter(
     private val items: List<PersonItem>
 ) : RecyclerView.Adapter<PersonAdapter.VH>() {
 
-    inner class VH(val binding: CellContactBinding) : RecyclerView.ViewHolder(binding.root)
+    inner class VH(val binding: TileContactBinding) : RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
-        val binding = CellContactBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val binding = TileContactBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return VH(binding)
     }
 

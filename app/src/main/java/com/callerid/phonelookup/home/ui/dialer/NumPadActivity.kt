@@ -20,7 +20,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.callerid.phonelookup.home.R
 import com.callerid.phonelookup.home.base.CanvasActivity
 import com.callerid.phonelookup.home.data.PeopleSource
-import com.callerid.phonelookup.home.databinding.ScreenDialerBinding
+import com.callerid.phonelookup.home.databinding.ViewDialerBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -28,12 +28,12 @@ import kotlinx.coroutines.withContext
 
 /**
  * Dialer screen: the on-screen keypad builds the number shown in
- * [ScreenDialerBinding.tvDialNumber] (dialed by Call, saved by "Add to contacts")
+ * [ViewDialerBinding.tvDialNumber] (dialed by Call, saved by "Add to contacts")
  * and filters the most-used list into the "Matches" section above the keypad sheet.
  */
-class NumPadActivity : CanvasActivity<ScreenDialerBinding>() {
+class NumPadActivity : CanvasActivity<ViewDialerBinding>() {
 
-    override val layoutId: Int = R.layout.screen_dialer
+    override val layoutId: Int = R.layout.view_dialer
 
     private val viewModel: KeypadViewModel by viewModels()
     private val adapter = TopUsedAdapter(onClick = ::setDial, onCall = ::fillAndDial)

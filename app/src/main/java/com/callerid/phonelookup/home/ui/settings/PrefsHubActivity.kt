@@ -22,9 +22,9 @@ import com.callerid.adcast.presentation.NativePromo
 import com.callerid.phonelookup.home.R
 import com.callerid.phonelookup.home.base.CanvasActivity
 import com.callerid.phonelookup.home.data.VaultRegistry
-import com.callerid.phonelookup.home.databinding.ScreenSettingsBinding
-import com.callerid.phonelookup.home.databinding.CellPrefCardBinding
-import com.callerid.phonelookup.home.databinding.CellSettingRowBinding
+import com.callerid.phonelookup.home.databinding.ViewSettingsBinding
+import com.callerid.phonelookup.home.databinding.TilePrefCardBinding
+import com.callerid.phonelookup.home.databinding.TileSettingRowBinding
 import com.callerid.phonelookup.home.ui.blocklist.BlockVaultActivity
 import com.callerid.phonelookup.home.ui.common.CoachMarkFloat
 import com.callerid.phonelookup.home.ui.language.LangChooserActivity
@@ -38,9 +38,9 @@ import com.callerid.phonelookup.home.util.openTermLink
 import com.callerid.phonelookup.home.util.rateApp
 import com.callerid.phonelookup.home.util.shareApp
 
-class PrefsHubActivity : CanvasActivity<ScreenSettingsBinding>() {
+class PrefsHubActivity : CanvasActivity<ViewSettingsBinding>() {
 
-    override val layoutId: Int = R.layout.screen_settings
+    override val layoutId: Int = R.layout.view_settings
 
     /** Theme segment order — must match cardTheme's segLight / segDark / segSystem. */
     private val themeOptions =
@@ -141,7 +141,7 @@ class PrefsHubActivity : CanvasActivity<ScreenSettingsBinding>() {
     }
 
     private fun bindCard(
-        card: CellPrefCardBinding,
+        card: TilePrefCardBinding,
         @DrawableRes icon: Int,
         @StringRes title: Int,
         sub: String,
@@ -156,7 +156,7 @@ class PrefsHubActivity : CanvasActivity<ScreenSettingsBinding>() {
     }
 
     private fun bindRow(
-        row: CellSettingRowBinding,
+        row: TileSettingRowBinding,
         @DrawableRes icon: Int,
         @StringRes title: Int,
         @StringRes sub: Int,
@@ -218,7 +218,7 @@ class PrefsHubActivity : CanvasActivity<ScreenSettingsBinding>() {
                 if (isFinishing || isDestroyed) return@post
                 if (binding.switchCallScreening.isChecked) return@post
                 prefs.isCallScreeningHintShown = true
-                CoachMarkFloat.show(this, card, R.layout.part_call_screening_hint)
+                CoachMarkFloat.show(this, card, R.layout.piece_call_screening_hint)
             }
         }
     }

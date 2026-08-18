@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.callerid.phonelookup.home.databinding.CellSearchHistoryBinding
+import com.callerid.phonelookup.home.databinding.TileSearchHistoryBinding
 import com.callerid.phonelookup.home.ui.common.CallPresenter
 import com.callerid.phonelookup.home.ui.common.HomeMotion
 
@@ -56,7 +56,7 @@ class IdentifyTraceAdapter(
     private fun isLocked(item: TraceEntry): Boolean =
         item.name != null && item.rawNumber !in revealed
 
-    inner class VH(val binding: CellSearchHistoryBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class VH(val binding: TileSearchHistoryBinding) : RecyclerView.ViewHolder(binding.root) {
         init {
             binding.root.setOnClickListener {
                 val p = bindingAdapterPosition
@@ -76,7 +76,7 @@ class IdentifyTraceAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
-        val binding = CellSearchHistoryBinding.inflate(
+        val binding = TileSearchHistoryBinding.inflate(
             LayoutInflater.from(parent.context), parent, false
         )
         return VH(binding)

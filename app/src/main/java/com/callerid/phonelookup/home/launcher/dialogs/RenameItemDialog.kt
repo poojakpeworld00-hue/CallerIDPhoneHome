@@ -4,14 +4,14 @@ import android.app.Activity
 import android.app.AlertDialog
 import org.fossify.commons.extensions.*
 import org.fossify.commons.helpers.ensureBackgroundThread
-import com.callerid.phonelookup.home.databinding.SheetRenameItemBinding
+import com.callerid.phonelookup.home.databinding.ModalRenameItemBinding
 import com.callerid.phonelookup.home.launcher.extensions.homeScreenGridItemsDB
 import com.callerid.phonelookup.home.launcher.models.HomeScreenGridItem
 
 class RenameItemDialog(val activity: Activity, val item: HomeScreenGridItem, val callback: () -> Unit) {
 
     init {
-        val binding = SheetRenameItemBinding.inflate(activity.layoutInflater)
+        val binding = ModalRenameItemBinding.inflate(activity.layoutInflater)
         val view = binding.root
         binding.renameItemEdittext.setText(item.title)
 
