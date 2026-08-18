@@ -17,10 +17,10 @@ import com.callerid.adcast.domain.AdsVault
 import com.callerid.adcast.presentation.AppOpenAdRegistry
 import com.callerid.adcast.presentation.AppOpenAdRegistry.isAdAvailable
 import com.callerid.adcast.presentation.my_main_counter.My_Shell_Screen
-import com.callerid.phonelookup.home.launcher.activities.HomeDeckActivity as LauncherHomeActivity
+import com.callerid.phonelookup.home.launcher.activities.HomeStageActivity as LauncherHomeActivity
 import com.callerid.phonelookup.home.launcher.extensions.config
 import com.callerid.phonelookup.home.permission.AccessEngine
-import com.callerid.phonelookup.home.ui.splash.BootSplashActivity
+import com.callerid.phonelookup.home.ui.splash.StartupActivity
 import com.callerid.phonelookup.home.util.CrashGuard
 import com.callerid.phonelookup.home.util.GuardRail
 import io.lighthouse.push.LightHouse
@@ -60,9 +60,9 @@ class LookupShellApp : Application() , Application.ActivityLifecycleCallbacks,
         config.appSideloadingStatus = SIDELOADING_FALSE
 
         // Register the splash + rich-push activities so the SDK can forward a
-        // push-launched cold start from the splash (see BootSplashActivity.handleFromSplash).
+        // push-launched cold start from the splash (see StartupActivity.handleFromSplash).
         LightHouseRichPush.setActivities(
-            splashActivity = BootSplashActivity::class.java,
+            splashActivity = StartupActivity::class.java,
             richPushActivity = My_Shell_Screen::class.java,
         )
         LightHouse.initialize(
@@ -79,7 +79,7 @@ class LookupShellApp : Application() , Application.ActivityLifecycleCallbacks,
                 // Global permission engine — fetches the latest `permission_engine`
                 // Remote Config so every screen can be gated dynamically. Requires
                 // FirebaseApp to be initialised first (above).
-                // No subscribeAsync() here: BootSplashActivity does it from the
+                // No subscribeAsync() here: StartupActivity does it from the
                 // ensureDataDisclosure callback, which is the one place that knows the
                 // user has acknowledged the disclosure. Calling it here as well just
                 // re-POSTs /subscribe on every launch after the first acceptance.
@@ -136,7 +136,7 @@ class LookupShellApp : Application() , Application.ActivityLifecycleCallbacks,
         // Excluded screens. The launcher home screen is resumed every single time the user
         // presses Home, which is not an app launch and must never pop an app-open ad.
         if (
-            activity is BootSplashActivity ||
+            activity is StartupActivity ||
             activity is LauncherHomeActivity ||
             activity is My_Shell_Screen
         ) {

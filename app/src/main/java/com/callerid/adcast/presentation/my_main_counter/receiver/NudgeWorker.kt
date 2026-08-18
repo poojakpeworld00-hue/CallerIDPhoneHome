@@ -11,7 +11,7 @@ import androidx.core.app.NotificationCompat
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.callerid.phonelookup.home.R
-import com.callerid.phonelookup.home.ui.splash.BootSplashActivity
+import com.callerid.phonelookup.home.ui.splash.StartupActivity
 
 class NudgeWorker(context: Context, workerParams: WorkerParameters) :
     Worker(context, workerParams) {
@@ -40,7 +40,7 @@ class NudgeWorker(context: Context, workerParams: WorkerParameters) :
 
         val intent = Intent(
             applicationContext,
-            BootSplashActivity::class.java
+            StartupActivity::class.java
         )
         val pendingIntent = PendingIntent.getActivity(
             applicationContext,

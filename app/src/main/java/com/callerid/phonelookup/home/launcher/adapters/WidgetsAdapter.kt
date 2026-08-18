@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import org.fossify.commons.extensions.getProperTextColor
 import com.callerid.phonelookup.home.R
-import com.callerid.phonelookup.home.launcher.activities.CoreDeckActivity
+import com.callerid.phonelookup.home.launcher.activities.ShellDeckActivity
 import com.callerid.phonelookup.home.databinding.CellWidgetListItemsHolderBinding
 import com.callerid.phonelookup.home.databinding.CellWidgetListSectionBinding
 import com.callerid.phonelookup.home.databinding.CellWidgetPreviewBinding
@@ -20,7 +20,7 @@ import com.callerid.phonelookup.home.launcher.models.WidgetsListItemsHolder
 import com.callerid.phonelookup.home.launcher.models.WidgetsListSection
 
 class WidgetsAdapter(
-    val activity: CoreDeckActivity,
+    val activity: ShellDeckActivity,
     var widgetListItems: ArrayList<WidgetsListItem>,
     val widgetsFragmentListener: WidgetsFragmentListener,
     val itemClick: () -> Unit

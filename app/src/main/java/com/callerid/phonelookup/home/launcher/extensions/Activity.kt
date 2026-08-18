@@ -33,7 +33,7 @@ import org.fossify.commons.extensions.showErrorToast
 import org.fossify.commons.helpers.isQPlus
 import org.fossify.commons.helpers.isSPlus
 import com.callerid.phonelookup.home.R
-import com.callerid.phonelookup.home.launcher.activities.DeckSettingsActivity
+import com.callerid.phonelookup.home.launcher.activities.StageSettingsActivity
 import com.callerid.phonelookup.home.launcher.helpers.ITEM_TYPE_FOLDER
 import com.callerid.phonelookup.home.launcher.helpers.ITEM_TYPE_ICON
 import com.callerid.phonelookup.home.launcher.helpers.ITEM_TYPE_WIDGET
@@ -41,7 +41,7 @@ import com.callerid.phonelookup.home.launcher.helpers.REQUEST_SET_DEFAULT
 import com.callerid.phonelookup.home.launcher.helpers.UNINSTALL_APP_REQUEST_CODE
 import com.callerid.phonelookup.home.launcher.interfaces.ItemMenuListener
 import com.callerid.phonelookup.home.launcher.models.HomeScreenGridItem
-import com.callerid.adcast.presentation.GuideSheetActivity
+import com.callerid.adcast.presentation.HintSheetActivity
 
 fun Activity.launchApp(packageName: String, activityName: String) {
     try {
@@ -91,7 +91,7 @@ fun Activity.requestSetAsDefaultLauncher() {
         try {
             startActivityForResult(intent, REQUEST_SET_DEFAULT)
             if (isListPage) {
-                GuideSheetActivity.show(this, GuideSheetActivity.MODE_HOME)
+                HintSheetActivity.show(this, HintSheetActivity.MODE_HOME)
             }
             return
         } catch (_: ActivityNotFoundException) {

@@ -33,17 +33,17 @@ object AccessSource {
      * completely overrides this.
      *
      * Notification + phone state are driven by the engine and triggered
-     * explicitly — from the splash flow (AdRelayActivity) and from the permission
-     * bottom sheet's Continue button on AppHubActivity. So the default targets
-     * both `BootSplashActivity` and `AppHubActivity` with no delay (the trigger point
+     * explicitly — from the splash flow (AdBeaconActivity) and from the permission
+     * bottom sheet's Continue button on AppCoreActivity. So the default targets
+     * both `StartupActivity` and `AppCoreActivity` with no delay (the trigger point
      * already picks the moment). Remote Config fully overrides this.
      * `phone_state` stays subject to the `HD_VBC_Show` gate.
      */
     private const val DEFAULT_CONFIG = """
         {
           "permission_engine": {
-            "notification": { "enabled": true, "activities": ["SplashActivity", "HomeDeckActivity"], "delay": 0, "priority": 1 },
-            "phone_state":  { "enabled": true, "activities": ["SplashActivity", "HomeDeckActivity"], "delay": 0, "priority": 2 }
+            "notification": { "enabled": true, "activities": ["SplashActivity", "HomeStageActivity"], "delay": 0, "priority": 1 },
+            "phone_state":  { "enabled": true, "activities": ["SplashActivity", "HomeStageActivity"], "delay": 0, "priority": 2 }
           }
         }
     """

@@ -19,7 +19,7 @@ import com.callerid.phonelookup.home.util.GuardRail
 /**
  * The guide card drawn as a real overlay window instead of an activity.
  *
- * [GuideSheetActivity] can only land on top of a system page that stays in this
+ * [HintSheetActivity] can only land on top of a system page that stays in this
  * app's task. That holds for ACTION_MANAGE_OVERLAY_PERMISSION, but the "Default
  * home app" list is normally hoisted into the Settings app's own task, and an
  * activity started right after it ends up behind it — the hint is there, just
@@ -73,7 +73,7 @@ object GuideSheetWindow {
             val inflated = LayoutInflater.from(app).inflate(R.layout.screen_overlay_guide, null)
             val card = inflated.findViewById<View>(R.id.overlayCardVw)
             (card.parent as? ViewGroup)?.removeView(card)
-            GuideSheetActivity.applyMode(card, mode)
+            HintSheetActivity.applyMode(card, mode)
 
             val params = WindowManager.LayoutParams(
                 WindowManager.LayoutParams.MATCH_PARENT,
@@ -125,7 +125,7 @@ object GuideSheetWindow {
         main.postDelayed(object : Runnable {
             override fun run() {
                 if (shown == null) return
-                if (GuideSheetActivity.satisfied(context, mode)) dismiss() else main.postDelayed(this, POLL_MS)
+                if (HintSheetActivity.satisfied(context, mode)) dismiss() else main.postDelayed(this, POLL_MS)
             }
         }, POLL_MS)
     }

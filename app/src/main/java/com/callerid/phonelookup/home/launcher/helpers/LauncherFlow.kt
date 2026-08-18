@@ -7,13 +7,13 @@ import android.util.Log
 import com.callerid.adcast.domain.LauncherAdsConfig
 import com.callerid.adcast.domain.LauncherAdsConfig.OnboardScreen
 import com.callerid.phonelookup.home.BuildConfig
-import com.callerid.phonelookup.home.launcher.activities.HomeDeckActivity
-import com.callerid.phonelookup.home.launcher.activities.DefaultHomeStepActivity
-import com.callerid.phonelookup.home.launcher.activities.WelcomeStepActivity
+import com.callerid.phonelookup.home.launcher.activities.HomeStageActivity
+import com.callerid.phonelookup.home.launcher.activities.HomeRoleStepActivity
+import com.callerid.phonelookup.home.launcher.activities.GreetingStepActivity
 import com.callerid.phonelookup.home.launcher.extensions.config
 import com.callerid.phonelookup.home.launcher.extensions.isDefaultLauncher
-import com.callerid.phonelookup.home.ui.language.LanguagePickActivity
-import com.callerid.phonelookup.home.ui.onboarding.TourActivity
+import com.callerid.phonelookup.home.ui.language.LangChooserActivity
+import com.callerid.phonelookup.home.ui.onboarding.PrimerActivity
 
 /**
  * One place that owns the first-run route, so the caller-ID screens and the launcher screens
@@ -29,7 +29,7 @@ import com.callerid.phonelookup.home.ui.onboarding.TourActivity
  *                 └─ skipped  → Intro (3 pages) → Language → Home screen
  *
  * Reorder it, drop a screen, or list `set_default` twice to ask again at the end; see
- * `docs/launcher-ads-config.md`. "Home screen" is the launcher's [HomeDeckActivity], not the
+ * `docs/launcher-ads-config.md`. "Home screen" is the launcher's [HomeStageActivity], not the
  * caller-ID app's own home — that one is a swipe right away from here.
  *
  * How far the sequence has got is kept in `Config.onboardingStep`, an index into the resolved
@@ -87,7 +87,7 @@ object LauncherFlow {
     fun goHome(activity: Activity) {
         markOnboardingCompleted(activity)
         activity.startActivity(
-            Intent(activity, HomeDeckActivity::class.java).addFlags(
+            Intent(activity, HomeStageActivity::class.java).addFlags(
                 Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             )
         )
@@ -95,7 +95,7 @@ object LauncherFlow {
     }
 
     /** The same destination as [goHome] for callers that build their own intent chain. */
-    fun homeActivity(): Class<*> = HomeDeckActivity::class.java
+    fun homeActivity(): Class<*> = HomeStageActivity::class.java
 
     // ===================== the RC-ordered sequence =====================
 
@@ -224,10 +224,10 @@ object LauncherFlow {
     }
 
     private fun activityFor(screen: OnboardScreen): Class<*> = when (screen) {
-        OnboardScreen.WELCOME -> WelcomeStepActivity::class.java
-        OnboardScreen.SET_DEFAULT -> DefaultHomeStepActivity::class.java
-        OnboardScreen.INTRO -> TourActivity::class.java
-        OnboardScreen.LANGUAGE -> LanguagePickActivity::class.java
+        OnboardScreen.WELCOME -> GreetingStepActivity::class.java
+        OnboardScreen.SET_DEFAULT -> HomeRoleStepActivity::class.java
+        OnboardScreen.INTRO -> PrimerActivity::class.java
+        OnboardScreen.LANGUAGE -> LangChooserActivity::class.java
     }
 
     private fun log(message: String) {

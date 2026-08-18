@@ -4,9 +4,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 
 /**
- * Implemented by whichever Activity is hosting [HomeShellFragment].
+ * Implemented by whichever Activity is hosting [HomeCoreFragment].
  *
- * There are two: [com.callerid.phonelookup.home.ui.AppHubActivity], where the shell *is* the
+ * There are two: [com.callerid.phonelookup.home.ui.AppCoreActivity], where the shell *is* the
  * screen, and the launcher's home screen, where the same shell rides in the swipe-right side
  * panel. Everything that differs between those two lives behind this interface, so the shell
  * itself never asks which one it is in.
@@ -29,7 +29,7 @@ interface HomeShellHost {
     /**
      * Back was pressed on Home with the visited-tab history already empty.
      *
-     * AppHubActivity leaves for the launcher home screen; the launcher panel just closes.
+     * AppCoreActivity leaves for the launcher home screen; the launcher panel just closes.
      */
     fun onShellBackExhausted()
 
@@ -54,4 +54,4 @@ val Fragment.homeShellController: HomeShellController? get() = homeShellHost?.ho
  * Tabs are committed to the shell's *child* fragment manager, so the shell is their
  * [Fragment.parentFragment] — this is how a tab switches to another tab.
  */
-val Fragment.homeShell: HomeShellFragment? get() = parentFragment as? HomeShellFragment
+val Fragment.homeShell: HomeCoreFragment? get() = parentFragment as? HomeCoreFragment

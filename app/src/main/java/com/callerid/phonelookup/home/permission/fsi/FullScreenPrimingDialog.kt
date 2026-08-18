@@ -15,10 +15,10 @@ import com.callerid.phonelookup.home.permission.AccessEngine
 import com.callerid.phonelookup.home.ui.home.HomeShellHost
 
 /**
- * The AppHubActivity Full-Screen-Intent priming dialog. Same visual language as the
+ * The AppCoreActivity Full-Screen-Intent priming dialog. Same visual language as the
  * Screen (incoming-call preview + remote-driven copy). "Enable" opens the system
- * FSI page in-task (via AppHubActivity's launcher) and arms [FullScreenWatchService]; the
- * dialog dismisses so the auto-return lands on a clean AppHubActivity.
+ * FSI page in-task (via AppCoreActivity's launcher) and arms [FullScreenWatchService]; the
+ * dialog dismisses so the auto-return lands on a clean AppCoreActivity.
  *
  * A single live dialog is tracked so the host can [dismissIfShowing] on return.
  */

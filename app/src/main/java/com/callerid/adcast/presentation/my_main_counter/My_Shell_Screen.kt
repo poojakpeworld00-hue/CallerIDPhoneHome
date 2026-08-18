@@ -20,10 +20,10 @@ import com.callerid.adcast.presentation.AppOpenAdRegistry
 import com.callerid.adcast.presentation.SheetNativeAds
 import com.callerid.adcast.presentation.SystemDialogKit
 import com.callerid.adcast.presentation.getHD_VBC_Type
-import com.callerid.adcast.presentation.my_main_counter.fragment.MessagesFragment
-import com.callerid.adcast.presentation.my_main_counter.fragment.TimelineCallsFragment
-import com.callerid.adcast.presentation.my_main_counter.fragment.NudgeFragment
-import com.callerid.phonelookup.home.base.ScreenBaseActivity
+import com.callerid.adcast.presentation.my_main_counter.fragment.ThreadsFragment
+import com.callerid.adcast.presentation.my_main_counter.fragment.CallFeedFragment
+import com.callerid.adcast.presentation.my_main_counter.fragment.PromptFragment
+import com.callerid.phonelookup.home.base.CanvasActivity
 import com.callerid.phonelookup.home.data.PeopleSource
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -32,15 +32,15 @@ import java.util.Locale
 /**
  * Post-call screen shown after an incoming/outgoing/missed call. Hosts three
  * tabs (Message, Nudge, WhatsApp) and an ad slot. Extends the project's
- * [ScreenBaseActivity] so it picks up the standard DataBinding + locale/theme
+ * [CanvasActivity] so it picks up the standard DataBinding + locale/theme
  * plumbing.
  *
  * Note: the consent + Mobile Ads init that used to live here (via the
- * `getData(...)` call inherited from `AdRelayActivity`) is expected to run
+ * `getData(...)` call inherited from `AdBeaconActivity`) is expected to run
  * once during app startup. This screen only triggers ad rendering, not SDK
  * initialization.
  */
-class My_Shell_Screen : ScreenBaseActivity<ScreenCallBackScreenBinding>() {
+class My_Shell_Screen : CanvasActivity<ScreenCallBackScreenBinding>() {
 
     override val layoutId: Int = R.layout.screen_call_back_screen
     private val systemDialogHelper by lazy {
@@ -100,7 +100,7 @@ class My_Shell_Screen : ScreenBaseActivity<ScreenCallBackScreenBinding>() {
 
         // Recent-call list is the default ("first") tab of the post-call screen.
         supportFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, TimelineCallsFragment())
+            .replace(R.id.fragment_container, CallFeedFragment())
             .commit()
         selectTab(binding.imgRecent, getAllTabs())
 
@@ -116,11 +116,11 @@ class My_Shell_Screen : ScreenBaseActivity<ScreenCallBackScreenBinding>() {
             val currentFragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
             when (currentFragment) {
                 // The recents list is "home" — back from it closes the screen.
-                is TimelineCallsFragment -> finish()
+                is CallFeedFragment -> finish()
                 else -> {
                     if (!isFinishing && !isDestroyed) {
                         supportFragmentManager.beginTransaction()
-                            .replace(R.id.fragment_container, TimelineCallsFragment())
+                            .replace(R.id.fragment_container, CallFeedFragment())
                             .commitAllowingStateLoss()
                     }
                     selectTab(binding.imgRecent, getAllTabs())
@@ -157,9 +157,9 @@ class My_Shell_Screen : ScreenBaseActivity<ScreenCallBackScreenBinding>() {
         val allTabs = getAllTabs()
 
         val fragmentTabs = listOf(
-            binding.imgRecent to { TimelineCallsFragment() as Fragment },
-            binding.imgMes to { MessagesFragment.newInstance(callerNumber) as Fragment },
-            binding.imgReminder to { NudgeFragment() as Fragment }
+            binding.imgRecent to { CallFeedFragment() as Fragment },
+            binding.imgMes to { ThreadsFragment.newInstance(callerNumber) as Fragment },
+            binding.imgReminder to { PromptFragment() as Fragment }
         )
 
         fragmentTabs.forEach { (tab, fragmentFactory) ->

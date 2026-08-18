@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
- * ViewModel for [DashboardFragment]. Exposes protection stats and the latest calls.
+ * ViewModel for [OverviewFragment]. Exposes protection stats and the latest calls.
  */
 class DashboardViewModel(app: Application) : AndroidViewModel(app) {
 

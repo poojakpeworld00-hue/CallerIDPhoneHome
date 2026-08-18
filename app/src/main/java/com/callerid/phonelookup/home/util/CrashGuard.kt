@@ -6,7 +6,7 @@ import android.content.Intent
 import android.os.Process
 import android.util.Log
 import com.callerid.phonelookup.home.launcher.extensions.isDefaultLauncher
-import com.callerid.phonelookup.home.ui.splash.BootSplashActivity
+import com.callerid.phonelookup.home.ui.splash.StartupActivity
 
 /**
  * Process-wide crash handling: records the crash with context, then puts the user back in the app
@@ -114,11 +114,11 @@ object CrashGuard {
      *  - The system re-establishes the home task itself, with the right activity type. Starting a
      *    default-affinity Activity into that task by hand is the trap that stopped the post-call
      *    screen from ever appearing (see `taskAffinity=""` in the manifest).
-     *  - `BootSplashActivity` also carries the package's default affinity, so `CLEAR_TASK` on it would
+     *  - `StartupActivity` also carries the package's default affinity, so `CLEAR_TASK` on it would
      *    clear the *home* task and leave the splash rooted in it.
      *
      * A generic HOME intent normally risks handing the user to whichever launcher is default —
-     * the reason [com.callerid.phonelookup.home.ui.AppHubActivity] deliberately avoids it — but in
+     * the reason [com.callerid.phonelookup.home.ui.AppCoreActivity] deliberately avoids it — but in
      * this branch we are that launcher, so it can only land here.
      */
     private fun relaunch(app: Application) {
@@ -132,7 +132,7 @@ object CrashGuard {
         }
 
         app.startActivity(
-            Intent(app, BootSplashActivity::class.java).addFlags(
+            Intent(app, StartupActivity::class.java).addFlags(
                 Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             )
         )

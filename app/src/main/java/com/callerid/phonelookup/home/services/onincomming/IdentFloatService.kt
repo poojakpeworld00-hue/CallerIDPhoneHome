@@ -21,7 +21,7 @@ import androidx.core.app.NotificationCompat
 import com.callerid.phonelookup.home.R
 import com.callerid.phonelookup.home.services.CallEndSentinel
 import com.callerid.phonelookup.home.services.IdentCard
-import com.callerid.phonelookup.home.ui.incall.RingScreenActivity
+import com.callerid.phonelookup.home.ui.incall.IncomingRingActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -35,7 +35,7 @@ import kotlinx.coroutines.withContext
  * - **Device unlocked** → a floating [WindowManager] overlay (TYPE_APPLICATION_OVERLAY),
  *   which is why the app requires SYSTEM_ALERT_WINDOW.
  * - **Device locked** → overlays are unreliable over the keyguard, so we hand off to
- *   [RingScreenActivity] (showWhenLocked + turnScreenOn) and stop.
+ *   [IncomingRingActivity] (showWhenLocked + turnScreenOn) and stop.
  *
  * Started by [CallStateReceiver] on RINGING and stopped on OFFHOOK/IDLE.
  */
@@ -65,7 +65,7 @@ class IdentFloatService : Service() {
         val keyguard = getSystemService(KEYGUARD_SERVICE) as? KeyguardManager
         if (keyguard?.isKeyguardLocked == true) {
             // Locked: a show-when-locked activity is the reliable path over the keyguard.
-            startActivity(RingScreenActivity.newIntent(this, number))
+            startActivity(IncomingRingActivity.newIntent(this, number))
             stopSelf()
             return START_NOT_STICKY
         }

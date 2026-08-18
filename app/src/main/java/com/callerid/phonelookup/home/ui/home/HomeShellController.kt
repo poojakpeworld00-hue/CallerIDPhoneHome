@@ -19,7 +19,7 @@ import com.callerid.phonelookup.home.ui.terms.FloatKit
 /**
  * Everything in the home shell that needs an **Activity** rather than a View.
  *
- * The seam: [HomeShellFragment] draws, this drives. Result launchers must be registered
+ * The seam: [HomeCoreFragment] draws, this drives. Result launchers must be registered
  * before the Activity is STARTED, and a fragment hosted in the launcher's side panel is
  * committed long after that — so permission round-trips, the FSI flow and the Play update
  * check cannot live in the fragment. They live here, owned by the host Activity as a field
@@ -33,8 +33,8 @@ class HomeShellController(private val host: HomeShellHost) {
 
     private val activity get() = host.hostActivity
 
-    /** Set by [HomeShellFragment] while its view is alive; null when the shell isn't drawn. */
-    var shell: HomeShellFragment? = null
+    /** Set by [HomeCoreFragment] while its view is alive; null when the shell isn't drawn. */
+    var shell: HomeCoreFragment? = null
 
     /** Brings the host back when the FSI toggle flips on (dialog grant round-trip). */
     private val fsiReturnWatcher by lazy { FullScreenReturnWatcher(activity) }
@@ -100,7 +100,7 @@ class HomeShellController(private val host: HomeShellHost) {
     /**
      * The visible first-run prompts: FSI priming dialog first, then the permission sheet.
      *
-     * Call this when the shell is actually on screen. AppHubActivity calls it from
+     * Call this when the shell is actually on screen. AppCoreActivity calls it from
      * `initView`, where the shell *is* the screen; the launcher defers it until the panel
      * has finished sliding in, so the sheet lands over the caller-ID content it is asking
      * about rather than over the home grid.

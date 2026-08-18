@@ -13,7 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-/** Aggregated data for one number, shown on [CallBriefActivity]. */
+/** Aggregated data for one number, shown on [CallReportActivity]. */
 data class CallInsightUi(
     val name: String,
     val number: String,

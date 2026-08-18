@@ -3,7 +3,7 @@ package com.callerid.phonelookup.home.launcher.helpers
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
-import com.callerid.phonelookup.home.launcher.activities.DefaultHomeHintActivity
+import com.callerid.phonelookup.home.launcher.activities.RoleHintActivity
 import com.callerid.phonelookup.home.util.GuardRail
 
 /**
@@ -28,7 +28,7 @@ object LauncherHintPrompt {
         val app = context.applicationContext
         val task = Runnable {
             pending = null
-            runCatching { app.startActivity(DefaultHomeHintActivity.intent(app)) }
+            runCatching { app.startActivity(RoleHintActivity.intent(app)) }
                 .onFailure { GuardRail.error("DefaultHomeHint", "hint could not be started", it) }
         }
         pending = task
@@ -42,7 +42,7 @@ object LauncherHintPrompt {
      */
     fun dismiss() {
         cancelPending()
-        DefaultHomeHintActivity.dismiss()
+        RoleHintActivity.dismiss()
     }
 
     private fun cancelPending() {

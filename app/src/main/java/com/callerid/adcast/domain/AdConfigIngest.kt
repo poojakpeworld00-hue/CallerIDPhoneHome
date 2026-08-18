@@ -14,7 +14,7 @@ import org.json.JSONObject
 /**
  * Reads a getData blob into [AdsVault].
  *
- * Lifted out of AdRelayActivity so it is not tied to the splash: the same ingest has to run
+ * Lifted out of AdBeaconActivity so it is not tied to the splash: the same ingest has to run
  * when Remote Config pushes a change to a running app (see LiveConfigWatcher), and duplicating
  * it would leave two lists of keys to keep in step.
  *
