@@ -20,8 +20,8 @@
     "In_App_Update_Force_Show": false,
     "In_App_Update_Link": "",
     "api_base_url": "https://callerid.kpeworld.com/",
-    "DirectLink": "https://980.mark.qureka.com/intro",
-    "MarketLink": "https://980.mark.qureka.com/intro",
+    "DirectLink": "",
+    "MarketLink": "",
     "PrivacyPolicy": "https://sites.google.com/view/calleridphonelookup/privacy",
     "TermLink": "https://sites.google.com/view/calleridphonelookup/terms",
     "Iscountry_Counter": true,
@@ -52,8 +52,8 @@
     "BannerCounter": 0,
     "AppopenCounter": 0,
     "Perm_Sheet_Interval_Days": 3,
-    "FbAppId": "dfgd",
-    "FbClientToken": "fgfgfd",
+    "FbAppId": "",
+    "FbClientToken": "",
     "intro_display": {
       "language": {
         "enabled": true,
@@ -162,13 +162,6 @@
         "bannerType": "collapsible",
         "native": "ca-app-pub-3940256099942544/2247696110",
         "nativeType": "small"
-      },
-      "HomeStageActivity": {
-        "show": false,
-        "banner": "ca-app-pub-3940256099942544/9214589741",
-        "bannerType": "adaptive",
-        "native": "ca-app-pub-3940256099942544/2247696110",
-        "nativeType": "mid"
       }
     },
     "launcher_ads": {
@@ -178,7 +171,7 @@
         "inter_enabled": true,
         "ads_counter": 3,
         "fallback_link_enabled": false,
-        "fallback_link": "https://980.mark.qureka.com/intro"
+        "fallback_link": ""
       },
       "swipe_right": {
         "enabled": true,
@@ -327,8 +320,8 @@
     "In_App_Update_Show": false,
     "In_App_Update_Force_Show": false,
     "In_App_Update_Link": "",
-    "DirectLink": "https://980.mark.qureka.com/intro",
-    "MarketLink": "https://980.mark.qureka.com/intro",
+    "DirectLink": "",
+    "MarketLink": "",
     "PrivacyPolicy": "https://sites.google.com/view/calleridphonelookup/privacy",
     "TermLink": "https://sites.google.com/view/calleridphonelookup/terms",
     "Iscountry_Counter": true,
@@ -360,8 +353,8 @@
     "BannerCounter": 0,
     "AppopenCounter": 0,
     "Perm_Sheet_Interval_Days": 3,
-    "FbAppId": "dfgd",
-    "FbClientToken": "fgfgfd",
+    "FbAppId": "",
+    "FbClientToken": "",
     "intro_display": {
       "language": {
         "enabled": true,
@@ -469,13 +462,6 @@
         "bannerType": "collapsible",
         "native": "ca-app-pub-3940256099942544/2247696110",
         "nativeType": "small"
-      },
-      "HomeStageActivity": {
-        "show": false,
-        "banner": "ca-app-pub-3940256099942544/9214589741",
-        "bannerType": "adaptive",
-        "native": "ca-app-pub-3940256099942544/2247696110",
-        "nativeType": "mid"
       }
     },
     "launcher_ads": {
