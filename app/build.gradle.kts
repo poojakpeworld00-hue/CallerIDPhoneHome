@@ -26,7 +26,7 @@ fun xorByteArrayLiteral(value: String, key: Int = 0x5A): String {
 }
 
 android {
-    namespace = "com.callerid.numberlookup.home"
+    namespace = "com.callerid.phonelookup.home"
     compileSdk {
         version = release(36) {
             minorApiLevel = 1
@@ -34,7 +34,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.callerid.numberlookup.home"
+        applicationId = "com.callerid.phonelookup.home"
         // Raised from 24: org.fossify:commons (the launcher's UI/theming base) declares
         // minSdkVersion 26, and the launcher itself leans on API 25/26 LauncherApps
         // shortcut + pinned-item APIs.
@@ -89,7 +89,7 @@ kotlin {
 }
 
 base {
-    val appName = "CallerIdLookupHome"
+    val appName = "CallerIdPhoneHome"
     val formattedDate: String =
         SimpleDateFormat("MMM.dd.yyyy", Locale.getDefault()).format(Date())
     val config = android.defaultConfig

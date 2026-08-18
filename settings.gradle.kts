@@ -32,6 +32,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Caller ID Lookup Home"
+rootProject.name = "Caller ID Phone Home"
 include(":app")
  

@@ -34,15 +34,15 @@
 -keepclassmembers class * { native <methods>; }
 
 # View/Data binding generated classes.
--keep class com.callerid.numberlookup.home.databinding.** { *; }
+-keep class com.callerid.phonelookup.home.databinding.** { *; }
 
 # -------------------------------------------------------------
 # App models — serialized by Gson (Retrofit) & parsed from
 # Firebase Remote Config JSON. Field names must survive.
 # -------------------------------------------------------------
--keep class com.callerid.numberlookup.home.models.** { *; }
--keep class com.callerid.adbridge.data.** { *; }
--keepclassmembers class com.callerid.numberlookup.home.models.** { *; }
+-keep class com.callerid.phonelookup.home.models.** { *; }
+-keep class com.callerid.adcast.data.** { *; }
+-keepclassmembers class com.callerid.phonelookup.home.models.** { *; }
 
 # -------------------------------------------------------------
 # Kotlin
@@ -109,7 +109,7 @@
 # Firebase + Gson keeps below cover its FCM + JSON needs. (Replaced OneSignal.)
 # Ad module — ADHomeActivity is an open base (subclassed) that drives Remote
 # Config init/ad loading; keep it and its members intact.
--keep class com.callerid.adbridge.presentation.ADHomeActivity { *; }
+-keep class com.callerid.adcast.presentation.ADHomeActivity { *; }
 
 # -------------------------------------------------------------
 # Firebase / Crashlytics / Remote Config
@@ -171,7 +171,7 @@
 
 # -------------------------------------------------------------
 # Permission Engine + Full-Screen-Intent (FSI) flow
-# (com.callerid.numberlookup.home.permission.**)
+# (com.callerid.phonelookup.home.permission.**)
 #
 # Most of this package needs NO rules:
 #  • FsiPermissionActivity / FsiWatchService are declared in the manifest, so
@@ -187,9 +187,9 @@
 # process death. Keep their no-arg constructors so that path can never
 # NoSuchMethod-crash under R8 full mode.
 # -------------------------------------------------------------
--keepclassmembers class com.callerid.numberlookup.home.permission.PermissionLauncher {
+-keepclassmembers class com.callerid.phonelookup.home.permission.PermissionLauncher {
     <init>();
 }
--keepclassmembers class com.callerid.numberlookup.home.permission.PermissionSheetDialog {
+-keepclassmembers class com.callerid.phonelookup.home.permission.PermissionSheetDialog {
     <init>();
 }

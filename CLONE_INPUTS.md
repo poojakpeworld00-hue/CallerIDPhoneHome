@@ -14,12 +14,12 @@ Legend:
 
 | # | Item | Source | Current value | New value |
 |---|---|---|---|---|
-| A1 | applicationId **[SET]** | `com.calleridapp.numberlookup` | `com.callerid.numberlookup.home` | |
-| A2 | namespace **[SET]** | same as A1 | `com.callerid.numberlookup.home` | |
-| A3 | Ad-module package **[SET]** | `com.calleridapp.admesh` | `com.callerid.adbridge` | |
+| A1 | applicationId **[SET]** | `com.calleridapp.numberlookup` | `com.callerid.phonelookup.home` | |
+| A2 | namespace **[SET]** | same as A1 | `com.callerid.phonelookup.home` | |
+| A3 | Ad-module package **[SET]** | `com.calleridapp.admesh` | `com.callerid.adcast` | |
 | A4 | rootProject.name **[SET]** | `Caller ID Number Lookup Block` | `Caller ID Lookup Home` | |
-| A5 | APK archive prefix **[SET]** | `CallerIdNumberLookupBlock` | `CallerIdLookupHome` | |
-| A6 | Theme name **[SET]** | `Theme.CallerLookupBlock` | `Theme.CallerIdLookupHome` | |
+| A5 | APK archive prefix **[SET]** | `CallerIdNumberLookupBlock` | `CallerIdPhoneHome` | |
+| A6 | Theme name **[SET]** | `Theme.CallerLookupBlock` | `Theme.CallerIdPhoneHome` | |
 | A7 | versionCode **[SET]** | 4 | 1 | |
 | A8 | versionName **[SET]** | 1.0.3 | 1.0.0 | |
 | A9 | minSdk / targetSdk **[KEPT]** | 26 / 36 | 26 / 36 | |
