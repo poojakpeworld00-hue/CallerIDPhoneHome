@@ -79,16 +79,16 @@
     "NativeTheme": {
       "default": {
         "NativeLight": {
-          "btnColor": "#5B3FD9",
+          "btnColor": "#0969A8",
           "btnText": "#FFFFFF",
           "bgColor": "#FFFFFF",
-          "textColor": "#241A4D"
+          "textColor": "#082939"
         },
         "NativeDark": {
-          "btnColor": "#B7A6F5",
-          "btnText": "#14102B",
-          "bgColor": "#14121E",
-          "textColor": "#E7E0FF"
+          "btnColor": "#5AB8E9",
+          "btnText": "#071219",
+          "bgColor": "#0F171B",
+          "textColor": "#D1EEFF"
         }
       }
     },
@@ -380,16 +380,16 @@
     "NativeTheme": {
       "default": {
         "NativeLight": {
-          "btnColor": "#1565C0",
+          "btnColor": "#0969A8",
           "btnText": "#FFFFFF",
           "bgColor": "#FFFFFF",
-          "textColor": "#000000"
+          "textColor": "#082939"
         },
         "NativeDark": {
-          "btnColor": "#1565C0",
-          "btnText": "#FFFFFF",
-          "bgColor": "#1C1F31",
-          "textColor": "#FFFFFF"
+          "btnColor": "#5AB8E9",
+          "btnText": "#071219",
+          "bgColor": "#0F171B",
+          "textColor": "#D1EEFF"
         }
       }
     },

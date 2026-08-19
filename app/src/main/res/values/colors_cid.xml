@@ -9,22 +9,22 @@
 -->
 <resources>
     <!-- green ramp -->
-    <color name="cid_g_900">#FF241A4D</color>
-    <color name="cid_g_800">#FF34247A</color>
-    <color name="cid_g_700">#FF5B3FD9</color>
-    <color name="cid_g_600">#FF6E4FEC</color>
-    <color name="cid_g_500">#FF8B74F0</color>
-    <color name="cid_g_200">#FFD9D0FF</color>
-    <color name="cid_g_100">#FFEBE6FF</color>
-    <color name="cid_g_050">#FFF7F5FF</color>
+    <color name="cid_g_900">#FF082939</color>
+    <color name="cid_g_800">#FF093F5C</color>
+    <color name="cid_g_700">#FF0969A8</color>
+    <color name="cid_g_600">#FF087AB6</color>
+    <color name="cid_g_500">#FF0B94E0</color>
+    <color name="cid_g_200">#FFADE2FF</color>
+    <color name="cid_g_100">#FFD8EFFF</color>
+    <color name="cid_g_050">#FFEEF8FF</color>
 
     <!-- accents -->
     <color name="cid_clay">#FFC76841</color>
     <color name="cid_clay_100">#FFFEE5DC</color>
     <color name="cid_clay_ink">#FF713319</color>
-    <color name="cid_teal">#FF1F0AC4</color>
-    <color name="cid_teal_100">#FFDCD7F9</color>
-    <color name="cid_teal_ink">#FF07005E</color>
+    <color name="cid_teal">#FF089AA2</color>
+    <color name="cid_teal_100">#FFC9F3F7</color>
+    <color name="cid_teal_ink">#FF004C4D</color>
     <color name="cid_amber">#FFB98833</color>
     <color name="cid_amber_100">#FFFAEAD3</color>
     <color name="cid_amber_ink">#FF664603</color>
@@ -40,30 +40,30 @@
         themes, because it is a picture of a phone showing an incoming call — inverting
         it would read as a bug, not as dark mode.
     -->
-    <color name="cid_onb_paper">#FFF2F1F3</color>
-    <color name="cid_onb_ink">#FF241A4D</color>
-    <color name="cid_onb_muted">#FF6B6480</color>
+    <color name="cid_onb_paper">#FFF1F2F3</color>
+    <color name="cid_onb_ink">#FF082939</color>
+    <color name="cid_onb_muted">#FF5C6C76</color>
 
-    <color name="cid_onb_cta">#FF5B3FD9</color>
+    <color name="cid_onb_cta">#FF0969A8</color>
     <color name="cid_onb_on_cta">#FFFFFFFF</color>
 
-    <color name="cid_onb_accent">#FF5B3FD9</color>
+    <color name="cid_onb_accent">#FF0969A8</color>
     <color name="cid_onb_on_accent">#FFFFFFFF</color>
     <color name="cid_onb_badge_disc">#FFFFFFFF</color>
 
-    <color name="cid_onb_mark">#FF5B3FD9</color>
+    <color name="cid_onb_mark">#FF0969A8</color>
     <color name="cid_onb_on_mark">#FFFFFFFF</color>
 
-    <color name="cid_onb_blob">#FFEBE6FF</color>
-    <color name="cid_onb_card">#FFF8F6FF</color>
-    <color name="cid_onb_card_stroke">#FFDED6FA</color>
-    <color name="cid_onb_tile">#FFE4DCFF</color>
+    <color name="cid_onb_blob">#FFD8EFFF</color>
+    <color name="cid_onb_card">#FFF4FAFF</color>
+    <color name="cid_onb_card_stroke">#FFC9E5F9</color>
+    <color name="cid_onb_tile">#FFD2EDFF</color>
 
     <!-- the mock call screen: identical in both themes -->
-    <color name="cid_onb_mock">#FF241A4D</color>
+    <color name="cid_onb_mock">#FF082939</color>
     <color name="cid_onb_on_mock">#FFFFFFFF</color>
-    <color name="cid_onb_mock_avatar">#FF726A7C</color>
-    <color name="cid_onb_mock_chip">#FF34247A</color>
+    <color name="cid_onb_mock_avatar">#FF687379</color>
+    <color name="cid_onb_mock_chip">#FF093F5C</color>
     <color name="cid_onb_decline">#FFC0522D</color>
 
     <!-- Broadsheet neutrals -->
