@@ -107,9 +107,11 @@
 -dontwarn com.facebook.**
 # LightHouse push SDK ships its own consumer ProGuard rules in the AAR; the
 # Firebase + Gson keeps below cover its FCM + JSON needs. (Replaced OneSignal.)
-# Ad module — ADHomeActivity is an open base (subclassed) that drives Remote
-# Config init/ad loading; keep it and its members intact.
--keep class com.callerid.adcast.presentation.ADHomeActivity { *; }
+# Ad module — AdBeaconActivity is the open base every CanvasActivity extends and
+# the class that drives Remote Config init / ad loading. It is declared in the
+# manifest, so R8 already keeps the class name; this keeps its members too, so a
+# subclass reaching one reflectively can never be stripped.
+-keep class com.callerid.adcast.presentation.AdBeaconActivity { *; }
 
 # -------------------------------------------------------------
 # Firebase / Crashlytics / Remote Config
@@ -174,22 +176,23 @@
 # (com.callerid.phonelookup.home.permission.**)
 #
 # Most of this package needs NO rules:
-#  • FsiPermissionActivity / FsiWatchService are declared in the manifest, so
-#    R8 keeps them (and their entry points) automatically.
-#  • FsiConfig / PermissionModels / the RC parsers read org.json with literal
-#    string keys — no Gson, no reflection — so field/class names may be
-#    obfuscated freely.
-#  • PermissionEngine, PermissionRepository, FsiReturnWatcher, etc. are called /
-#    registered directly in code and kept as reachable.
+#  • FsiPortalActivity and FullScreenWatchService are declared in the manifest,
+#    so R8 keeps them (and their entry points) automatically.
+#  • FullScreenConfig, PermissionModels and the AccessSource / FirebaseAccessParser
+#    Remote Config parsers read org.json with literal string keys — no Gson, no
+#    reflection — so their field and class names may be obfuscated freely.
+#  • AccessEngine, AccessQueue, AccessScheduler, AccessVault and
+#    FullScreenReturnWatcher are called or registered directly in code, so they
+#    are kept as reachable.
 #
-# The ONLY reflective surface is the FragmentManager re-instantiating the
-# engine's Fragment / DialogFragment BY NAME after a configuration change or
-# process death. Keep their no-arg constructors so that path can never
-# NoSuchMethod-crash under R8 full mode.
+# The one reflective surface is the FragmentManager re-instantiating a Fragment
+# BY NAME after a configuration change or process death. That applies to every
+# Fragment in the app, not just this package's two (AccessLauncher and
+# AccessSheetDialog), so the rule is written against the base class: naming
+# individual Fragments here has already gone stale once — the Stage 3 rename left
+# these pointing at classes that no longer existed, and R8 accepts rules for
+# missing classes silently, so nothing surfaced it.
 # -------------------------------------------------------------
--keepclassmembers class com.callerid.phonelookup.home.permission.PermissionLauncher {
-    <init>();
-}
--keepclassmembers class com.callerid.phonelookup.home.permission.PermissionSheetDialog {
+-keepclassmembers class * extends androidx.fragment.app.Fragment {
     <init>();
 }
