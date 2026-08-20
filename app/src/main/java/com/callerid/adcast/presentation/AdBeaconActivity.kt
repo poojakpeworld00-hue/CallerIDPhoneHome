@@ -38,6 +38,7 @@ import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.google.android.ump.FormError
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
+import io.lighthouse.push.Attribution
 import io.lighthouse.push.LightHouse
 import com.callerid.adcast.data.AdKind
 import com.callerid.adcast.data.OnDataReady
@@ -62,7 +63,10 @@ import com.callerid.phonelookup.home.util.AppVault.THEME_LIGHT
 import com.callerid.phonelookup.home.util.AppVault.THEME_SYSTEM
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
+import kotlin.coroutines.resume
 import org.json.JSONObject
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
@@ -313,6 +317,29 @@ open class AdBeaconActivity : AppCompatActivity() {
      *
      * Guarded so the extra exits can never double-run the IP lookup and the re-ingest.
      */
+    /**
+     * True when this install should be served the `marketing` half of the ad config.
+     *
+     * The verdict comes from LightHouse, which holds its answer until the Play install
+     * referrer resolves and never reports UNKNOWN — an install still unsettled when its own
+     * wait elapses is reported organic. Capped again here so a callback that never arrives
+     * cannot park [funOnAdsLoad], and with it the audience re-ingest, indefinitely; that
+     * timeout also falls back to organic, matching the SDK's own failure rule.
+     *
+     * First launch only: the referrer is cached from the second launch on, so every later
+     * call resolves immediately.
+     */
+    private suspend fun resolveMarketingAudience(): Boolean {
+        if (BuildConfig.DEBUG) return DEBUG_AUDIENCE_MARKETING
+        return withTimeoutOrNull(ATTRIBUTION_WAIT_MS) {
+            suspendCancellableCoroutine { cont ->
+                LightHouse.resolveAttribution { attribution ->
+                    if (cont.isActive) cont.resume(attribution == Attribution.PAID)
+                }
+            }
+        } ?: false
+    }
+
     private fun onReferrerSettled() {
         if (referrerHandoffDone.compareAndSet(false, true)) {
             funOnAdsLoad()
@@ -336,14 +363,10 @@ open class AdBeaconActivity : AppCompatActivity() {
                     }
                 }
 
-                val isMarketingOn =true /*if (BuildConfig.DEBUG) {
-                    DEBUG_AUDIENCE_MARKETING
-                } else {
-                    !LightHouse.isOrganicUser(awaitReferrerMs = ATTRIBUTION_WAIT_MS)
-                }
+                val isMarketingOn = resolveMarketingAudience()
                 if (BuildConfig.DEBUG) {
                     Log.d(CONFIG_TAG, "audience → ${if (isMarketingOn) "MARKETING" else "ORGANIC"}")
-                }*/
+                }
                 adsPreference.putBoolean("OnMaketing", isMarketingOn)
 
                 // Top-level audience split only: OnMaketing is now final (referrer

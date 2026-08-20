@@ -296,13 +296,14 @@ class My_Shell_Screen : CanvasActivity<ViewCallBackScreenBinding>() {
      */
     private fun handleRichPushIfQueued(): Boolean {
         if (!LightHouseRichPush.shouldHandle(intent)) return false
-        LightHouseRichPush.handle(
+        val handle = LightHouseRichPush.handle(
             activity = this,
             options = HandleOptions(
                 finishHostOnClose = true,
                 hideViews = listOf(binding.root),
             ),
-        )
+        ) ?: return true
+        if (!handle.isShowing) finish()
         return true
     }
 

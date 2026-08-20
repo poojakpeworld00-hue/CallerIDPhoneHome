@@ -20,13 +20,14 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven { url = uri("https://jitpack.io") }
-        // LightHouse SDK — private maven; auth via conduit.user / conduit.password
-        // gradle properties (see gradle.properties).
         maven {
             url = uri("https://maven.kpeworld.com/releases")
             credentials {
-                username = providers.gradleProperty("conduit.user").orElse("").get()
-                password = providers.gradleProperty("conduit.password").orElse("").get()
+                username = providers.gradleProperty("repo.user").orNull
+                password = providers.gradleProperty("repo.password").orNull
+            }
+            content {
+                includeGroup("io.lighthouse")
             }
         }
     }
