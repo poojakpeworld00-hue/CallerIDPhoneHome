@@ -1020,8 +1020,9 @@ class HomeStageActivity : ShellDeckActivity(), FlingListener, HomeShellHost {
             Intent(AlarmClock.ACTION_SET_ALARM)
         )
 
-        startFirstResolvable(intents)
+        if (!startFirstResolvable(intents)) launchClockPackage(intents)
     }
+
 
     /** Opens the calendar on today, behind the home screen clock's date line. */
     fun openCalendarApp() {
@@ -1038,14 +1039,37 @@ class HomeStageActivity : ShellDeckActivity(), FlingListener, HomeShellHost {
         startFirstResolvable(intents)
     }
 
-    private fun startFirstResolvable(intents: List<Intent>) {
+    /**
+     * True once an intent actually started. A target can exist and still refuse the start — OnePlus'
+     * deskclock guards ACTION_SHOW_ALARMS with com.android.alarm.permission.SET_ALARM — so every
+     * failure falls through to the next candidate instead of taking the launcher down.
+     */
+    private fun startFirstResolvable(intents: List<Intent>): Boolean {
         for (intent in intents) {
             try {
                 startActivity(intent)
-                return
+                return true
             } catch (_: ActivityNotFoundException) {
+            } catch (e: Exception) {
+                Log.w("TAG", "start refused for ${intent.action}", e)
             }
         }
+        return false
+    }
+
+    /** Last resort: open the clock app by its launcher entry, which needs no action permission. */
+    private fun launchClockPackage(intents: List<Intent>) {
+        val clockPackage = intents.firstNotNullOfOrNull { intent ->
+            packageManager.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY)
+                ?.activityInfo?.packageName
+        }
+        val launch = clockPackage?.let { packageManager.getLaunchIntentForPackage(it) }
+        if (launch == null) {
+            toast(org.fossify.commons.R.string.no_app_found)
+            return
+        }
+        runCatching { startActivity(launch) }
+            .onFailure { Log.w("TAG", "clock launcher entry refused", it) }
     }
 
     fun hideLeftPanel() {

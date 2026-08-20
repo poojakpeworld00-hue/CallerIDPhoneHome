@@ -10,7 +10,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
-import androidx.multidex.MultiDex
 import com.google.firebase.FirebaseApp
 import com.callerid.adcast.data.AdKind
 import com.callerid.adcast.domain.AdsVault
@@ -48,8 +47,6 @@ class LookupShellApp : Application() , Application.ActivityLifecycleCallbacks,
     override fun onCreate() {
         super.onCreate()
         appContext = applicationContext
-
-        MultiDex.install(this)
         AdsVault.getInstance(this)
 
         // Fossify Commons runs an anti-clone heuristic that probes one of its own drawable ids

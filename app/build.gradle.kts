@@ -40,10 +40,9 @@ android {
         // shortcut + pinned-item APIs.
         minSdk = 26
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = 2
+        versionName = "1.0.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        multiDexEnabled = true
 
         // LightHouse credentials → obfuscated BuildConfig byte[] (decoded at runtime
         // by Obfuscated.s). buildConfig = true is enabled below.
@@ -145,7 +144,6 @@ dependencies {
     implementation(libs.app.update)
     implementation(libs.app.update.ktx)
     implementation(libs.androidx.work.runtime.ktx)
-    implementation(libs.androidx.multidex)
     implementation(libs.libphonenumber)
     implementation(libs.libphonenumber.geocoder)
     implementation(libs.libphonenumber.carrier)
