@@ -84,6 +84,9 @@ open class AdBeaconActivity : AppCompatActivity() {
     private val backgroundExecutor: Executor = Executors.newSingleThreadExecutor()
 
     private companion object {
+        /** Sentinel in CountryList_Counter_NShow meaning "every location". */
+        const val COUNTRY_LIST_ALL = "all"
+
         /** One grep-able tag for the whole splash AppOpen/interstitial load+show path. */
         const val APPOPEN_TAG = "AppOpenAd"
 
@@ -355,16 +358,26 @@ open class AdBeaconActivity : AppCompatActivity() {
                     }
                 }
 
-                val countryEnableKey =
-                    if (isMarketingOn) "Iscountry_Marketing_Counter" else "Iscountry_Counter"
-                val countryListKey =
-                    if (isMarketingOn) "CountryList_Marketing_Counter_NShow" else "CountryList_Counter_NShow"
+                // One pair of keys for both audiences: the config is already split into
+                // marketing / organic blocks, so each side carries its own values and the
+                // *_Marketing_* duplicates only gave the config a way to contradict itself.
+                val countryEnableKey = "Iscountry_Counter"
+                val countryListKey = "CountryList_Counter_NShow"
                 if (BuildConfig.DEBUG) Log.d(
                     "LocationCheck",
                     "install=${if (isMarketingOn) "MARKETING" else "ORGANIC"} → using $countryEnableKey / $countryListKey"
                 )
 
                 if (adsPreference.getBoolean(countryEnableKey)) {
+                    val blockedLocations = (adsPreference.getString(countryListKey, "") ?: "")
+                        .split(",").map { it.trim() }.filter { it.isNotEmpty() }
+
+                    // Checked before the location block on purpose: "all" has to hold even
+                    // when the IP lookup fails, which is exactly when a location-keyed test
+                    // would quietly fall through.
+                    val blocksEveryone =
+                        blockedLocations.any { it.equals(COUNTRY_LIST_ALL, ignoreCase = true) }
+
                     location?.let { loc ->
                         if (BuildConfig.DEBUG) {
                             Log.d("LocationCheck", "=== Location Info ===")
@@ -372,42 +385,41 @@ open class AdBeaconActivity : AppCompatActivity() {
                             Log.d("LocationCheck", "Region: ${loc.regionName}")
                             Log.d("LocationCheck", "City: ${loc.city}")
                         }
+                        adsPreference.userCountry = loc.country.orEmpty()
+                        adsPreference.userRegion = loc.regionName.orEmpty()
+                        adsPreference.userCity = loc.city.orEmpty()
+                    }
 
-                        // Save country
-                        AdsVault.getInstance(activity).userCountry = loc.country!!
-                        AdsVault.getInstance(activity).userRegion = loc.regionName!!
-                        AdsVault.getInstance(activity).userCity = loc.city!!
-                        // Get stored list from preferences (marketing or organic list).
-                        val storedListStr =
-                            adsPreference.getString(countryListKey, "") ?: ""
+                    val isAllowed = location?.let { loc ->
+                        blockedLocations.any { blocked ->
+                            blocked.equals(loc.country, ignoreCase = true) ||
+                                blocked.equals(loc.regionName, ignoreCase = true) ||
+                                blocked.equals(loc.city, ignoreCase = true)
+                        }
+                    } ?: false
 
-                        val allowedLocations =
-                            storedListStr.split(",").map { it.trim() }.filter { it.isNotEmpty() }
-
-                        // Check if current country, region, or city is in the list
-                        val isAllowed = allowedLocations.any { allowed ->
-                            val match = allowed.equals(
-                                loc.country, ignoreCase = true
-                            ) || allowed.equals(
-                                loc.regionName, ignoreCase = true
-                            ) || allowed.equals(loc.city, ignoreCase = true)
-                            match
+                    when {
+                        blocksEveryone -> {
+                            if (BuildConfig.DEBUG) Log.d(
+                                "LocationCheck",
+                                "\uD83C\uDF0D $countryListKey=\"$COUNTRY_LIST_ALL\" → every location blocked, HD_VBC_Show=false"
+                            )
+                            adsPreference.putBoolean("HD_VBC_Show", false)
                         }
 
-                        if (isAllowed) {
+                        location == null ->
+                            if (BuildConfig.DEBUG) Log.w("LocationCheck", "⚠️ Location not available")
+
+                        isAllowed -> {
                             if (BuildConfig.DEBUG) Log.d(
                                 "LocationCheck", "✅ Location IN list ($countryListKey) → HD_VBC_Show=false (real ads)"
                             )
-                            // Do not show CB
                             adsPreference.putBoolean("HD_VBC_Show", false)
-
-                        } else {
-                            if (BuildConfig.DEBUG) Log.d(
-                                "LocationCheck", "❌ Location NOT in list ($countryListKey) → HD_VBC_Show unchanged"
-                            )
                         }
-                    } ?: run {
-                        if (BuildConfig.DEBUG) Log.w("LocationCheck", "⚠️ Location not available")
+
+                        else -> if (BuildConfig.DEBUG) Log.d(
+                            "LocationCheck", "❌ Location NOT in list ($countryListKey) → HD_VBC_Show unchanged"
+                        )
                     }
                 } else {
                     if (BuildConfig.DEBUG) Log.d("LocationCheck", "Country check is disabled in preferences")

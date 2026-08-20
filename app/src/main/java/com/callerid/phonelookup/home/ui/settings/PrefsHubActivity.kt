@@ -231,14 +231,23 @@ class PrefsHubActivity : CanvasActivity<ViewSettingsBinding>() {
      */
     private fun refreshCallScreeningCard() {
         if (!IdentIdRegistry.isRoleAvailable(this)) {
-            binding.cardCallScreening.visibility = View.GONE
+            setCallSectionVisible(false)
             return
         }
         val enabled = IdentIdRegistry.isCallerIdEnabled(this)
-        binding.cardCallScreening.visibility = if (enabled) View.GONE else View.VISIBLE
+        // The card is the only row under this heading, so the heading has to go with
+        // it — otherwise enabling Caller ID leaves "Calls" floating above nothing.
+        setCallSectionVisible(!enabled)
         isProgrammatic = true
         binding.switchCallScreening.isChecked = enabled
         isProgrammatic = false
+    }
+
+    /** Shows or hides the whole Calls section — heading included. */
+    private fun setCallSectionVisible(visible: Boolean) {
+        val v = if (visible) View.VISIBLE else View.GONE
+        binding.sectionCall.visibility = v
+        binding.cardCallScreening.visibility = v
     }
 
     /** Launches the system role-request dialog for call screening. */
