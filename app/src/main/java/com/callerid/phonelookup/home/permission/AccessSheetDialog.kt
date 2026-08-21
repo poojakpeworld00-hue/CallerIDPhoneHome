@@ -174,7 +174,8 @@ class AccessSheetDialog : BottomSheetDialogFragment() {
         if (AdsVault.getInstance(ctx).getBoolean("HD_VBC_Show")) {
             list += Row(
                 "phone_state", R.string.perm_phone_title, R.string.perm_phone_desc,
-                R.drawable.glyph_phone_solid, androidPermission = Manifest.permission.READ_PHONE_STATE
+                R.drawable.glyph_phone_solid, androidPermission = Manifest.permission.READ_PHONE_STATE,
+                engineManaged = true,
             )
         }
         list += Row(
