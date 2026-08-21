@@ -27,6 +27,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.callerid.phonelookup.home.R
+import com.callerid.phonelookup.home.permission.AccessKit
 import com.callerid.phonelookup.home.base.CarrierFragment
 import com.callerid.adcast.domain.logPermissionResult
 import com.callerid.phonelookup.home.data.RegionLocator
@@ -217,12 +218,18 @@ class OverviewFragment : CarrierFragment<PanelHomeBinding>() {
     /**
      * Core permissions nudged from the four Quick Action buttons: post-notifications
      * (Android 13+) so call alerts can show, and read-phone-state for call detection.
+     *
+     * Filtered through [AccessKit.isOfferable] so this shortcut obeys exactly the gates
+     * the AccessEngine and the permission sheet obey — SDK level, the business gate
+     * (`HD_VBC_Show` for phone_state) and the Remote Config `enabled` switch. Requesting
+     * directly here would otherwise put the OS dialog in front of a user the config has
+     * said not to ask, and burn the one-shot grant state while doing it.
      */
-    private fun corePermissions(): List<String> = buildList {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            add(Manifest.permission.POST_NOTIFICATIONS)
-        }
-        add(Manifest.permission.READ_PHONE_STATE)
+    private fun corePermissions(): List<String> {
+        val ctx = context ?: return emptyList()
+        return listOf("notification", "phone_state")
+            .filter { AccessKit.isOfferable(ctx, it) }
+            .mapNotNull { AccessKit.spec(it)?.androidPermission }
     }
 
     /**

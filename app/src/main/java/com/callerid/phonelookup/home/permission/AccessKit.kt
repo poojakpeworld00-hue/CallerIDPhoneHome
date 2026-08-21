@@ -67,6 +67,28 @@ object AccessKit {
     }
 
     /**
+     * True when the engine is allowed to offer [key] at all on this device right now:
+     * the key is known, the permission is still a runtime one on this SDK, its business
+     * gate is open, and Remote Config has not switched the rule off.
+     *
+     * This is the same set of gates [AccessEngine.request] applies before it will ask —
+     * including `enabled`, which is the remote off-switch. UI that *lists* engine-managed
+     * permissions must consult this rather than re-deriving a subset of the gates, or it
+     * ends up showing a row for a permission the engine will silently refuse to request:
+     * the Allow button does nothing and the row never clears.
+     *
+     * A missing rule means Remote Config says nothing about this key, so the spec alone
+     * decides — matching [AccessEngine.request].
+     */
+    fun isOfferable(context: Context, key: String): Boolean {
+        val spec = spec(key) ?: return false
+        if (!isApplicableOnThisSdk(spec)) return false
+        if (!isPrefGateOpen(context, spec)) return false
+        val rule = runCatching { AccessSource.rules().firstOrNull { it.key == key } }.getOrNull()
+        return rule == null || rule.enabled
+    }
+
+    /**
      * True when the permission is already granted (or not required on this SDK).
      * Callers should skip requesting when this returns true.
      */

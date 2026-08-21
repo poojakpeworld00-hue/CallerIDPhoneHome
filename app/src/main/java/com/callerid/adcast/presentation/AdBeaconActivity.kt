@@ -106,7 +106,7 @@ open class AdBeaconActivity : AppCompatActivity() {
          * of the config could never be exercised on a test device. Release builds ignore
          * this entirely and keep using the real attribution.
          */
-        const val DEBUG_AUDIENCE_MARKETING = true
+        const val DEBUG_AUDIENCE_MARKETING = false
 
         /**
          * How long the audience gate waits for LightHouse's install-referrer verdict before

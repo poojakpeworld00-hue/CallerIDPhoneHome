@@ -70,6 +70,7 @@ class IdentFloatService : Service() {
             return START_NOT_STICKY
         }
 
+        showingFor = number
         startAsForeground()
         showOverlay(number)
         callEndWatcher.start()
@@ -152,6 +153,7 @@ class IdentFloatService : Service() {
     }
 
     override fun onDestroy() {
+        showingFor = null
         callEndWatcher.stop()
         removeOverlay()
         scope.cancel()
@@ -161,7 +163,21 @@ class IdentFloatService : Service() {
     companion object {
         const val EXTRA_NUMBER = "extra_number"
 
+        /**
+         * The number the card is currently up for, or null when no card is showing.
+         * One ring can reach us twice — [com.callerid.phonelookup.home.services.onincomming.ScreenerService]
+         * raises the card from the CallScreening role and [CallStateReceiver] raises it
+         * again on the RINGING broadcast a moment later — and re-entering onStartCommand
+         * would tear the card down and re-run the lookup for the same caller.
+         */
+        @Volatile
+        private var showingFor: String? = null
+
         fun start(context: Context, number: String) {
+            if (showingFor == number) {
+                Log.d("CallerOverlay", "card already up for this call — ignoring duplicate start")
+                return
+            }
             val intent = Intent(context, IdentFloatService::class.java)
                 .putExtra(EXTRA_NUMBER, number)
             runCatching { context.startService(intent) }

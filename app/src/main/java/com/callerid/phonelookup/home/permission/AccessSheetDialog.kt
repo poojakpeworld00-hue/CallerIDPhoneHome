@@ -3,7 +3,6 @@ package com.callerid.phonelookup.home.permission
 import android.Manifest
 import android.content.pm.PackageManager
 import android.graphics.Color
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -20,7 +19,6 @@ import androidx.fragment.app.FragmentActivity
 import com.callerid.phonelookup.home.data.VaultRegistry
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.callerid.adcast.domain.AdsVault
 import com.callerid.adcast.domain.logKeyEvent
 import com.callerid.adcast.domain.logPermissionResult
 import com.callerid.adcast.presentation.AppOpenAdRegistry
@@ -41,8 +39,11 @@ import com.callerid.phonelookup.home.util.GuardRail
  * Self-contained: it owns its own result launchers, so AppCoreActivity only has to
  * `show()` it. Runtime permissions go through the OS dialog; the overlay
  * ("display over other apps") permission opens system Settings via
- * [FloatKit]. `phone_state` is only listed when `HD_VBC_Show` is on — the
- * same geo gate the rest of the app uses.
+ * [FloatKit]. The engine-managed rows (`notification`, `phone_state`) are only
+ * listed when [AccessKit.isOfferable] says the engine would actually ask for them —
+ * i.e. the SDK level applies, the business gate is open (`HD_VBC_Show` for
+ * `phone_state`, the same geo gate the rest of the app uses) and the Remote Config
+ * rule is `enabled`.
  */
 class AccessSheetDialog : BottomSheetDialogFragment() {
 
@@ -161,17 +162,21 @@ class AccessSheetDialog : BottomSheetDialogFragment() {
         val list = mutableListOf<Row>()
 
         // Notification + phone state are handled by the AccessEngine (see
-        // requestSingle / onContinueClicked), so the sheet only primes them here.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        // requestSingle / onContinueClicked), so the sheet only primes them here — and
+        // only when the engine would actually ask. AccessKit.isOfferable covers every
+        // gate the engine applies: the SDK level, the business gate (HD_VBC_Show for
+        // phone_state), and the Remote Config `enabled` switch. Listing a row the engine
+        // has been told to skip leaves a dead row on the sheet — Allow does nothing and
+        // it never clears, because the engine returns without asking.
+        if (AccessKit.isOfferable(ctx, "notification")) {
             list += Row(
                 "notification", R.string.perm_notification_title, R.string.perm_notification_desc,
                 R.drawable.glyph_notifications, androidPermission = Manifest.permission.POST_NOTIFICATIONS,
                 engineManaged = true,
             )
         }
-        // Read-phone-state powers caller ID / post-call detection — same geo gate
-        // as the rest of the app.
-        if (AdsVault.getInstance(ctx).getBoolean("HD_VBC_Show")) {
+        // Read-phone-state powers caller ID / post-call detection.
+        if (AccessKit.isOfferable(ctx, "phone_state")) {
             list += Row(
                 "phone_state", R.string.perm_phone_title, R.string.perm_phone_desc,
                 R.drawable.glyph_phone_solid, androidPermission = Manifest.permission.READ_PHONE_STATE,
@@ -242,8 +247,13 @@ class AccessSheetDialog : BottomSheetDialogFragment() {
     private fun requestSingle(row: Row) {
         if (isGranted(row)) return
         when {
-            // Notification / phone state → delegate to the engine (RC-driven).
-            row.engineManaged -> AccessEngine.check(requireActivity()) {
+            // Notification / phone state → delegate to the engine (RC-driven). request()
+            // rather than check(): check() only asks for keys whose Remote Config
+            // `activities` list names the current screen, and the sheet's hosts
+            // (AppCoreActivity / HomeStageActivity) are not necessarily on it — the tap
+            // would then resolve to nothing. request() is the per-key trigger and still
+            // honours enabled / the pref gate / show_once.
+            row.engineManaged -> AccessEngine.request(requireActivity(), row.key) {
                 if (isAdded) refreshRows()
             }
             row.isOverlay -> launchOverlay(finishAfter = false)
@@ -252,11 +262,26 @@ class AccessSheetDialog : BottomSheetDialogFragment() {
     }
 
     private fun onContinueClicked() {
-        // Notification + phone state are managed by the AccessEngine; once it
-        // finishes, request the sheet's own permissions (call log / contacts) and
-        // then the overlay step.
-        AccessEngine.check(requireActivity()) {
+        // Notification + phone state are managed by the AccessEngine; once they are
+        // done, request the sheet's own permissions (call log / contacts) and then the
+        // overlay step.
+        requestEngineRows(rows.filter { it.engineManaged && !isGranted(it) }) {
             if (isAdded) requestSheetOwnedThenOverlay()
+        }
+    }
+
+    /**
+     * Asks the engine-managed rows one at a time, then runs [onDone]. Sequential because
+     * the OS shows one permission dialog at a time, and [AccessEngine.request] only
+     * reports back once its dialog has resolved.
+     */
+    private fun requestEngineRows(pending: List<Row>, onDone: () -> Unit) {
+        val act = activity
+        if (pending.isEmpty() || act == null) {
+            onDone(); return
+        }
+        AccessEngine.request(act, pending.first().key) {
+            if (isAdded) requestEngineRows(pending.drop(1), onDone) else onDone()
         }
     }
 
@@ -340,11 +365,11 @@ class AccessSheetDialog : BottomSheetDialogFragment() {
             // Notification / phone state are "resolved" once granted OR denied
             // twice (permanent denial) — the sheet stops offering them, so they no
             // longer count as pending (avoids showing an all-hidden sheet).
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            if (AccessKit.isOfferable(activity, "notification") &&
                 !granted(Manifest.permission.POST_NOTIFICATIONS) &&
                 !isPermanentlyDenied(activity, "notification", Manifest.permission.POST_NOTIFICATIONS)
             ) return true
-            if (AdsVault.getInstance(activity).getBoolean("HD_VBC_Show") &&
+            if (AccessKit.isOfferable(activity, "phone_state") &&
                 !granted(Manifest.permission.READ_PHONE_STATE) &&
                 !isPermanentlyDenied(activity, "phone_state", Manifest.permission.READ_PHONE_STATE)
             ) return true

@@ -1,16 +1,33 @@
 package com.callerid.phonelookup.home.services.onincomming
 
 import android.os.Build
+import android.provider.Settings
 import android.telecom.Call
 import android.telecom.CallScreeningService
 import android.util.Log
 import com.callerid.phonelookup.home.data.BlockRosterRegistry
 
 /**
- * Screens incoming calls and silently rejects blocked numbers **before** they
- * ring. Active only while the app holds the CallScreening role (Android 10+,
- * granted from Settings). This is the proper way to block calls — unlike the
- * PHONE_STATE receiver's endCall() fallback, the call never rings through.
+ * Screens incoming calls while the app holds the CallScreening role (Android 10+,
+ * granted from Settings as the default "Caller ID & spam" app). It does two jobs:
+ *
+ *  - **Blocking** — silently rejects blocked numbers *before* they ring. Unlike the
+ *    PHONE_STATE receiver's endCall() fallback, the call never rings through.
+ *  - **Caller-ID card** — raises [IdentFloatService] for the incoming number.
+ *
+ * The card is raised here and not only from [CallStateReceiver] because this is the
+ * *only* path that survives a denied READ_PHONE_STATE: the ACTION_PHONE_STATE_CHANGED
+ * broadcast is sent with READ_PHONE_STATE as its receiver permission, so with the
+ * runtime grant withheld CallStateReceiver never fires at all. [onScreenCall] carries
+ * the number itself, needs neither READ_PHONE_STATE nor READ_CALL_LOG, and holding the
+ * role is itself the background-activity-start / FGS-start exemption the card needs.
+ *
+ * Two consequences worth knowing:
+ *  - The system only screens numbers that are **not** in the user's contacts, so a known
+ *    caller reaches [CallStateReceiver] or nothing at all.
+ *  - [onScreenCall] fires once and the service unbinds; there is no answer/end callback
+ *    here. Dismissal is [com.callerid.phonelookup.home.services.CallEndSentinel]'s job,
+ *    which falls back to the permission-free audio-mode watcher on this path.
  */
 class ScreenerService : CallScreeningService() {
 
@@ -32,7 +49,15 @@ class ScreenerService : CallScreeningService() {
             .setSkipNotification(block) // no missed-call notification for blocked
             .build()
 
+        // Respond first — the system only allows a few seconds before it decides for us.
         respondToCall(callDetails, response)
+
+        if (block || !isIncoming || number.isNullOrBlank()) return
+        if (!Settings.canDrawOverlays(this)) {
+            Log.w(TAG, "SYSTEM_ALERT_WINDOW not granted — skipping caller-ID card")
+            return
+        }
+        IdentFloatService.start(this, number)
     }
 
     companion object {
