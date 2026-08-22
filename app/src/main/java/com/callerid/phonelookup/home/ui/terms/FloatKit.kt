@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import com.callerid.adcast.domain.AdsVault
 import com.callerid.adcast.presentation.HintSheetActivity
 
 /**
@@ -18,6 +19,23 @@ object FloatKit {
     /** True when we already have the overlay permission (or don't need it). */
     fun isGranted(context: Context): Boolean =
         Build.VERSION.SDK_INT < Build.VERSION_CODES.M || Settings.canDrawOverlays(context)
+
+    /**
+     * True when the overlay permission may still be *offered* to this user.
+     *
+     * Driven by the IP-location "do not show" gate: `Iscountry_Counter` +
+     * `CountryList_Counter_NShow` (see AdBeaconActivity, which resolves the match once at
+     * splash into [AdsVault.isNShowLocation]). Put a country / region / city in that list
+     * and the permission disappears there; put the literal `all` in it and it disappears
+     * worldwide. `phone_state` follows the same list through its own `HD_VBC_Show` gate.
+     *
+     * Every surface that *asks* for the overlay honours this — the permission sheet row,
+     * Home's Enable banner, the Terms step. It deliberately says nothing about a
+     * permission the user has already granted: the caller-ID card keeps working for them,
+     * because this gates the prompt, not the feature.
+     */
+    fun isOfferable(context: Context): Boolean =
+        !AdsVault.getInstance(context).isNShowLocation
 
     /**
      * Intent to the system "display over other apps" screen for this app.

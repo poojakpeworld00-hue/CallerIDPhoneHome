@@ -325,7 +325,7 @@ class HomeCoreFragment : CarrierFragment<PanelHomeShellBinding>() {
         if (view == null) return
         val coreGranted = isPermissionGranted(Manifest.permission.READ_CALL_LOG) &&
             isPermissionGranted(Manifest.permission.READ_CONTACTS)
-        val show = coreGranted && !FloatKit.isGranted(ctx)
+        val show = coreGranted && FloatKit.isOfferable(ctx) && !FloatKit.isGranted(ctx)
         binding.overlayBanner.visibility = if (show) View.VISIBLE else View.GONE
     }
 

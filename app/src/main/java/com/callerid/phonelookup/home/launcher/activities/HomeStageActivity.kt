@@ -129,6 +129,9 @@ class HomeStageActivity : ShellDeckActivity(), FlingListener, HomeShellHost {
     // which is exactly why the Activity-bound half lives out here.
     override val homeShellController = HomeShellController(this)
 
+    /** Only while the swipe-right panel is open; otherwise the user is on the home grid. */
+    override val isShellOnScreen: Boolean get() = isCallerPanelExpanded()
+
     /** Back inside the caller panel with its own tab history exhausted just closes it. */
     override fun onShellBackExhausted() {
         hideCallerPanel()

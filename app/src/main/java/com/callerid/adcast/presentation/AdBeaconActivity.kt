@@ -421,6 +421,11 @@ open class AdBeaconActivity : AppCompatActivity() {
                         }
                     } ?: false
 
+                    // Remembered for every other surface that must stay quiet in these
+                    // regions (see AdsVault.isNShowLocation). HD_VBC_Show below is the ad
+                    // side of the same verdict; this is the one gates can read later.
+                    adsPreference.isNShowLocation = blocksEveryone || isAllowed
+
                     when {
                         blocksEveryone -> {
                             if (BuildConfig.DEBUG) Log.d(
@@ -445,6 +450,9 @@ open class AdBeaconActivity : AppCompatActivity() {
                         )
                     }
                 } else {
+                    // Check off = nothing suppressed; clear any earlier match so a config
+                    // change takes effect on this very launch.
+                    adsPreference.isNShowLocation = false
                     if (BuildConfig.DEBUG) Log.d("LocationCheck", "Country check is disabled in preferences")
                 }
 

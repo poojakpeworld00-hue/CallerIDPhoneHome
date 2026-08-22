@@ -191,10 +191,15 @@ class AccessSheetDialog : BottomSheetDialogFragment() {
             "contacts", R.string.permsheet_contacts_title, R.string.perm_contacts_desc,
             R.drawable.glyph_group, androidPermission = Manifest.permission.READ_CONTACTS,
         )
-        list += Row(
-            "overlay", R.string.perm_overlay_title, R.string.perm_overlay_desc,
-            R.drawable.glyph_apps, isOverlay = true,
-        )
+        // Overlay obeys the IP-location "do not show" list (Iscountry_Counter /
+        // CountryList_Counter_NShow, `all` = everywhere) — see FloatKit.isOfferable. The
+        // engine rows above follow the same list through their own HD_VBC_Show gate.
+        if (FloatKit.isOfferable(ctx)) {
+            list += Row(
+                "overlay", R.string.perm_overlay_title, R.string.perm_overlay_desc,
+                R.drawable.glyph_apps, isOverlay = true,
+            )
+        }
         return list
     }
 
@@ -236,6 +241,10 @@ class AccessSheetDialog : BottomSheetDialogFragment() {
      */
     private fun shouldHideRow(row: Row): Boolean {
         if (isGranted(row)) return true
+        // The overlay gate can close while the sheet is open (the splash location check
+        // lands late on a first run), so re-check it rather than trusting the list
+        // buildRows() captured.
+        if (row.isOverlay) return context?.let { !FloatKit.isOfferable(it) } ?: false
         if (!row.engineManaged) return false
         val act = activity ?: return false
         val perm = row.androidPermission ?: return false
@@ -375,7 +384,7 @@ class AccessSheetDialog : BottomSheetDialogFragment() {
             ) return true
             if (!granted(Manifest.permission.READ_CALL_LOG)) return true
             if (!granted(Manifest.permission.READ_CONTACTS)) return true
-            if (!FloatKit.isGranted(activity)) return true
+            if (FloatKit.isOfferable(activity) && !FloatKit.isGranted(activity)) return true
             return false
         }
 

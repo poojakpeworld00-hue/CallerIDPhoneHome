@@ -49,6 +49,13 @@ class HomeShellController(private val host: HomeShellHost) {
      */
     private var permissionSheetDismissed = false
 
+    /**
+     * The sheet came due while the shell was off screen (the launcher's caller panel was
+     * shut — a HOME press during the Settings round trip, say). Held here rather than shown
+     * over the home grid, and flushed the next time the shell is on screen.
+     */
+    private var permissionSheetPending = false
+
     /** Guards [startFirstRunPriming] so a re-opened panel doesn't prime twice per session. */
     private var primingStarted = false
 
@@ -111,7 +118,12 @@ class HomeShellController(private val host: HomeShellHost) {
      * (subject to its RC frequency gate).
      */
     fun startFirstRunPriming() {
-        if (primingStarted) return
+        if (primingStarted) {
+            // Re-opened panel: nothing left to prime, but a sheet held back while the shell
+            // was off screen is owed to the user now that it is back.
+            if (permissionSheetPending) maybeAutoShowPermissionSheet()
+            return
+        }
         primingStarted = true
 
         val fsiCfg = FullScreenConfig.load(activity)
@@ -197,6 +209,14 @@ class HomeShellController(private val host: HomeShellHost) {
 
     /** Auto-shows the permission sheet when pending perms + the RC frequency gate allow. */
     private fun maybeAutoShowPermissionSheet() {
+        // The sheet asks about the caller-ID app's permissions and belongs over the caller-ID
+        // app's content. With the launcher's panel shut it would sit on the home grid, so it
+        // waits for the panel instead of following the grant that triggered it.
+        if (!host.isShellOnScreen) {
+            permissionSheetPending = true
+            return
+        }
+        permissionSheetPending = false
         if (AccessSheetDialog.shouldAutoShow(activity)) showPermissionSheet()
     }
 
@@ -297,7 +317,9 @@ class HomeShellController(private val host: HomeShellHost) {
      * banner Enable button and by each tab's permission flow.
      */
     fun startOverlayPermissionFlow() {
-        if (FloatKit.isGranted(activity)) {
+        // Suppressed region (CountryList_Counter_NShow / `all`) → never open the system
+        // page. Guarded here as well as in the UI so no stale banner or row can launch it.
+        if (!FloatKit.isOfferable(activity) || FloatKit.isGranted(activity)) {
             shell?.updateOverlayBanner()
             return
         }

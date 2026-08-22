@@ -22,6 +22,7 @@ import com.callerid.phonelookup.home.R
 import com.callerid.phonelookup.home.services.CallEndSentinel
 import com.callerid.phonelookup.home.services.IdentCard
 import com.callerid.phonelookup.home.ui.incall.IncomingRingActivity
+import com.callerid.phonelookup.home.util.IdentIdRegistry
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -57,15 +58,27 @@ class IdentFloatService : Service() {
             stopSelf(); return START_NOT_STICKY
         }
 
-        if (!Settings.canDrawOverlays(this)) {
-            Log.w(TAG, "SYSTEM_ALERT_WINDOW not granted — cannot show overlay")
-            stopSelf(); return START_NOT_STICKY
-        }
-
+        val canOverlay = Settings.canDrawOverlays(this)
         val keyguard = getSystemService(KEYGUARD_SERVICE) as? KeyguardManager
-        if (keyguard?.isKeyguardLocked == true) {
-            // Locked: a show-when-locked activity is the reliable path over the keyguard.
-            startActivity(IncomingRingActivity.newIntent(this, number))
+        val locked = keyguard?.isKeyguardLocked == true
+
+        // The floating card needs SYSTEM_ALERT_WINDOW, which the user may never grant. The
+        // full-screen activity is the route for everything else:
+        //  - locked          → activity, the only thing that shows over the keyguard;
+        //  - no overlay      → activity, started on the default-role background-start
+        //                      exemption (home / dialer / call screening) — without this
+        //                      branch a user who declined "display over other apps" saw
+        //                      nothing at all for an incoming call;
+        //  - overlay + awake → the floating card, unchanged.
+        if (locked || !canOverlay) {
+            if (!canOverlay && !IdentIdRegistry.holdsSystemDefaultRole(this)) {
+                // Nothing to start from: no overlay window and no role to start an
+                // activity with. The system's own incoming-call UI is all the user gets.
+                Log.w(TAG, "no overlay permission and no default role — no caller-ID card")
+                stopSelf(); return START_NOT_STICKY
+            }
+            runCatching { startActivity(IncomingRingActivity.newIntent(this, number)) }
+                .onFailure { Log.w(TAG, "caller-ID activity start refused", it) }
             stopSelf()
             return START_NOT_STICKY
         }

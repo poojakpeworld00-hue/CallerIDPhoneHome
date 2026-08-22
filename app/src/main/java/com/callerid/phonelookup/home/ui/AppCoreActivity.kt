@@ -30,6 +30,9 @@ class AppCoreActivity : CanvasActivity<ViewMainBinding>(), HomeShellHost {
     // the Activity is STARTED.
     override val homeShellController = HomeShellController(this)
 
+    /** The shell *is* this screen — there is nothing else for it to land over. */
+    override val isShellOnScreen: Boolean get() = true
+
     /** The shell, once committed. */
     private val shell: HomeCoreFragment?
         get() = supportFragmentManager.findFragmentById(R.id.shellContainer) as? HomeCoreFragment
