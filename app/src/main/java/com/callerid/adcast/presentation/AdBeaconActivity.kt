@@ -87,7 +87,10 @@ open class AdBeaconActivity : AppCompatActivity() {
     private var isGoogleAdsEnabled = true
     private val backgroundExecutor: Executor = Executors.newSingleThreadExecutor()
 
-    private companion object {
+    // Not private: LookupShellApp mirrors DEBUG_AUDIENCE_MARKETING into the LightHouse SDK
+    // and reuses ATTRIBUTION_WAIT_MS, so the SDK's audience read, the disclosure gate and
+    // the config half under test all agree on a debug build.
+    companion object {
         /** Sentinel in CountryList_Counter_NShow meaning "every location". */
         const val COUNTRY_LIST_ALL = "all"
 
@@ -106,7 +109,7 @@ open class AdBeaconActivity : AppCompatActivity() {
          * of the config could never be exercised on a test device. Release builds ignore
          * this entirely and keep using the real attribution.
          */
-        const val DEBUG_AUDIENCE_MARKETING = false
+        const val DEBUG_AUDIENCE_MARKETING = true
 
         /**
          * How long the audience gate waits for LightHouse's install-referrer verdict before
@@ -220,15 +223,19 @@ open class AdBeaconActivity : AppCompatActivity() {
         }
 
         val remoteConfig = FirebaseRemoteConfig.getInstance()
-        RemoteConfigPolicy.applyTo(remoteConfig)
-        activity?.let {
-            remoteConfig.fetchAndActivate().addOnCompleteListener(it) { task ->
-                if (task.isSuccessful) {
-                    lifecycleScope.launch(Dispatchers.IO) {
-                        setResponceInPref(remoteConfig)
+        activity?.let { host ->
+            // Through withSettings, never straight to fetchAndActivate: the settings call is
+            // async, and a fetch that starts before it lands runs on the SDK's default
+            // 12-hour interval — it answers from cache and still reports success.
+            RemoteConfigPolicy.withSettings(remoteConfig) {
+                remoteConfig.fetchAndActivate().addOnCompleteListener(host) { task ->
+                    if (task.isSuccessful) {
+                        lifecycleScope.launch(Dispatchers.IO) {
+                            setResponceInPref(remoteConfig)
+                        }
+                    } else {
+                        onGetData?.onError()
                     }
-                } else {
-                    onGetData?.onError()
                 }
             }
         }

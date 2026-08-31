@@ -116,6 +116,8 @@ import kotlin.math.max
 import kotlin.math.min
 import androidx.appcompat.app.AppCompatActivity
 import com.callerid.phonelookup.home.data.LocaleRegistry
+import com.callerid.adcast.presentation.InAppUpdateRegistry
+import com.google.android.material.snackbar.Snackbar
 import com.callerid.phonelookup.home.ui.home.HomeShellController
 import com.callerid.phonelookup.home.ui.home.HomeShellHost
 import com.callerid.phonelookup.home.util.applyNativeAdTheme
@@ -132,6 +134,26 @@ class HomeStageActivity : ShellDeckActivity(), FlingListener, HomeShellHost {
     /** Only while the swipe-right panel is open; otherwise the user is on the home grid. */
     override val isShellOnScreen: Boolean get() = isCallerPanelExpanded()
 
+    /** The restart Snackbar, so a re-offer on the next resume does not stack a second one. */
+    private var updateReadySnackbar: Snackbar? = null
+
+    /**
+     * With the panel open the shell's own Snackbar is right; with it shut the shell is parked
+     * off screen, so the home grid has to carry the prompt itself or a downloaded update has
+     * nowhere to be installed from — the launcher home is where these users live.
+     */
+    override fun showUpdateReadyPrompt() {
+        if (isCallerPanelExpanded()) {
+            binding.callerPanel.root.shell()?.showUpdateReadyPrompt()
+            return
+        }
+        if (updateReadySnackbar?.isShown == true) return
+        updateReadySnackbar = Snackbar
+            .make(binding.mainHolder, R.string.update_ready_msg, Snackbar.LENGTH_INDEFINITE)
+            .setAction(R.string.update_restart) { InAppUpdateRegistry.completeUpdate() }
+            .also { it.show() }
+    }
+
     /** Back inside the caller panel with its own tab history exhausted just closes it. */
     override fun onShellBackExhausted() {
         hideCallerPanel()
@@ -147,6 +169,10 @@ class HomeStageActivity : ShellDeckActivity(), FlingListener, HomeShellHost {
             startActivity(
                 Intent(this, HomeStageActivity::class.java)
                     .addFlags(HomeShellController.REORDER_FLAGS)
+                    // singleTask means this reorder is delivered as a new intent, which
+                    // onNewIntent would otherwise read as a HOME press and close the panel
+                    // out from under the flow that asked to come back. Mark it as ours.
+                    .putExtra(HomeShellController.EXTRA_SELF_REORDER, true)
             )
         }
     }
@@ -528,6 +554,15 @@ class HomeStageActivity : ShellDeckActivity(), FlingListener, HomeShellHost {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+
+        // Our own bringHostToFront reorder, not a HOME press: the app is pulling itself back
+        // from a system Settings page it opened from inside the caller panel, and everything
+        // below would tear that panel down — leaving the permission sheet that follows the
+        // grant to land over the home grid instead of over the caller-ID content it asks
+        // about. Nothing below applies to a self-reorder, so return before any of it.
+        if (intent.getBooleanExtra(HomeShellController.EXTRA_SELF_REORDER, false)) {
+            return
+        }
 
         // Same as onCreate: a home intent can land here with the first run still pending, once
         // this activity already exists. It is only reachable that way after the role changed
@@ -1645,6 +1680,10 @@ class HomeStageActivity : ShellDeckActivity(), FlingListener, HomeShellHost {
     }
 
     fun hideCallerPanel() {
+        // Every way the panel closes — back, HOME, the shell running out of tab history —
+        // comes through here, so this is the one place that has to take the shell's dialogs
+        // with it. They are anchored to this Activity, not to the panel.
+        homeShellController.onShellHidden()
         // Disabling the shell's back callback before the slide keeps it from swallowing the
         // next back press — the drawer and the grid own those again once the panel is gone.
         binding.callerPanel.root.shell()?.setPanelVisible(false)

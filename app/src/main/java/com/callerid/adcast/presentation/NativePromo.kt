@@ -50,6 +50,54 @@ class NativePromo() {
 
     companion object {
         private var nativeAd: NativeAd? = null
+
+        /**
+         * A load is in flight. The pool is one static slot and every `show*` kicks a refill,
+         * so without this a surface that opens twice in a row (the app drawer, the left panel)
+         * stacks concurrent AdLoader requests that each overwrite — and destroy — the last
+         * one's result.
+         */
+        @Volatile
+        private var loadingSince = 0L
+
+        /**
+         * How long a request may be considered in flight. AdLoader always answers one of its
+         * two callbacks, but a latched flag here would kill native ads process-wide, so the
+         * guard expires rather than trusting that.
+         */
+        private const val LOAD_TIMEOUT_MS = 60_000L
+
+        private val isLoading: Boolean
+            get() = loadingSince != 0L &&
+                    System.currentTimeMillis() - loadingSince < LOAD_TIMEOUT_MS
+
+        /**
+         * Whether a native is in hand right now.
+         *
+         * Callers that re-render an already-filled frame need this: rendering consumes the
+         * pooled ad, so asking again before the refill lands would drop through to the
+         * fallback path and replace a good ad with a custom one. See
+         * [com.callerid.adcast.domain.LauncherAdsConfig.refreshSlot].
+         */
+        fun hasPreloadedNative(): Boolean = nativeAd != null
+    }
+
+    /**
+     * Takes the shimmer down and clears whatever half-built view is in the frame.
+     *
+     * Every render path below builds the ad view FIRST and stops the shimmer only once that
+     * has succeeded — so anything thrown while binding a template (a null asset, a recycled
+     * NativeAd, an inflate failure) used to land in a catch that only logged, leaving the
+     * shimmer running over an empty frame for as long as the screen lived. The launcher's
+     * side panels are where that shows up worst: they are never recreated, so the placeholder
+     * stays until the process dies.
+     */
+    private fun clearToEmpty(layout: FrameLayout, shimmer: ShimmerFrameLayout?) {
+        runCatching {
+            shimmer?.stopShimmer()
+            shimmer?.isVisible = false
+            layout.removeAllViews()
+        }
     }
 
     private fun Activity.isActivityDestroyedCompat(): Boolean {
@@ -75,6 +123,12 @@ class NativePromo() {
         if (adUnit.isEmpty()) {
             return
         }
+        // One request at a time — see [isLoading].
+        if (isLoading) {
+            Log.d("NativeAds", "load already in flight — skipped")
+            return
+        }
+        loadingSince = System.currentTimeMillis()
         val adLoader =
             AdLoader.Builder(context, adUnit)
                 .forNativeAd { nativeAds ->
@@ -88,6 +142,7 @@ class NativePromo() {
                     // destroyed, and every subsequent show found null.
                     nativeAd?.destroy()
                     nativeAd = nativeAds
+                    loadingSince = 0L
 
                     if (context.isActivityDestroyedCompat()) {
                         // Originating activity is gone — cache only, skip
@@ -107,6 +162,7 @@ class NativePromo() {
                 .withAdListener(object : AdListener() {
                     override fun onAdFailedToLoad(loadAdError: LoadAdError) {
                         super.onAdFailedToLoad(loadAdError)
+                        loadingSince = 0L
                         if (context.isActivityDestroyedCompat()) return
                         observer?.onNativeAdFailed()
                         Log.e(
@@ -237,6 +293,7 @@ class NativePromo() {
 
                     } catch (e: Exception) {
                         Log.e("NativeAds", "Google BigNative crash", e)
+                        clearToEmpty(layout, shimmer)
                     }
                 }
             }
@@ -580,6 +637,7 @@ class NativePromo() {
                         }
                     } catch (e: Exception) {
                         Log.e("MidNativeAds", "Google MidNative failed: ${e.message}")
+                        clearToEmpty(layout, shimmer)
                     }
                 }
 
@@ -884,6 +942,7 @@ class NativePromo() {
                         )
                     } catch (e: Exception) {
                         Log.e("MidNativeAds", "Google MidNative failed: ${e.message}")
+                        clearToEmpty(layout, shimmer)
                     }
                 }
 

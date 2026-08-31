@@ -32,18 +32,23 @@ object AccessSource {
      * or if the parameter is never set on the server). Any Remote Config value
      * completely overrides this.
      *
-     * Notification + phone state are driven by the engine and triggered
-     * explicitly — from the splash flow (AdBeaconActivity) and from the permission
-     * bottom sheet's Continue button on AppCoreActivity. So the default targets
-     * both `StartupActivity` and `AppCoreActivity` with no delay (the trigger point
-     * already picks the moment). Remote Config fully overrides this.
-     * `phone_state` stays subject to the `HD_VBC_Show` gate.
+     * Notification + phone state are driven by the engine and triggered explicitly —
+     * from the splash flow (AdBeaconActivity), from the onboarding Greeting step's
+     * Continue button, from the permission bottom sheet on AppCoreActivity, and from
+     * the launcher home. So the default names every screen that actually calls the
+     * engine, with no delay (the trigger point already picks the moment). Remote
+     * Config fully overrides this.
+     *
+     * `phone_state` is deliberately not asked on the splash: nothing there needs it and
+     * the audience/geo values that gate it (`HD_VBC_Show`) may still be landing. It
+     * stays subject to that gate wherever it is asked. Listing only the splash and the
+     * launcher home meant a user who skipped past the Greeting step was never asked again.
      */
     private const val DEFAULT_CONFIG = """
         {
           "permission_engine": {
-            "notification": { "enabled": true, "activities": ["SplashActivity", "HomeStageActivity"], "delay": 0, "priority": 1 },
-            "phone_state":  { "enabled": true, "activities": ["SplashActivity", "HomeStageActivity"], "delay": 0, "priority": 2 }
+            "notification": { "enabled": true, "activities": ["StartupActivity", "GreetingStepActivity", "AppCoreActivity", "HomeStageActivity"], "delay": 0, "priority": 1 },
+            "phone_state":  { "enabled": true, "activities": ["GreetingStepActivity", "AppCoreActivity", "HomeStageActivity"], "delay": 0, "priority": 2 }
           }
         }
     """
@@ -70,11 +75,14 @@ object AccessSource {
     fun refreshFromRemote(onReady: (() -> Unit)? = null) {
         try {
             val rc = FirebaseRemoteConfig.getInstance()
-            RemoteConfigPolicy.applyTo(rc)
-            rc.fetchAndActivate().addOnCompleteListener { task ->
-                GuardRail.log(TAG, "Remote Config fetch success=${task.isSuccessful}")
-                reload()
-                onReady?.invoke()
+            // See RemoteConfigPolicy.withSettings — a fetch started before the settings land
+            // silently runs on the SDK's 12-hour default and answers from cache.
+            RemoteConfigPolicy.withSettings(rc) {
+                rc.fetchAndActivate().addOnCompleteListener { task ->
+                    GuardRail.log(TAG, "Remote Config fetch success=${task.isSuccessful}")
+                    reload()
+                    onReady?.invoke()
+                }
             }
         } catch (e: Exception) {
             GuardRail.error(TAG, "refreshFromRemote failed; using cached config", e)

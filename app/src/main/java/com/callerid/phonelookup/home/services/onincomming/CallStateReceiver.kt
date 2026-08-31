@@ -19,8 +19,8 @@ import com.callerid.adcast.presentation.my_main_counter.My_Shell_Screen
 import com.callerid.adcast.presentation.my_main_counter.service.ShelllJobService.Companion.NOTIFICATION_ID
 import com.callerid.phonelookup.home.R
 import com.callerid.phonelookup.home.data.BlockRosterRegistry
-import com.callerid.phonelookup.home.util.IdentIdRegistry
 import com.callerid.phonelookup.home.ui.incall.IncomingRingActivity
+import com.callerid.phonelookup.home.util.IdentIdRegistry
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -64,8 +64,14 @@ class CallStateReceiver : BroadcastReceiver() {
                     return
                 }
 
-                // Caller-ID card needs a number AND the overlay permission.
-                if (!number.isNullOrBlank() && Settings.canDrawOverlays(context)) {
+                // The card needs a number; the overlay permission is no longer required to
+                // reach it — IdentFloatService falls back to the full-screen activity on the
+                // default-role exemption. When we hold the CallScreening role,
+                // [ScreenerService] has already raised the card before this broadcast
+                // arrived and IdentFloatService.start drops this one as a duplicate.
+                if (!number.isNullOrBlank() && (Settings.canDrawOverlays(context) ||
+                        holdsSystemDefaultRole(context))
+                ) {
                     IdentFloatService.start(context, number)
                 } else if (number.isNullOrBlank()) {
                     Log.w(TAG, "ringing without a number — skipping caller-ID card")

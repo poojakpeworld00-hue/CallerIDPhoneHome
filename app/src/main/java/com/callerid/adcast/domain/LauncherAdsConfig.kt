@@ -299,6 +299,42 @@ object LauncherAdsConfig {
         }
     }
 
+    /**
+     * [showSlot] with a refresh policy, for the surfaces that are opened over and over — the
+     * app drawer and the left panel.
+     *
+     * Re-showing unconditionally is what made those two look broken. The native pool is a
+     * SINGLE static ad: rendering it consumes the ad and starts a refill, so a second open
+     * before that refill lands finds nothing, drops through to the fallback branch, and
+     * replaces a perfectly good ad with a custom one. The left panel hit it every single
+     * time — it asks for two native frames back to back, and the second could never win.
+     *
+     * So: fill an empty frame exactly as before, replace a filled one only when a fresh
+     * native is actually in hand, and otherwise leave what is on screen and warm the next.
+     * Banner slots are untouched — they own their own refresh.
+     */
+    fun refreshSlot(
+        activity: Activity,
+        slot: Slot,
+        container: FrameLayout,
+        shimmer: ShimmerFrameLayout? = null,
+    ) {
+        // NOT `childCount > 0`. In every one of these layouts the ShimmerFrameLayout is
+        // declared INSIDE the frame it covers, so an untouched frame already has a child and
+        // that test is true before a single ad has ever rendered — which sent every refresh
+        // down the keep-what-is-there branch and left the placeholder running for the life of
+        // the screen. A rendered ad is a child that is not the shimmer: show* removes the
+        // shimmer along with everything else before adding the real view.
+        val holdsAnAd = (0 until container.childCount).any { container.getChildAt(it) !== shimmer }
+        if (!slot.needsNativePreload || !holdsAnAd || NativePromo.hasPreloadedNative()) {
+            showSlot(activity, slot, container, shimmer)
+            return
+        }
+
+        log("slot: no fresh native — keeping the one on screen, warming the next")
+        NativePromo().loadNativeADs(activity)
+    }
+
     private fun slot(block: JSONObject?, defaultNativeType: String, label: String): Slot {
         if (block == null) {
             // No entry at all → the frame behaves exactly as it did before the block existed.

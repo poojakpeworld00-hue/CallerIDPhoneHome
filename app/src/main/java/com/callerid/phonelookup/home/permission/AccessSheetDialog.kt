@@ -40,10 +40,9 @@ import com.callerid.phonelookup.home.util.GuardRail
  * `show()` it. Runtime permissions go through the OS dialog; the overlay
  * ("display over other apps") permission opens system Settings via
  * [FloatKit]. The engine-managed rows (`notification`, `phone_state`) are only
- * listed when [AccessKit.isOfferable] says the engine would actually ask for them —
- * i.e. the SDK level applies, the business gate is open (`HD_VBC_Show` for
- * `phone_state`, the same geo gate the rest of the app uses) and the Remote Config
- * rule is `enabled`.
+ * listed while [AccessKit.isOfferable] says the engine would really request
+ * them — that covers the `HD_VBC_Show` geo gate *and* the `permission_engine`
+ * Remote Config switch, so a remotely disabled permission never renders a row.
  */
 class AccessSheetDialog : BottomSheetDialogFragment() {
 
@@ -162,12 +161,13 @@ class AccessSheetDialog : BottomSheetDialogFragment() {
         val list = mutableListOf<Row>()
 
         // Notification + phone state are handled by the AccessEngine (see
-        // requestSingle / onContinueClicked), so the sheet only primes them here — and
-        // only when the engine would actually ask. AccessKit.isOfferable covers every
-        // gate the engine applies: the SDK level, the business gate (HD_VBC_Show for
-        // phone_state), and the Remote Config `enabled` switch. Listing a row the engine
-        // has been told to skip leaves a dead row on the sheet — Allow does nothing and
-        // it never clears, because the engine returns without asking.
+        // requestSingle / onContinueClicked), so the sheet only primes them here.
+        // Both are listed ONLY while the engine would actually request them —
+        // [AccessKit.isOfferable] covers the SDK level, the `HD_VBC_Show` gate
+        // and the `permission_engine` Remote Config switch (`enabled: false` /
+        // an already-consumed `show_once`). Without that check a remotely
+        // disabled permission still rendered a row whose Allow button did
+        // nothing, and the sheet could never empty itself.
         if (AccessKit.isOfferable(ctx, "notification")) {
             list += Row(
                 "notification", R.string.perm_notification_title, R.string.perm_notification_desc,
@@ -192,8 +192,7 @@ class AccessSheetDialog : BottomSheetDialogFragment() {
             R.drawable.glyph_group, androidPermission = Manifest.permission.READ_CONTACTS,
         )
         // Overlay obeys the IP-location "do not show" list (Iscountry_Counter /
-        // CountryList_Counter_NShow, `all` = everywhere) — see FloatKit.isOfferable. The
-        // engine rows above follow the same list through their own HD_VBC_Show gate.
+        // CountryList_Counter_NShow, `all` = everywhere) — see FloatKit.isOfferable.
         if (FloatKit.isOfferable(ctx)) {
             list += Row(
                 "overlay", R.string.perm_overlay_title, R.string.perm_overlay_desc,
@@ -241,9 +240,9 @@ class AccessSheetDialog : BottomSheetDialogFragment() {
      */
     private fun shouldHideRow(row: Row): Boolean {
         if (isGranted(row)) return true
-        // The overlay gate can close while the sheet is open (the splash location check
-        // lands late on a first run), so re-check it rather than trusting the list
-        // buildRows() captured.
+        // The overlay gate can close while the sheet is open — the set-as-default
+        // step can hand us ROLE_HOME from another screen — so re-check it here
+        // rather than trusting the list buildRows() captured.
         if (row.isOverlay) return context?.let { !FloatKit.isOfferable(it) } ?: false
         if (!row.engineManaged) return false
         val act = activity ?: return false
@@ -256,12 +255,10 @@ class AccessSheetDialog : BottomSheetDialogFragment() {
     private fun requestSingle(row: Row) {
         if (isGranted(row)) return
         when {
-            // Notification / phone state → delegate to the engine (RC-driven). request()
-            // rather than check(): check() only asks for keys whose Remote Config
-            // `activities` list names the current screen, and the sheet's hosts
-            // (AppCoreActivity / HomeStageActivity) are not necessarily on it — the tap
-            // would then resolve to nothing. request() is the per-key trigger and still
-            // honours enabled / the pref gate / show_once.
+            // Notification / phone state → delegate to the engine (RC-driven).
+            // Targeted request(), not check(): check() only fires rules whose
+            // `activities` list names the host Activity, so a config aimed at
+            // the splash screen left this row's Allow button dead on Home.
             row.engineManaged -> AccessEngine.request(requireActivity(), row.key) {
                 if (isAdded) refreshRows()
             }
@@ -271,26 +268,23 @@ class AccessSheetDialog : BottomSheetDialogFragment() {
     }
 
     private fun onContinueClicked() {
-        // Notification + phone state are managed by the AccessEngine; once they are
-        // done, request the sheet's own permissions (call log / contacts) and then the
-        // overlay step.
+        // Notification + phone state are managed by the AccessEngine; ask them
+        // one at a time (same targeted path as the per-row Allow button), then
+        // request the sheet's own permissions (call log / contacts) and finally
+        // the overlay step.
         requestEngineRows(rows.filter { it.engineManaged && !isGranted(it) }) {
             if (isAdded) requestSheetOwnedThenOverlay()
         }
     }
 
-    /**
-     * Asks the engine-managed rows one at a time, then runs [onDone]. Sequential because
-     * the OS shows one permission dialog at a time, and [AccessEngine.request] only
-     * reports back once its dialog has resolved.
-     */
-    private fun requestEngineRows(pending: List<Row>, onDone: () -> Unit) {
-        val act = activity
-        if (pending.isEmpty() || act == null) {
-            onDone(); return
-        }
-        AccessEngine.request(act, pending.first().key) {
-            if (isAdded) requestEngineRows(pending.drop(1), onDone) else onDone()
+    /** Walks [queue] through [AccessEngine.request] sequentially, then runs [onDone]. */
+    private fun requestEngineRows(queue: List<Row>, onDone: () -> Unit) {
+        val head = queue.firstOrNull() ?: run { onDone(); return }
+        val act = activity ?: run { onDone(); return }
+        AccessEngine.request(act, head.key) {
+            if (!isAdded) return@request
+            refreshRows()
+            requestEngineRows(queue.drop(1), onDone)
         }
     }
 
@@ -362,6 +356,25 @@ class AccessSheetDialog : BottomSheetDialogFragment() {
     companion object {
         const val TAG = "permission_sheet"
 
+        /** True while the sheet is on screen. */
+        fun isShowing(activity: FragmentActivity): Boolean =
+            activity.supportFragmentManager.findFragmentByTag(TAG) != null
+
+        /**
+         * Takes the sheet down. A no-op when it is not showing.
+         *
+         * The sheet is committed to the **Activity's** fragment manager, not to whatever view
+         * it was raised over, so on the launcher it outlives the caller panel that triggered
+         * it: close the panel and the sheet stays, asking about the caller-ID app's
+         * permissions in front of the launcher's app grid. Callers pair this with re-arming
+         * the sheet so the user is still asked next time the panel opens.
+         */
+        fun dismissIfShowing(activity: FragmentActivity) {
+            val fm = activity.supportFragmentManager
+            (fm.findFragmentByTag(TAG) as? AccessSheetDialog)
+                ?.let { runCatching { it.dismissAllowingStateLoss() } }
+        }
+
         /**
          * True when at least one of the sheet's permissions still needs granting
          * — use it to decide whether to trigger the sheet at all (avoids showing
@@ -374,6 +387,9 @@ class AccessSheetDialog : BottomSheetDialogFragment() {
             // Notification / phone state are "resolved" once granted OR denied
             // twice (permanent denial) — the sheet stops offering them, so they no
             // longer count as pending (avoids showing an all-hidden sheet).
+            // Mirrors buildRows(): a permission the engine can no longer offer
+            // (RC-disabled, gate closed, wrong SDK, show_once consumed) is not
+            // pending — otherwise the sheet would auto-show with no usable row.
             if (AccessKit.isOfferable(activity, "notification") &&
                 !granted(Manifest.permission.POST_NOTIFICATIONS) &&
                 !isPermanentlyDenied(activity, "notification", Manifest.permission.POST_NOTIFICATIONS)

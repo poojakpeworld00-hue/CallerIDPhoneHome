@@ -43,21 +43,45 @@ class HomeShellController(private val host: HomeShellHost) {
     private var awaitFsiReturnForSheet = false
 
     /**
-     * True once the first-run permission sheet has been dismissed ("Not now" or swipe).
-     * Home uses it (via [shouldShowPermissionHint]) to surface a "Manage" hint only
-     * *after* the user has closed the sheet at least once.
-     */
-    private var permissionSheetDismissed = false
-
-    /**
      * The sheet came due while the shell was off screen (the launcher's caller panel was
      * shut — a HOME press during the Settings round trip, say). Held here rather than shown
      * over the home grid, and flushed the next time the shell is on screen.
      */
     private var permissionSheetPending = false
 
+    /**
+     * The shell is on its way off screen (the launcher's caller panel is closing).
+     *
+     * [HomeShellHost.isShellOnScreen] cannot answer this: the launcher reads the panel's x,
+     * and the panel has not started sliding yet at the moment it is asked to close — so
+     * anything that reacts to the tear-down would still be told the shell is visible.
+     */
+    private var shellOffScreen = false
+
+    /**
+     * We took the sheet down ourselves, so its completion callback is not the user dismissing
+     * it — it must not arm Home's "Manage" hint, which exists to mean "you closed this once
+     * and something is still missing".
+     */
+    private var sheetTakenDownByUs = false
+
+    /**
+     * True once the first-run permission sheet has been dismissed ("Not now" or swipe).
+     * Home uses it (via [shouldShowPermissionHint]) to surface a "Manage" hint only
+     * *after* the user has closed the sheet at least once.
+     */
+    private var permissionSheetDismissed = false
+
     /** Guards [startFirstRunPriming] so a re-opened panel doesn't prime twice per session. */
     private var primingStarted = false
+
+    /**
+     * Whether [onHostCreated] ran. The launcher skips it while its first run is unfinished,
+     * and its `onResume` is not gated the same way — without this the resume-side update
+     * re-check would start a Play flow over the onboarding screens, on a host that never
+     * registered a result launcher for it.
+     */
+    private var hostCreated = false
 
     private val handler = Handler(Looper.getMainLooper())
 
@@ -96,6 +120,7 @@ class HomeShellController(private val host: HomeShellHost) {
      * looking at the app grid; anything visible here would appear over it.
      */
     fun onHostCreated() {
+        hostCreated = true
         InAppUpdateRegistry.registerLauncher(activity)
         maybeCheckForUpdate()
         // One-time contact upload (no-op if already done or contacts not permitted yet).
@@ -118,6 +143,8 @@ class HomeShellController(private val host: HomeShellHost) {
      * (subject to its RC frequency gate).
      */
     fun startFirstRunPriming() {
+        // The shell is in front again, whichever host it belongs to.
+        shellOffScreen = false
         if (primingStarted) {
             // Re-opened panel: nothing left to prime, but a sheet held back while the shell
             // was off screen is owed to the user now that it is back.
@@ -149,9 +176,17 @@ class HomeShellController(private val host: HomeShellHost) {
         }
         // Resume an interrupted update (IMMEDIATE re-prompts; FLEXIBLE completes a finished download).
         InAppUpdateRegistry.resumeUpdate()
+        // resumeUpdate only revisits a flow that is already running — it never asks Play
+        // whether a NEW version exists. On the launcher that matters: this Activity IS the
+        // device home, so its onCreate (where the check used to run, once) may not happen
+        // for days while the process stays warm, and a version published in the meantime
+        // would go unnoticed. Same reasoning as LiveConfigWatcher.refreshIfStale; the
+        // throttle inside keeps the repeat cost at nothing.
+        maybeCheckForUpdate()
     }
 
     fun onHostDestroy() {
+        hostCreated = false
         stopOverlayGrantPoll()
         stopFsiGrantPoll()
         handler.removeCallbacksAndMessages(null)
@@ -170,12 +205,26 @@ class HomeShellController(private val host: HomeShellHost) {
      *  - `In_App_Update_Force_Show` → true = IMMEDIATE (mandatory), false = FLEXIBLE (optional).
      */
     private fun maybeCheckForUpdate() {
+        if (!hostCreated) return
         val pref = AdsVault.getInstance(activity)
         if (!pref.getBoolean("In_App_Update_Show")) return
 
+        val isForceUpdate = pref.getBoolean("In_App_Update_Force_Show")
+
+        // Throttled because this also runs on resume (see [onHostResume]) and the launcher
+        // home resumes on every HOME press: without it a user who cancelled an optional
+        // update would be re-offered it dozens of times a day. A FORCE update is exempt —
+        // being unskippable is the whole point, and it re-prompts on cancel anyway, so a
+        // window here would only delay a mandatory version by up to six hours.
+        if (!isForceUpdate) {
+            val age = System.currentTimeMillis() - pref.getLong(LAST_UPDATE_CHECK_KEY, 0L)
+            if (age in 0 until UPDATE_CHECK_WINDOW_MS) return
+            pref.putLong(LAST_UPDATE_CHECK_KEY, System.currentTimeMillis())
+        }
+
         InAppUpdateRegistry.init(
             activity = activity,
-            isForceUpdate = pref.getBoolean("In_App_Update_Force_Show"),
+            isForceUpdate = isForceUpdate,
             callback = object : InAppUpdateListener {
                 override fun onUpdateSuccess() {}
                 override fun onUpdateCanceled() {}
@@ -184,7 +233,10 @@ class HomeShellController(private val host: HomeShellHost) {
                 }
 
                 override fun onUpdateDownloaded() {
-                    shell?.showUpdateReadyPrompt()
+                    // Through the host, not `shell`: on the launcher the shell is parked
+                    // off screen whenever the caller panel is shut, and a Snackbar there is
+                    // invisible. See [HomeShellHost.showUpdateReadyPrompt].
+                    host.showUpdateReadyPrompt()
                 }
             }
         )
@@ -202,9 +254,31 @@ class HomeShellController(private val host: HomeShellHost) {
     fun showPermissionSheet() {
         AccessSheetDialog.show(activity) {
             shell?.updateOverlayBanner()
-            permissionSheetDismissed = true
+            // Only a dismissal the USER performed arms Home's "Manage" hint. When we closed
+            // the sheet because the shell went away, the ask is deferred, not answered.
+            if (sheetTakenDownByUs) sheetTakenDownByUs = false else permissionSheetDismissed = true
             shell?.refreshHomePermissionHint()
         }
+    }
+
+    /**
+     * The shell is going off screen — on the launcher, the caller panel is closing.
+     *
+     * Anything this controller has put on screen is anchored to the Activity rather than to
+     * the panel, so it survives the slide and is left sitting over the launcher's home grid:
+     * a sheet about the caller-ID app's permissions in front of the app drawer and the clock.
+     * That is what a HOME press, a back press, or the shell running out of tab history all
+     * looked like. Both surfaces come down with the panel, and the sheet is re-armed so the
+     * next open still asks.
+     */
+    fun onShellHidden() {
+        shellOffScreen = true
+        // Same anchoring, same problem.
+        FullScreenPrimingDialog.dismissIfShowing()
+        if (!AccessSheetDialog.isShowing(activity)) return
+        sheetTakenDownByUs = true
+        AccessSheetDialog.dismissIfShowing(activity)
+        permissionSheetPending = true
     }
 
     /** Auto-shows the permission sheet when pending perms + the RC frequency gate allow. */
@@ -212,7 +286,7 @@ class HomeShellController(private val host: HomeShellHost) {
         // The sheet asks about the caller-ID app's permissions and belongs over the caller-ID
         // app's content. With the launcher's panel shut it would sit on the home grid, so it
         // waits for the panel instead of following the grant that triggered it.
-        if (!host.isShellOnScreen) {
+        if (shellOffScreen || !host.isShellOnScreen) {
             permissionSheetPending = true
             return
         }
@@ -317,8 +391,9 @@ class HomeShellController(private val host: HomeShellHost) {
      * banner Enable button and by each tab's permission flow.
      */
     fun startOverlayPermissionFlow() {
-        // Suppressed region (CountryList_Counter_NShow / `all`) → never open the system
-        // page. Guarded here as well as in the UI so no stale banner or row can launch it.
+        // Suppressed region (CountryList_Counter_NShow / `all`) → never open the
+        // system page. Guarded here as well as in the UI so no stale banner or row
+        // can still launch it.
         if (!FloatKit.isOfferable(activity) || FloatKit.isGranted(activity)) {
             shell?.updateOverlayBanner()
             return
@@ -385,8 +460,21 @@ class HomeShellController(private val host: HomeShellHost) {
         /** Grant-poll cadence while the user is on a system Settings page. */
         private const val GRANT_POLL_MS = 350L
 
+        /** Pref holding when the Play update check last ran. */
+        private const val LAST_UPDATE_CHECK_KEY = "last_inapp_update_check_at"
+
+        /** How long a Play update check stays fresh before a resume may run another. */
+        private const val UPDATE_CHECK_WINDOW_MS = 6 * 60 * 60 * 1000L
+
         /** Flags for the in-task reorder every [HomeShellHost.bringHostToFront] uses. */
         const val REORDER_FLAGS =
             Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or Intent.FLAG_ACTIVITY_SINGLE_TOP
+
+        /**
+         * Marks a [HomeShellHost.bringHostToFront] intent as the app pulling itself back,
+         * so a host whose `onNewIntent` otherwise means "HOME was pressed" can tell the two
+         * apart. Only the launcher's singleTask home screen has that ambiguity.
+         */
+        const val EXTRA_SELF_REORDER = "extra_self_reorder"
     }
 }
