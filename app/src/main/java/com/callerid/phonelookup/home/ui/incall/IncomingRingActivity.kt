@@ -61,14 +61,22 @@ class IncomingRingActivity : AppCompatActivity() {
         val card = findViewById<View>(R.id.incallCard)
         card.findViewById<View>(R.id.btnIncallClose).setOnClickListener { finish() }
 
+        // Offline details first so the card is never blank while the ring is going, then the
+        // caller-ID network's name over the top of it. Same two passes as the floating card.
         lifecycleScope.launch {
-            val info = withContext(Dispatchers.IO) {
+            val local = withContext(Dispatchers.IO) {
                 IdentCard.resolve(
                     this@IncomingRingActivity,
                     number
                 )
             }
-            IdentCard.bind(this@IncomingRingActivity, card, number, info)
+            IdentCard.bind(this@IncomingRingActivity, card, number, local)
+
+            // Same object back means the network added nothing worth re-binding for.
+            val enriched = IdentCard.enrich(this@IncomingRingActivity, number, local)
+            if (enriched !== local) {
+                IdentCard.bind(this@IncomingRingActivity, card, number, enriched)
+            }
         }
 
         val filter = IntentFilter(CallStateReceiver.ACTION_CALL_ENDED)

@@ -124,10 +124,20 @@ class IdentFloatService : Service() {
             return
         }
 
-        // Resolve caller details off the main thread, then bind.
+        // Two passes: what the device already knows goes up immediately, then the caller-ID
+        // network's answer replaces it if it has one. Binding once, after the round trip,
+        // would leave the card blank for as long as the lookup takes — on a ringing phone
+        // that is the whole point of the card.
         scope.launch {
-            val info = withContext(Dispatchers.IO) { IdentCard.resolve(this@IdentFloatService, number) }
-            overlayView?.let { IdentCard.bind(this@IdentFloatService, it, number, info) }
+            val local = withContext(Dispatchers.IO) { IdentCard.resolve(this@IdentFloatService, number) }
+            overlayView?.let { IdentCard.bind(this@IdentFloatService, it, number, local) }
+
+            val enriched = IdentCard.enrich(this@IdentFloatService, number, local)
+            // Identity check, not equality: enrich hands back the very same object when the
+            // network added nothing, and re-binding it would be pure churn.
+            if (enriched !== local) {
+                overlayView?.let { IdentCard.bind(this@IdentFloatService, it, number, enriched) }
+            }
         }
     }
 

@@ -7,11 +7,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import android.util.Log
 import com.callerid.phonelookup.home.data.PeopleSource
+import com.callerid.phonelookup.home.data.lookup.CallerDirectory
 import com.callerid.phonelookup.home.data.lookup.IdentifyTraceStore
 import com.callerid.phonelookup.home.data.lookup.OfflineDigitIdentify
 import com.callerid.phonelookup.home.models.DialData
-import com.callerid.phonelookup.home.services.ServiceCredentials
-import com.callerid.phonelookup.home.services.RetrofitClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -118,25 +117,14 @@ class IdentifyViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
-    /** Queries the caller-ID API for this number; returns all matching records (may be empty). */
-    private suspend fun fetchFromApi(phone: String): List<DialData> = runCatching {
-        if (!ServiceCredentials.isConfigured) {
-            Log.w(TAG, "checkPhoneNumber skipped: API credentials are placeholders")
-            return@runCatching emptyList()
-        }
-        val response = RetrofitClient.api.checkPhoneNumber(
-            id = ServiceCredentials.API_ID,
-            phone = phone,
-            hashKey = ServiceCredentials.API_HASH,
-            token = ServiceCredentials.API_TOKEN
-        )
-        if (response.isSuccessful) {
-            response.body()?.data.orEmpty()
-        } else {
-            Log.e(TAG, "checkPhoneNumber failed (${response.code()})")
-            emptyList()
-        }
-    }.onFailure { Log.e(TAG, "checkPhoneNumber error: ${it.message}") }.getOrDefault(emptyList())
+    /**
+     * Queries the caller-ID API for this number; returns all matching records (may be empty).
+     *
+     * Through [CallerDirectory] so the incoming-call card asks the endpoint exactly the way
+     * this screen does — see [com.callerid.phonelookup.home.services.IdentCard.enrich].
+     */
+    private suspend fun fetchFromApi(phone: String): List<DialData> =
+        CallerDirectory.lookup(phone)
 
     private fun saveToHistory(result: IdentifyResult) {
         val subtitle = result.country
