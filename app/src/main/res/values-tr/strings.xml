@@ -32,11 +32,11 @@
     <string name="onboarding_skip">Atla</string>
     <string name="onboarding_next">İleri</string>
     <string name="onboarding_title">Kimin aradığını bilin</string>
-    <string name="onboarding_desc">Bilinmeyen numaraları anında tanıyın, arayanın adını ve işletmesini görün ve telefon çalmadan spam\'i engelleyin.</string>
+    <string name="onboarding_desc">Her gelen aramada numarayı, kayıtlı kişi olup olmadığını ve daha önce kaç kez aradığını gösteren bir kart görünür.</string>
     <string name="onboarding_title_2">Spam ve dolandırıcılığı engelleyin</string>
-    <string name="onboarding_desc_2">Spam, dolandırıcılık ve otomatik aramaları otomatik olarak algılayıp engelleyin, böylece sizi bir daha rahatsız etmesinler.</string>
+    <string name="onboarding_desc_2">Bir numaranın spam veya dolandırıcılık olarak bildirilip bildirilmediğini görün ve tek dokunuşla engelleyin — engellenen aramalar çalmaz.</string>
     <string name="onboarding_title_3">Herhangi bir numarayı sorgulayın</string>
-    <string name="onboarding_desc_3">Bilinmeyen herhangi bir numarayı sorgulayarak arayanın adını, konumunu ve işletme bilgilerini anında görün.</string>
+    <string name="onboarding_desc_3">Bilinmeyen bir numarayı sorgulayarak bildirilen adı, konumu, operatörü ve hat türünü görün.</string>
     <string name="onboarding_get_started">Başla</string>
 
     <!-- Home -->

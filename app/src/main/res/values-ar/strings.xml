@@ -31,11 +31,11 @@
     <string name="onboarding_skip">تخطٍّ</string>
     <string name="onboarding_next">التالي</string>
     <string name="onboarding_title">اعرف من المتصل</string>
-    <string name="onboarding_desc">تعرّف فورًا على الأرقام المجهولة، وشاهد اسم المتصل وشركته، واحظر المكالمات المزعجة قبل أن يرنّ الهاتف.</string>
+    <string name="onboarding_desc">كل مكالمة واردة تعرض بطاقة تضم الرقم، وما إذا كان جهة اتصال محفوظة، وعدد مرات اتصاله بك من قبل.</string>
     <string name="onboarding_title_2">احظر الإزعاج والاحتيال</string>
-    <string name="onboarding_desc_2">اكتشف واحظر تلقائيًا المكالمات المزعجة والاحتيالية والآلية حتى لا تزعجك مرة أخرى.</string>
+    <string name="onboarding_desc_2">تحقّق مما إذا كان الرقم مُبلَّغًا عنه كمزعج أو احتيالي، ثم احظره بنقرة واحدة — المكالمات المحظورة لا ترنّ.</string>
     <string name="onboarding_title_3">ابحث عن أي رقم</string>
-    <string name="onboarding_desc_3">ابحث عن أي رقم مجهول لترى فورًا اسم المتصل وموقعه وتفاصيل شركته.</string>
+    <string name="onboarding_desc_3">ابحث عن أي رقم مجهول لترى الاسم المُبلَّغ عنه والموقع ومشغّل الشبكة ونوع الخط.</string>
     <string name="onboarding_get_started">ابدأ</string>
 
     <!-- Home -->

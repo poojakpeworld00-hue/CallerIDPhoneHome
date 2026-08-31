@@ -118,7 +118,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/_1sdp"
             android:letterSpacing="0.04"
-            android:text="BUSINESS · VERIFIED"
+            android:text="KNOWN CONTACT"
             android:textColor="@color/on_primary_container"
             android:textSize="@dimen/_6ssp"
             android:textStyle="bold"

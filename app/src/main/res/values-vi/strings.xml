@@ -32,11 +32,11 @@
     <string name="onboarding_skip">Bỏ qua</string>
     <string name="onboarding_next">Tiếp theo</string>
     <string name="onboarding_title">Biết ai đang gọi</string>
-    <string name="onboarding_desc">Nhận diện ngay số lạ, xem tên và doanh nghiệp của người gọi, và chặn spam trước khi chuông reo.</string>
+    <string name="onboarding_desc">Mỗi cuộc gọi đến đều hiện thẻ với số điện thoại, có phải danh bạ đã lưu hay không, và đã gọi bao nhiêu lần trước đó.</string>
     <string name="onboarding_title_2">Chặn spam và lừa đảo</string>
-    <string name="onboarding_desc_2">Tự động phát hiện và chặn cuộc gọi spam, lừa đảo và tự động để chúng không bao giờ làm phiền bạn nữa.</string>
+    <string name="onboarding_desc_2">Xem số đó có bị báo cáo là spam hay lừa đảo không, rồi chặn chỉ với một chạm — cuộc gọi bị chặn sẽ không đổ chuông.</string>
     <string name="onboarding_title_3">Tra cứu mọi số</string>
-    <string name="onboarding_desc_3">Tra cứu bất kỳ số lạ nào để xem ngay tên, vị trí và thông tin doanh nghiệp của người gọi.</string>
+    <string name="onboarding_desc_3">Tra cứu số lạ để xem tên được báo cáo, vị trí, nhà mạng và loại thuê bao.</string>
     <string name="onboarding_get_started">Bắt đầu</string>
 
     <!-- Home -->

@@ -32,11 +32,11 @@
     <string name="onboarding_skip">Пропустить</string>
     <string name="onboarding_next">Далее</string>
     <string name="onboarding_title">Узнайте, кто звонит</string>
-    <string name="onboarding_desc">Мгновенно определяйте неизвестные номера, видьте имя и компанию звонящего и блокируйте спам ещё до звонка.</string>
+    <string name="onboarding_desc">При каждом входящем вызове появляется карточка с номером, отметкой о наличии в контактах и числом прошлых звонков.</string>
     <string name="onboarding_title_2">Блокируйте спам и мошенников</string>
-    <string name="onboarding_desc_2">Автоматически распознавайте и блокируйте спам, мошеннические и роботизированные звонки, чтобы они вас больше не беспокоили.</string>
+    <string name="onboarding_desc_2">Проверьте, отмечен ли номер как спам или мошенничество, и заблокируйте его одним касанием — заблокированные вызовы не звонят.</string>
     <string name="onboarding_title_3">Ищите любой номер</string>
-    <string name="onboarding_desc_3">Найдите любой неизвестный номер, чтобы мгновенно увидеть имя, местоположение и данные компании звонящего.</string>
+    <string name="onboarding_desc_3">Найдите любой неизвестный номер, чтобы увидеть указанное имя, местоположение, оператора и тип линии.</string>
     <string name="onboarding_get_started">Начать</string>
 
     <!-- Home -->

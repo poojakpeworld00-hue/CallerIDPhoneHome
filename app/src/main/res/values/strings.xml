@@ -58,11 +58,11 @@
     <string name="onboarding_skip">Skip</string>
     <string name="onboarding_next">Next</string>
     <string name="onboarding_title">Know who\'s calling</string>
-    <string name="onboarding_desc">Instantly identify unknown numbers, see the caller\'s name and business, and block spam before it rings.</string>
+    <string name="onboarding_desc">Every incoming call shows a card with the number, whether they are a saved contact, and how many times they have called before.</string>
     <string name="onboarding_title_2">Block spam &amp; fraud</string>
-    <string name="onboarding_desc_2">Automatically detect and block spam, scam and robocalls so they never disturb you again.</string>
+    <string name="onboarding_desc_2">See if a number is reported for spam or fraud, then block it in one tap — blocked calls never ring.</string>
     <string name="onboarding_title_3">Search any number</string>
-    <string name="onboarding_desc_3">Look up any unknown number to instantly see the caller\'s name, location and business details.</string>
+    <string name="onboarding_desc_3">Look up any unknown number to see the reported name, location, carrier and line type.</string>
     <string name="onboarding_get_started">Get Started</string>
     <string name="onboarding_spam_id">Spam ID</string>
     <string name="onboarding_caller_id">Caller ID</string>
@@ -660,13 +660,13 @@
 
     <!-- Onboarding copy, taken verbatim from the reference screens. -->
     <string name="onb_welcome_title">Welcome!</string>
-    <string name="onb_welcome_lead">Identify unknown callers, block spam calls, and stay protected every day.</string>
+    <string name="onb_welcome_lead">See who is calling, search any number for spam reports, and block the ones you do not want.</string>
     <string name="onb_feature_caller_id">Instant\nCaller ID</string>
     <string name="onb_feature_spam">Spam\nProtection</string>
     <string name="onb_feature_secure">Safe &amp;\nSecure</string>
 
     <string name="onb_default_title">Set as Default Home Screen</string>
-    <string name="onb_default_lead">Set this app as your default home screen to identify unknown callers and block spam calls straight from the launcher.</string>
+    <string name="onb_default_lead">Set this app as your default home screen so caller cards can show on incoming calls, with lookup and your blocklist one swipe away.</string>
     <string name="onb_default_footnote">You can change your default home screen anytime from your phone settings.</string>
 
     <!-- Mock incoming-call screen inside the Set-as-default illustration. Decorative:

@@ -32,11 +32,11 @@
     <string name="onboarding_skip">跳过</string>
     <string name="onboarding_next">下一步</string>
     <string name="onboarding_title">知道是谁来电</string>
-    <string name="onboarding_desc">即时识别陌生号码，查看来电者的姓名和商家信息，并在铃响前拦截垃圾电话。</string>
+    <string name="onboarding_desc">每次来电都会显示一张卡片，包含号码、是否为已保存联系人，以及此前来电次数。</string>
     <string name="onboarding_title_2">拦截垃圾与诈骗</string>
-    <string name="onboarding_desc_2">自动检测并拦截垃圾电话、诈骗电话和骚扰电话，让它们不再打扰您。</string>
+    <string name="onboarding_desc_2">查看号码是否被举报为骚扰或诈骗，一键拉黑——被拉黑的来电不会响铃。</string>
     <string name="onboarding_title_3">查询任意号码</string>
-    <string name="onboarding_desc_3">查询任意陌生号码，即时查看来电者的姓名、位置和商家详情。</string>
+    <string name="onboarding_desc_3">查询任意陌生号码，查看被举报的名称、位置、运营商和线路类型。</string>
     <string name="onboarding_get_started">开始使用</string>
 
     <!-- Home -->

@@ -31,11 +31,11 @@
     <string name="onboarding_skip">Omitir</string>
     <string name="onboarding_next">Siguiente</string>
     <string name="onboarding_title">Sabe quién llama</string>
-    <string name="onboarding_desc">Identifica al instante números desconocidos, ve el nombre y la empresa de quien llama y bloquea el spam antes de que suene.</string>
+    <string name="onboarding_desc">Cada llamada entrante muestra una tarjeta con el número, si es un contacto guardado y cuántas veces ha llamado antes.</string>
     <string name="onboarding_title_2">Bloquea spam y fraude</string>
-    <string name="onboarding_desc_2">Detecta y bloquea automáticamente llamadas de spam, estafas y robocalls para que nunca te molesten.</string>
+    <string name="onboarding_desc_2">Comprueba si un número está reportado como spam o fraude y bloquéalo con un toque: las llamadas bloqueadas no suenan.</string>
     <string name="onboarding_title_3">Busca cualquier número</string>
-    <string name="onboarding_desc_3">Busca cualquier número desconocido para ver al instante el nombre, la ubicación y los datos de la empresa.</string>
+    <string name="onboarding_desc_3">Busca cualquier número desconocido para ver el nombre reportado, la ubicación, el operador y el tipo de línea.</string>
     <string name="onboarding_get_started">Comenzar</string>
 
     <!-- Home -->

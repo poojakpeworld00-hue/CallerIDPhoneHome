@@ -32,11 +32,11 @@
     <string name="onboarding_skip">スキップ</string>
     <string name="onboarding_next">次へ</string>
     <string name="onboarding_title">発信者をすぐに確認</string>
-    <string name="onboarding_desc">不明な番号を瞬時に識別し、発信者の名前や事業者を表示。着信が鳴る前に迷惑電話をブロックします。</string>
+    <string name="onboarding_desc">着信のたびにカードを表示。番号、連絡先に登録済みかどうか、これまでの着信回数がわかります。</string>
     <string name="onboarding_title_2">迷惑電話と詐欺をブロック</string>
-    <string name="onboarding_desc_2">迷惑電話、詐欺、自動音声通話を自動的に検出してブロックし、二度と煩わされません。</string>
+    <string name="onboarding_desc_2">番号が迷惑・詐欺として報告されているか確認し、ワンタップでブロック。ブロックした番号は着信しません。</string>
     <string name="onboarding_title_3">どんな番号でも検索</string>
-    <string name="onboarding_desc_3">不明な番号を検索すると、発信者の名前、地域、事業者の詳細を瞬時に確認できます。</string>
+    <string name="onboarding_desc_3">不明な番号を検索すると、報告された名前、地域、通信事業者、回線種別を確認できます。</string>
     <string name="onboarding_get_started">始める</string>
 
     <!-- Home -->

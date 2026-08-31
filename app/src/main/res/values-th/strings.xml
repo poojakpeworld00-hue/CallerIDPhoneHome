@@ -32,11 +32,11 @@
     <string name="onboarding_skip">ข้าม</string>
     <string name="onboarding_next">ถัดไป</string>
     <string name="onboarding_title">รู้ว่าใครโทรมา</string>
-    <string name="onboarding_desc">ระบุหมายเลขที่ไม่รู้จักได้ทันที ดูชื่อและธุรกิจของผู้โทร และบล็อกสแปมก่อนที่สายจะดัง</string>
+    <string name="onboarding_desc">ทุกสายเรียกเข้าจะแสดงการ์ดพร้อมหมายเลข ว่าเป็นรายชื่อที่บันทึกไว้หรือไม่ และเคยโทรมาแล้วกี่ครั้ง</string>
     <string name="onboarding_title_2">บล็อกสแปมและการฉ้อโกง</string>
-    <string name="onboarding_desc_2">ตรวจจับและบล็อกสายสแปม สายหลอกลวง และสายอัตโนมัติโดยอัตโนมัติ เพื่อไม่ให้รบกวนคุณอีก</string>
+    <string name="onboarding_desc_2">ตรวจสอบว่าหมายเลขถูกรายงานว่าเป็นสแปมหรือหลอกลวงหรือไม่ แล้วบล็อกได้ในแตะเดียว — สายที่บล็อกจะไม่ดัง</string>
     <string name="onboarding_title_3">ค้นหาหมายเลขใดก็ได้</string>
-    <string name="onboarding_desc_3">ค้นหาหมายเลขที่ไม่รู้จักเพื่อดูชื่อ ตำแหน่ง และรายละเอียดธุรกิจของผู้โทรได้ทันที</string>
+    <string name="onboarding_desc_3">ค้นหาหมายเลขที่ไม่รู้จักเพื่อดูชื่อที่มีผู้รายงาน ตำแหน่ง เครือข่าย และประเภทสาย</string>
     <string name="onboarding_get_started">เริ่มต้นใช้งาน</string>
 
     <!-- Home -->
