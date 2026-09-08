@@ -1,9 +1,9 @@
 package com.callerid.adcast.domain
 
 import android.content.Context
-import com.callerid.phonelookup.home.BuildConfig
-import com.callerid.phonelookup.home.permission.AccessSource
-import com.callerid.phonelookup.home.util.GuardRail
+import com.callerid.phonelookupapp.home.BuildConfig
+import com.callerid.phonelookupapp.home.permission.AccessSource
+import com.callerid.phonelookupapp.home.util.GuardRail
 import com.google.firebase.remoteconfig.ConfigUpdate
 import com.google.firebase.remoteconfig.ConfigUpdateListener
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig

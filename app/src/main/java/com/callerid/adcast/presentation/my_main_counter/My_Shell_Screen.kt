@@ -13,9 +13,9 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import io.lighthouse.push.extended.HandleOptions
 import io.lighthouse.push.extended.LightHouseRichPush
-import com.callerid.phonelookup.home.R
-import com.callerid.phonelookup.home.databinding.ViewCallBackScreenBinding
-import com.callerid.phonelookup.home.util.triggerClick
+import com.callerid.phonelookupapp.home.R
+import com.callerid.phonelookupapp.home.databinding.ViewCallBackScreenBinding
+import com.callerid.phonelookupapp.home.util.triggerClick
 import com.callerid.adcast.presentation.AppOpenAdRegistry
 import com.callerid.adcast.presentation.SheetNativeAds
 import com.callerid.adcast.presentation.SystemDialogKit
@@ -23,8 +23,8 @@ import com.callerid.adcast.presentation.getHD_VBC_Type
 import com.callerid.adcast.presentation.my_main_counter.fragment.ThreadsFragment
 import com.callerid.adcast.presentation.my_main_counter.fragment.CallFeedFragment
 import com.callerid.adcast.presentation.my_main_counter.fragment.PromptFragment
-import com.callerid.phonelookup.home.base.CanvasActivity
-import com.callerid.phonelookup.home.data.PeopleSource
+import com.callerid.phonelookupapp.home.base.CanvasActivity
+import com.callerid.phonelookupapp.home.data.PeopleSource
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale

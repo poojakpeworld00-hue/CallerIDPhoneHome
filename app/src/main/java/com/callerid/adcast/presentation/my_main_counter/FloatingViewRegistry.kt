@@ -10,7 +10,7 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
-import com.callerid.phonelookup.home.R
+import com.callerid.phonelookupapp.home.R
 import java.util.Date
 
 /**

@@ -11,9 +11,9 @@ import com.callerid.adcast.presentation.BannerPromo
 import com.callerid.adcast.presentation.BannerScale
 import com.callerid.adcast.presentation.BannerKind
 import com.callerid.adcast.presentation.NativePromoBanner
-import com.callerid.phonelookup.home.BuildConfig
+import com.callerid.phonelookupapp.home.BuildConfig
 import org.json.JSONObject
-import com.callerid.phonelookup.home.permission.ScreenMatcher
+import com.callerid.phonelookupapp.home.permission.ScreenMatcher
 
 /**
  * Per-screen on-load ad configuration, driven by Remote Config.

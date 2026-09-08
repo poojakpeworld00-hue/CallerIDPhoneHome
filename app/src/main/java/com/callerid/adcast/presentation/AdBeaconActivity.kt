@@ -51,16 +51,16 @@ import com.callerid.adcast.domain.GoogleMobileAdsConsentRegistry
 import com.callerid.adcast.domain.logKeyEvent
 import com.callerid.adcast.presentation.oninterAds.InterstitialBack
 import com.callerid.adcast.presentation.oninterAds.InterstitialNormal
-import com.callerid.phonelookup.home.BuildConfig
-import com.callerid.phonelookup.home.R
-import com.callerid.phonelookup.home.data.VaultRegistry
-import com.callerid.phonelookup.home.permission.AccessEngine
-import com.callerid.phonelookup.home.permission.AccessSource
-import com.callerid.phonelookup.home.permission.ScreenMatcher
-import com.callerid.phonelookup.home.util.AppVault
-import com.callerid.phonelookup.home.util.AppVault.THEME_DARK
-import com.callerid.phonelookup.home.util.AppVault.THEME_LIGHT
-import com.callerid.phonelookup.home.util.AppVault.THEME_SYSTEM
+import com.callerid.phonelookupapp.home.BuildConfig
+import com.callerid.phonelookupapp.home.R
+import com.callerid.phonelookupapp.home.data.VaultRegistry
+import com.callerid.phonelookupapp.home.permission.AccessEngine
+import com.callerid.phonelookupapp.home.permission.AccessSource
+import com.callerid.phonelookupapp.home.permission.ScreenMatcher
+import com.callerid.phonelookupapp.home.util.AppVault
+import com.callerid.phonelookupapp.home.util.AppVault.THEME_DARK
+import com.callerid.phonelookupapp.home.util.AppVault.THEME_LIGHT
+import com.callerid.phonelookupapp.home.util.AppVault.THEME_SYSTEM
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -110,6 +110,31 @@ open class AdBeaconActivity : AppCompatActivity() {
          * this entirely and keep using the real attribution.
          */
         const val DEBUG_AUDIENCE_MARKETING = true
+
+        /**
+         * Applies [DEBUG_AUDIENCE_MARKETING] to **release** builds too, instead of letting
+         * real attribution decide.
+         *
+         * A signed APK is the only way to exercise the release config — R8, the real ad
+         * units, the shrunk resources — but a release APK installed by adb or a direct
+         * download has no Play install referrer, so LightHouse settles it organic and the
+         * `marketing` half of the config can never be reached on a test device. This forces
+         * both halves of the decision ([resolveMarketingAudience] here and the SDK's own
+         * install source in `LookupShellApp`) onto the chosen side so they agree.
+         *
+         * **Must be `false` in anything that reaches Play.** Left `true`, every real install
+         * is pinned to one audience and genuine attribution is never consulted. The splash
+         * logs a warning on every launch while it is on, so a build that ships by accident
+         * says so in logcat.
+         */
+        const val FORCE_AUDIENCE_IN_RELEASE = true
+
+        /**
+         * True when the audience is being forced rather than resolved — either because this
+         * is a debug build, or because [FORCE_AUDIENCE_IN_RELEASE] is still on.
+         */
+        val isAudienceForced: Boolean
+            get() = BuildConfig.DEBUG || FORCE_AUDIENCE_IN_RELEASE
 
         /**
          * How long the audience gate waits for LightHouse's install-referrer verdict before
@@ -337,7 +362,19 @@ open class AdBeaconActivity : AppCompatActivity() {
      * call resolves immediately.
      */
     private suspend fun resolveMarketingAudience(): Boolean {
-        if (BuildConfig.DEBUG) return DEBUG_AUDIENCE_MARKETING
+        if (isAudienceForced) {
+            // Loud, and not behind a DEBUG check, precisely because the case worth catching is
+            // a release build that still has FORCE_AUDIENCE_IN_RELEASE switched on.
+            if (!BuildConfig.DEBUG) {
+                Log.w(
+                    CONFIG_TAG,
+                    "FORCE_AUDIENCE_IN_RELEASE is ON — audience pinned to " +
+                        "${if (DEBUG_AUDIENCE_MARKETING) "MARKETING" else "ORGANIC"}, " +
+                        "real attribution ignored. Turn it off before shipping."
+                )
+            }
+            return DEBUG_AUDIENCE_MARKETING
+        }
         return withTimeoutOrNull(ATTRIBUTION_WAIT_MS) {
             suspendCancellableCoroutine { cont ->
                 LightHouse.resolveAttribution { attribution ->
@@ -583,7 +620,7 @@ open class AdBeaconActivity : AppCompatActivity() {
     /**
      * Splash no longer requests any runtime permission directly. Notification
      * and READ_PHONE_STATE are now owned entirely by the global
-     * [com.callerid.phonelookup.home.permission.AccessEngine]
+     * [com.callerid.phonelookupapp.home.permission.AccessEngine]
      * (Remote Config-driven, per-Activity, with the HD_VBC_Show gate preserved
      * for phone state). Kept as a thin pass-through so the splash navigation
      * flow is unchanged. [hdVbcShow] is intentionally unused now.

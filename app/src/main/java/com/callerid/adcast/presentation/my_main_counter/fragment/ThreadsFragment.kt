@@ -15,9 +15,9 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import com.callerid.phonelookup.home.R
-import com.callerid.phonelookup.home.util.AppVault
-import com.callerid.phonelookup.home.util.triggerClick
+import com.callerid.phonelookupapp.home.R
+import com.callerid.phonelookupapp.home.util.AppVault
+import com.callerid.phonelookupapp.home.util.triggerClick
 
 class ThreadsFragment : Fragment() {
 

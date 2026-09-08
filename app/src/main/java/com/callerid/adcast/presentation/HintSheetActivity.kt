@@ -12,9 +12,9 @@ import androidx.lifecycle.lifecycleScope
 import android.content.Context
 import android.content.Intent
 import android.widget.TextView
-import com.callerid.phonelookup.home.R
-import com.callerid.phonelookup.home.launcher.extensions.isDefaultLauncher
-import com.callerid.phonelookup.home.util.GuardRail
+import com.callerid.phonelookupapp.home.R
+import com.callerid.phonelookupapp.home.launcher.extensions.isDefaultLauncher
+import com.callerid.phonelookupapp.home.util.GuardRail
 
 
 import kotlinx.coroutines.Job

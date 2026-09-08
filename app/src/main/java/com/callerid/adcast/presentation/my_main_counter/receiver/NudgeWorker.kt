@@ -10,8 +10,8 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.work.Worker
 import androidx.work.WorkerParameters
-import com.callerid.phonelookup.home.R
-import com.callerid.phonelookup.home.ui.splash.StartupActivity
+import com.callerid.phonelookupapp.home.R
+import com.callerid.phonelookupapp.home.ui.splash.StartupActivity
 
 class NudgeWorker(context: Context, workerParams: WorkerParameters) :
     Worker(context, workerParams) {

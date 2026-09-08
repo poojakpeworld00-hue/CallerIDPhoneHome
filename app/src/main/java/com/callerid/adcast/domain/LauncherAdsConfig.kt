@@ -16,8 +16,8 @@ import com.callerid.adcast.presentation.BannerScale
 import com.callerid.adcast.presentation.NativePromo
 import com.callerid.adcast.presentation.NativePromoBanner
 import com.callerid.adcast.presentation.oninterAds.InterstitialNormal
-import com.callerid.phonelookup.home.BuildConfig
-import com.callerid.phonelookup.home.launcher.extensions.isDefaultLauncher
+import com.callerid.phonelookupapp.home.BuildConfig
+import com.callerid.phonelookupapp.home.launcher.extensions.isDefaultLauncher
 import org.json.JSONObject
 
 /**

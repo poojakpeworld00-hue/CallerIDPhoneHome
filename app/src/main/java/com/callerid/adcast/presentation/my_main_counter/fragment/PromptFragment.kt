@@ -25,8 +25,8 @@ import androidx.work.workDataOf
 import com.callerid.adcast.data.Nudge
 import com.callerid.adcast.presentation.my_main_counter.adapter.NudgeAdapter
 import com.callerid.adcast.presentation.my_main_counter.receiver.NudgeWorker
-import com.callerid.phonelookup.home.R
-import com.callerid.phonelookup.home.util.triggerClick
+import com.callerid.phonelookupapp.home.R
+import com.callerid.phonelookupapp.home.util.triggerClick
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.util.Calendar

@@ -34,15 +34,15 @@
 -keepclassmembers class * { native <methods>; }
 
 # View/Data binding generated classes.
--keep class com.callerid.phonelookup.home.databinding.** { *; }
+-keep class com.callerid.phonelookupapp.home.databinding.** { *; }
 
 # -------------------------------------------------------------
 # App models — serialized by Gson (Retrofit) & parsed from
 # Firebase Remote Config JSON. Field names must survive.
 # -------------------------------------------------------------
--keep class com.callerid.phonelookup.home.models.** { *; }
+-keep class com.callerid.phonelookupapp.home.models.** { *; }
 -keep class com.callerid.adcast.data.** { *; }
--keepclassmembers class com.callerid.phonelookup.home.models.** { *; }
+-keepclassmembers class com.callerid.phonelookupapp.home.models.** { *; }
 
 # -------------------------------------------------------------
 # Kotlin
@@ -173,7 +173,7 @@
 
 # -------------------------------------------------------------
 # Permission Engine + Full-Screen-Intent (FSI) flow
-# (com.callerid.phonelookup.home.permission.**)
+# (com.callerid.phonelookupapp.home.permission.**)
 #
 # Most of this package needs NO rules:
 #  • FsiPortalActivity and FullScreenWatchService are declared in the manifest,

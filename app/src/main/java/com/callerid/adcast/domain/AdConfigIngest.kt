@@ -4,11 +4,11 @@ import android.content.Context
 import android.content.res.Configuration
 import android.util.Log
 import com.callerid.adcast.presentation.CustomAdsRegistry
-import com.callerid.phonelookup.home.BuildConfig
-import com.callerid.phonelookup.home.util.AppVault
-import com.callerid.phonelookup.home.util.AppVault.THEME_DARK
-import com.callerid.phonelookup.home.util.AppVault.THEME_LIGHT
-import com.callerid.phonelookup.home.util.AppVault.THEME_SYSTEM
+import com.callerid.phonelookupapp.home.BuildConfig
+import com.callerid.phonelookupapp.home.util.AppVault
+import com.callerid.phonelookupapp.home.util.AppVault.THEME_DARK
+import com.callerid.phonelookupapp.home.util.AppVault.THEME_LIGHT
+import com.callerid.phonelookupapp.home.util.AppVault.THEME_SYSTEM
 import org.json.JSONObject
 
 /**

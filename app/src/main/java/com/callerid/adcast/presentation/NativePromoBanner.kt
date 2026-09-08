@@ -17,9 +17,9 @@ import com.callerid.adcast.domain.AdRevenueMeter
 import com.callerid.adcast.domain.AdsVault
 import com.callerid.adcast.domain.TAG_EVENT
 import com.callerid.adcast.domain.logKeyEvent
-import com.callerid.phonelookup.home.BuildConfig
-import com.callerid.phonelookup.home.databinding.FacebookNativeBannerBinding
-import com.callerid.phonelookup.home.databinding.GooglesmallnativeBinding
+import com.callerid.phonelookupapp.home.BuildConfig
+import com.callerid.phonelookupapp.home.databinding.FacebookNativeBannerBinding
+import com.callerid.phonelookupapp.home.databinding.GooglesmallnativeBinding
 import com.facebook.ads.Ad
 import com.facebook.ads.AdError
 import com.facebook.ads.AdOptionsView

@@ -1,6 +1,6 @@
 package com.callerid.adcast.domain
 
-import com.callerid.phonelookup.home.BuildConfig
+import com.callerid.phonelookupapp.home.BuildConfig
 import com.google.android.gms.tasks.Task
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings

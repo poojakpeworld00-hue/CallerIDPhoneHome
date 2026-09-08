@@ -16,7 +16,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.callerid.adcast.data.HouseAd
 import com.callerid.adcast.domain.AdsVault
-import com.callerid.phonelookup.home.R
+import com.callerid.phonelookupapp.home.R
 
 class CustomAdsRegistry {
 

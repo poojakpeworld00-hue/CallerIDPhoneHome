@@ -12,8 +12,8 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import com.callerid.phonelookup.home.R
-import com.callerid.phonelookup.home.util.triggerClick
+import com.callerid.phonelookupapp.home.R
+import com.callerid.phonelookupapp.home.util.triggerClick
 
 class QuickActionsFragment : Fragment() {
 

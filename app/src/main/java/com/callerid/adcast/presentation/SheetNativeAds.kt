@@ -32,8 +32,8 @@ import com.callerid.adcast.data.AdKind
 import com.callerid.adcast.domain.AdsVault
 import com.callerid.adcast.domain.logAdRevenue
 import com.callerid.adcast.domain.logKeyEvent
-import com.callerid.phonelookup.home.databinding.FbNativeBinding
-import com.callerid.phonelookup.home.databinding.GooglebignativeBinding
+import com.callerid.phonelookupapp.home.databinding.FbNativeBinding
+import com.callerid.phonelookupapp.home.databinding.GooglebignativeBinding
 
 class SheetNativeAds {
 

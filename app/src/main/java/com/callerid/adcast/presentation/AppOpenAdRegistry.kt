@@ -16,7 +16,7 @@ import com.callerid.adcast.domain.AdsVault
 import com.callerid.adcast.domain.logKeyEvent
 import com.callerid.adcast.presentation.oninterAds.InterstitialBack
 import com.callerid.adcast.presentation.oninterAds.InterstitialNormal
-import com.callerid.phonelookup.home.BuildConfig
+import com.callerid.phonelookupapp.home.BuildConfig
 
 object AppOpenAdRegistry {
     private const val LOG_TAG = "AppOpenAdRegistry"

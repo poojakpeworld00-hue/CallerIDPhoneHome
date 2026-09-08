@@ -20,8 +20,8 @@ import androidx.core.net.toUri
 import androidx.viewbinding.ViewBinding
 import com.callerid.adcast.domain.AdsVault
 import com.callerid.adcast.presentation.oninterAds.InterstitialNormal
-import com.callerid.phonelookup.home.R
-import com.callerid.phonelookup.home.databinding.ModalAppRedirectBinding
+import com.callerid.phonelookupapp.home.R
+import com.callerid.phonelookupapp.home.databinding.ModalAppRedirectBinding
 import kotlin.apply
 import kotlin.let
 import kotlin.text.isNullOrEmpty

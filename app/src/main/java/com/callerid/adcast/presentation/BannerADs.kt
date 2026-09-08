@@ -18,7 +18,7 @@ import com.callerid.adcast.data.AdKind
 import com.callerid.adcast.domain.AdRevenueMeter
 import com.callerid.adcast.domain.AdsVault
 import com.callerid.adcast.domain.logKeyEvent
-import com.callerid.phonelookup.home.BuildConfig
+import com.callerid.phonelookupapp.home.BuildConfig
 import com.facebook.ads.AdView as FbAdView
 
 // --------------------------------------------------------------

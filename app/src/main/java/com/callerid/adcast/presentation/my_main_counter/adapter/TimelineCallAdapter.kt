@@ -9,9 +9,9 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.callerid.phonelookup.home.R
-import com.callerid.phonelookup.home.data.CallRecord
-import com.callerid.phonelookup.home.data.CallKind
+import com.callerid.phonelookupapp.home.R
+import com.callerid.phonelookupapp.home.data.CallRecord
+import com.callerid.phonelookupapp.home.data.CallKind
 
 /**
  * Recent-call list for the post-call screen. Each row shows the caller and a

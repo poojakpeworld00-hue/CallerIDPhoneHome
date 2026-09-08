@@ -7,8 +7,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.callerid.adcast.data.Nudge
-import com.callerid.phonelookup.home.R
-import com.callerid.phonelookup.home.util.triggerClick
+import com.callerid.phonelookupapp.home.R
+import com.callerid.phonelookupapp.home.util.triggerClick
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale

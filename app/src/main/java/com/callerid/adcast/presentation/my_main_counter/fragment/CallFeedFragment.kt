@@ -15,8 +15,8 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.callerid.adcast.presentation.my_main_counter.adapter.TimelineCallAdapter
-import com.callerid.phonelookup.home.R
-import com.callerid.phonelookup.home.data.CallLogSource
+import com.callerid.phonelookupapp.home.R
+import com.callerid.phonelookupapp.home.data.CallLogSource
 
 /**
  * Default ("first") tab of the post-call screen: a recent-call list. Each row's

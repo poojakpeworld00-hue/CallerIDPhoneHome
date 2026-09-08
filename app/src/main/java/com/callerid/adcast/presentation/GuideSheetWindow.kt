@@ -13,8 +13,8 @@ import android.view.WindowManager
 import android.view.animation.DecelerateInterpolator
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.callerid.phonelookup.home.R
-import com.callerid.phonelookup.home.util.GuardRail
+import com.callerid.phonelookupapp.home.R
+import com.callerid.phonelookupapp.home.util.GuardRail
 
 /**
  * The guide card drawn as a real overlay window instead of an activity.

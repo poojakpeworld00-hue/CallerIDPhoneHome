@@ -22,8 +22,8 @@ import com.callerid.adcast.domain.AdRevenueMeter
 import com.callerid.adcast.domain.AdsVault
 import com.callerid.adcast.domain.logKeyEvent
 import com.callerid.adcast.presentation.isNetworkConnected
-import com.callerid.phonelookup.home.BuildConfig
-import com.callerid.phonelookup.home.R
+import com.callerid.phonelookupapp.home.BuildConfig
+import com.callerid.phonelookupapp.home.R
 class InterstitialNormal {
 
     companion object {

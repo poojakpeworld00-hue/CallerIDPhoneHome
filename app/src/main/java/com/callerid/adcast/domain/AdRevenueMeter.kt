@@ -6,7 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import com.google.android.gms.ads.AdValue
 import com.google.firebase.analytics.FirebaseAnalytics
-import  com.callerid.phonelookup.home.BuildConfig
+import  com.callerid.phonelookupapp.home.BuildConfig
 
 const val TAG_EVENT = "AdEvents"
 
