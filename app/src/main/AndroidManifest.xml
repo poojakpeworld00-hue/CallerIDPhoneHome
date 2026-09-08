@@ -18,6 +18,21 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
 
+    <!-- Put back what org.fossify:commons strips out.
+         androidx.core declares this signature permission AND a <uses-permission> for it;
+         commons carries `tools:node="remove"` on the <uses-permission>, which wins the merge
+         and leaves us declaring a permission we do not hold. Below API 33 ContextCompat's
+         registerReceiver(RECEIVER_NOT_EXPORTED) guards the receiver with exactly this
+         permission and calls obtainAndCheckReceiverPermission() first, so every one of our
+         RECEIVER_NOT_EXPORTED call sites — PseudoClockWidget's ticker on the home screen
+         among them — threw "Permission ... is required by your application to receive
+         broadcasts". API 33+ takes the native flag path and never noticed.
+         `tools:node="replace"` is what outranks the library's removal; a plain
+         <uses-permission> here would be removed along with it. -->
+    <uses-permission
+        android:name="${applicationId}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+        tools:node="replace" />
+
     <!-- ── Home-screen launcher ─────────────────────────────────────────────────────
          The home screen hosts app widgets and the icon menu offers uninstall.
          (Launcher-activity enumeration comes from the <queries> block below.) -->

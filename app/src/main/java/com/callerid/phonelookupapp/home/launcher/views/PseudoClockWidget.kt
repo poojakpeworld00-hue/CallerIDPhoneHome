@@ -15,15 +15,16 @@ import java.util.Date
 import java.util.Locale
 
 /**
- * Root of [R.layout.stub_widget_digital_clock]: two plain TextViews showing the current
- * time and weekday. The system ticks us once a minute while the home screen is up, which is
- * all the resolution the clock needs, so there is no timer of our own to leak.
+ * Root of [R.layout.stub_widget_digital_clock]: three plain TextViews showing the weekday,
+ * the current time and the day/month. The system ticks us once a minute while the home screen
+ * is up, which is all the resolution the clock needs, so there is no timer of our own to leak.
  */
 class PseudoClockWidget @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
 ) : LinearLayout(context, attrs) {
 
+    private var weekday: TextView? = null
     private var time: TextView? = null
     private var day: TextView? = null
     private var isReceiverRegistered = false
@@ -34,6 +35,7 @@ class PseudoClockWidget @JvmOverloads constructor(
 
     override fun onFinishInflate() {
         super.onFinishInflate()
+        weekday = findViewById(R.id.widget_weekday)
         time = findViewById(R.id.widget_text_clock)
         day = findViewById(R.id.widget_date)
         refresh()
@@ -80,13 +82,19 @@ class PseudoClockWidget @JvmOverloads constructor(
         val locale = Locale.getDefault()
         val timePattern = if (DateFormat.is24HourFormat(context)) HOUR_24 else HOUR_12
 
+        weekday?.text = SimpleDateFormat(WEEKDAY, locale).format(now)
         time?.text = SimpleDateFormat(timePattern, locale).format(now)
-        day?.text = SimpleDateFormat(WEEKDAY, locale).format(now)
+        // Locale-ordered rather than a hard "d MMMM": the same skeleton renders as
+        // "8 September" in en-GB and "September 8" in en-US.
+        day?.text = SimpleDateFormat(
+            DateFormat.getBestDateTimePattern(locale, DAY_MONTH), locale
+        ).format(now)
     }
 
     companion object {
         private const val HOUR_24 = "HH:mm"
         private const val HOUR_12 = "h:mm"
         private const val WEEKDAY = "EEEE"
+        private const val DAY_MONTH = "dMMMM"
     }
 }

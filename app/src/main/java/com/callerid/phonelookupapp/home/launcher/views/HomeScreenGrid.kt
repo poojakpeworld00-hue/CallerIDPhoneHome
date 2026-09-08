@@ -719,6 +719,19 @@ class HomeScreenGrid(context: Context, attrs: AttributeSet, defStyle: Int) :
                             }
                         }
                     }
+
+                // Blocked by a widget or a docked icon, and nothing here to merge into: snap to
+                // the closest free cell instead of refusing the drop. Refusing meant most of the
+                // default page 0 rejected icons outright — the clock spans rows 0-1 and the
+                // search pill row 2, so anything dropped in the top three rows went back to the
+                // drawer with no feedback, while the same drop on an empty page worked.
+                if (!isDroppingPositionValid && potentialParent == null) {
+                    nearestFreeCell(wantedCell)?.let { freeCell ->
+                        xIndex = freeCell.first
+                        yIndex = freeCell.second
+                        isDroppingPositionValid = true
+                    }
+                }
             }
         }
 
@@ -1166,12 +1179,15 @@ class HomeScreenGrid(context: Context, attrs: AttributeSet, defStyle: Int) :
                     }
 
                     PSEUDO_WIDGET_CLOCK -> {
-                        // the two halves go where their content points, like every other launcher
+                        // each line goes where its content points, like every other launcher:
+                        // the time opens the clock, the two date lines open the calendar
                         findViewById<View>(R.id.widget_text_clock)?.setOnClickListener {
                             activity.openClockApp()
                         }
-                        findViewById<View>(R.id.widget_date)?.setOnClickListener {
-                            activity.openCalendarApp()
+                        listOf(R.id.widget_weekday, R.id.widget_date).forEach { id ->
+                            findViewById<View>(id)?.setOnClickListener {
+                                activity.openCalendarApp()
+                            }
                         }
                     }
                 }
@@ -1257,6 +1273,49 @@ class HomeScreenGrid(context: Context, attrs: AttributeSet, defStyle: Int) :
     }
 
     // convert stuff like 102x192 to grid cells like 0x1
+    /**
+     * The free cell closest to [fromCell] on the current page, or null when the page is full.
+     *
+     * Distance is Manhattan in grid cells, scanned top-left first, so a blocked drop lands on the
+     * nearest empty slot and ties resolve to the upper-left one — predictable for the user
+     * repeating the gesture.
+     *
+     * The dock row is deliberately out of scope: a drop that missed the body of the page should
+     * not silently become a docked icon.
+     */
+    private fun nearestFreeCell(fromCell: Pair<Int, Int>): Pair<Int, Int>? {
+        val occupied = HashSet<Pair<Int, Int>>()
+        gridItems.filterVisibleOnCurrentPageOnly()
+            .filter { it.id != draggedItem?.id }
+            .forEach { item ->
+                for (x in item.left..item.right) {
+                    for (
+                    y in item.getDockAdjustedTop(rowCount)
+                        .rangeTo(item.getDockAdjustedBottom(rowCount))
+                    ) {
+                        occupied += Pair(x, y)
+                    }
+                }
+            }
+
+        var best: Pair<Int, Int>? = null
+        var bestDistance = Int.MAX_VALUE
+        for (y in 0..rowCount - 2) {
+            for (x in 0 until columnCount) {
+                val cell = Pair(x, y)
+                if (cell in occupied) {
+                    continue
+                }
+                val distance = abs(x - fromCell.first) + abs(y - fromCell.second)
+                if (distance < bestDistance) {
+                    bestDistance = distance
+                    best = cell
+                }
+            }
+        }
+        return best
+    }
+
     private fun getClosestGridCells(center: Point): Point? {
         return cells.entries.firstOrNull { (_, cell) -> center.x == cell.centerX() && center.y == cell.centerY() }?.key
     }
