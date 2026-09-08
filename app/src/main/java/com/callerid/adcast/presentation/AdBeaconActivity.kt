@@ -127,7 +127,7 @@ open class AdBeaconActivity : AppCompatActivity() {
          * logs a warning on every launch while it is on, so a build that ships by accident
          * says so in logcat.
          */
-        const val FORCE_AUDIENCE_IN_RELEASE = true
+        const val FORCE_AUDIENCE_IN_RELEASE = false
 
         /**
          * True when the audience is being forced rather than resolved — either because this

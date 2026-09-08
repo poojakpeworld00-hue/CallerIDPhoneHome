@@ -62,9 +62,10 @@ class IdentFloatService : Service() {
         val keyguard = getSystemService(KEYGUARD_SERVICE) as? KeyguardManager
         val locked = keyguard?.isKeyguardLocked == true
 
-        // The floating card is only possible with SYSTEM_ALERT_WINDOW, and the app no
-        // longer asks for it (see FloatKit.ASK_FOR_OVERLAY). So the full-screen activity
-        // is now the main route, not just the locked-screen one:
+        // The floating card is only possible with SYSTEM_ALERT_WINDOW, which plenty of
+        // users never grant — role holders are not even offered it (see
+        // FloatKit.isOfferable). So the full-screen activity is a main route, not just
+        // the locked-screen one:
         //  - locked            → activity, the only thing that shows over the keyguard;
         //  - no overlay        → activity, started on the default-role background-start
         //                        exemption (home / dialer / call screening);

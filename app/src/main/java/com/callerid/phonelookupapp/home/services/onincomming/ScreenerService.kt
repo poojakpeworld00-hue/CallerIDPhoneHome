@@ -52,10 +52,11 @@ class ScreenerService : CallScreeningService() {
         respondToCall(callDetails, response)
 
         if (block || !isIncoming || number.isNullOrBlank()) return
-        // No SYSTEM_ALERT_WINDOW check: the app does not ask for the overlay any more
-        // (see FloatKit.ASK_FOR_OVERLAY), and IdentFloatService falls back to the
-        // full-screen activity, started on the role's own background-activity-start
-        // exemption. Bailing out here left a role-holding user with no card at all.
+        // No SYSTEM_ALERT_WINDOW check: the overlay is asked for but never assumed
+        // (see FloatKit.isOfferable, which skips role holders), and IdentFloatService
+        // falls back to the full-screen activity, started on the role's own
+        // background-activity-start exemption. Bailing out here left a role-holding
+        // user — who is never offered the overlay — with no card at all.
         Log.d(TAG, "raising caller-ID card from screening: $number")
         IdentFloatService.start(this, number)
     }
