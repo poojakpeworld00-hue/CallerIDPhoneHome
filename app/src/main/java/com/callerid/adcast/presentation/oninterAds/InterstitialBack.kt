@@ -11,6 +11,7 @@ import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.callerid.adcast.data.AdKind
 import com.callerid.adcast.domain.AdCounterRegistry.interBackCounter
 import com.callerid.adcast.domain.AdsVault
+import com.callerid.adcast.domain.LauncherPlacementAds
 import com.callerid.adcast.domain.logKeyEvent
 import com.callerid.adcast.presentation.isNetworkConnected
 
@@ -114,13 +115,26 @@ class InterstitialBack {
         }
         interBackCounter = 0
 
+        // `back_ad_flow` / a `back_` link chain: the dynamic flow instead of the back interstitial.
+        // Only a flow configured *for back* switches it over — a global setting never does.
+        if (LauncherPlacementAds.hasOwnFlow(act, "back")) {
+            if (!LauncherPlacementAds.placementEnabled(act, "back")) return safeClose("back_ads_on_false")
+            LauncherPlacementAds.showInterstitial(act, "back") { safeClose("back_flow") }
+            return
+        }
+
         // ------------------------
         // SELECT AD TYPE
         // ------------------------
         when (AdKind.fromString(pref.getString("IsAdType"))) {
 
             AdKind.GOOGLE -> {
-                showGoogleBackInter(act, pref, ::safeClose)
+                // `Inter_Loader_Ms`: a short loader before a back interstitial that is already loaded.
+                if (googleInterBack != null) {
+                    FullScreenSpinner.beforeShow(act) { showGoogleBackInter(act, pref, ::safeClose) }
+                } else {
+                    showGoogleBackInter(act, pref, ::safeClose)
+                }
             }
 
             AdKind.FACEBOOK -> {
@@ -220,7 +234,7 @@ class InterstitialBack {
         onFail: () -> Unit
     ) {
         val pref = AdsVault.getInstance(context)
-        val isLoader = pref.getBoolean("isLoaderForFB")
+        val isLoader = FullScreenSpinner.isEnabled(context)
         val fbId = pref.getString("faceB_InterAds") ?: return onFail()
 
         val fb = com.facebook.ads.InterstitialAd(context, fbId)

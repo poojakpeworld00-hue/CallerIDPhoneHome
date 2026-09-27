@@ -7,7 +7,7 @@ import android.os.Build
 import android.provider.Settings
 import com.callerid.adcast.domain.AdsVault
 import com.callerid.adcast.presentation.HintSheetActivity
-import com.callerid.phonelookupapp.home.launcher.extensions.isDefaultLauncher
+import io.launcher.home.extensions.isDefaultLauncher
 
 /**
  * Helpers for the "display over other apps" (overlay) permission used by the
@@ -34,15 +34,24 @@ object FloatKit {
      * caller-ID card entirely.
      *
      * Which user gets asked is [isOfferable]'s job, and its default-launcher gate is
-     * what keeps this from asking role holders for something they do not need. Set
-     * this back to `false` to switch every overlay prompt off again.
+     * what keeps this from asking role holders for something they do not need.
+     *
+     * Driven by Remote Config: `Overlay_Permission_Show` in the GET_DATA_LIST audience block.
+     * `false` switches every overlay prompt in the app off — the Terms step, the permission
+     * sheet row, Home's Enable banner. Absent means on, so a config that does not carry the
+     * key keeps today's behaviour. Read live, so a Remote Config change applies on the next
+     * prompt without a restart.
      */
-    private val ASK_FOR_OVERLAY = true
+    private fun askForOverlay(context: Context): Boolean =
+        AdsVault.getInstance(context).getBoolean(OVERLAY_SWITCH_KEY, true)
+
+    /** Remote Config master switch for the "display over other apps" prompts. */
+    const val OVERLAY_SWITCH_KEY = "Overlay_Permission_Show"
 
     /**
      * True when the overlay permission may still be *offered* to this user.
      *
-     * [ASK_FOR_OVERLAY] switches the whole thing off. While it is on, two further
+     * `Overlay_Permission_Show: false` switches the whole thing off. While it is on, two further
      * gates apply, either one closing it:
      *
      *  1. **We are the default launcher.** Holding `ROLE_HOME` is itself a
@@ -65,7 +74,7 @@ object FloatKit {
      * keeps working for them, because this gates the prompt, not the feature.
      */
     fun isOfferable(context: Context): Boolean {
-        if (!ASK_FOR_OVERLAY) return false
+        if (!askForOverlay(context)) return false
         if (runCatching { context.isDefaultLauncher() }.getOrDefault(false)) return false
         return !AdsVault.getInstance(context).isNShowLocation
     }

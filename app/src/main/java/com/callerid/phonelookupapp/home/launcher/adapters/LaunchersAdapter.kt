@@ -20,7 +20,7 @@ import org.fossify.commons.extensions.beVisibleIf
 import org.fossify.commons.extensions.getColoredDrawableWithColor
 import org.fossify.commons.extensions.realScreenSize
 import com.callerid.phonelookupapp.home.R
-import com.callerid.phonelookupapp.home.launcher.activities.ShellDeckActivity
+import com.callerid.phonelookupapp.home.onboard.ShellDeckActivity
 import com.callerid.phonelookupapp.home.databinding.TileLauncherLabelBinding
 import com.callerid.phonelookupapp.home.launcher.extensions.animateScale
 import com.callerid.phonelookupapp.home.launcher.extensions.config

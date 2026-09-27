@@ -10,7 +10,7 @@ import com.callerid.phonelookupapp.home.data.PeopleSource
 import com.callerid.phonelookupapp.home.data.lookup.CallerDirectory
 import com.callerid.phonelookupapp.home.data.lookup.IdentifyTraceStore
 import com.callerid.phonelookupapp.home.data.lookup.OfflineDigitIdentify
-import com.callerid.phonelookupapp.home.models.DialData
+import com.callerid.phonelookupapp.home.models.DialResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -63,31 +63,42 @@ class IdentifyViewModel(app: Application) : AndroidViewModel(app) {
             val data = withContext(Dispatchers.IO) {
                 val contactName = contactsRepository.lookupNameByNumber(normalized)
                 val offline = OfflineDigitIdentify.lookup(normalized, region) // libphonenumber, no network
-                val apiList = fetchFromApi(normalized)
-                Triple(contactName, offline, apiList)
+                val apiResponse = fetchFromApi(normalized)
+                Triple(contactName, offline, apiResponse)
             }
             delay(SHIMMER_MIN_MS)
             if (token != searchToken) return@launch // a newer query superseded this one
 
-            val (contactName, offline, apiList) = data
-            val api = apiList.firstOrNull()
+            val (contactName, offline, apiResponse) = data
+            val apiList = apiResponse?.data.orEmpty()
+            // Names people saved this number under. Entries with no letters at all
+            // ("98765 43210", "+91…", "1") are just the number echoed back, not a name.
+            val apiNames = apiList
+                .mapNotNull { it.name?.trim()?.takeIf { n -> n.any(Char::isLetter) } }
             // Prefer the community/network name so a saved contact shows how OTHERS
             // identify this number (not the name you already gave it). Fall back to
             // your own contact name only when the network has no name at all.
-            val apiPrimary = api?.name?.trim()?.takeIf { it.isNotBlank() }
+            val apiPrimary = apiNames.firstOrNull()
             val displayName = apiPrimary ?: contactName
 
-            // Pull each enrichment field from whichever backend record has it,
-            // then fall back to the offline (libphonenumber) result.
+            // Pull each enrichment field from whichever backend record has it — row
+            // level first, then contact-saver's number-level fields — then fall back
+            // to the offline (libphonenumber) result.
             val apiCarrier = apiList.firstNotNullOfOrNull { it.carrierOrNull }
             val apiCountry = apiList.firstNotNullOfOrNull { it.country?.takeIf { c -> c.isNotBlank() } }
+                ?: apiResponse?.country?.takeIf { it.isNotBlank() }?.let(::isoToCountryName)
             val apiLineType = apiList.firstNotNullOfOrNull { it.lineTypeOrNull }
             val apiCity = apiList.firstNotNullOfOrNull { it.city?.takeIf { c -> c.isNotBlank() } }
+                ?: apiResponse?.location?.let { loc ->
+                    listOfNotNull(loc.city, loc.state)
+                        .map(String::trim).filter(String::isNotBlank).distinct()
+                        .joinToString(", ").takeIf { it.isNotBlank() }
+                }
+            val api = apiList.firstOrNull()
 
             // "Also known as": distinct network names, excluding the primary shown name
             // AND your own saved contact name — so your own name is never echoed here.
-            val nicknames = apiList
-                .mapNotNull { it.name?.trim()?.takeIf { n -> n.isNotBlank() } }
+            val nicknames = apiNames
                 .distinct()
                 .filter {
                     !it.equals(displayName, ignoreCase = true) &&
@@ -106,7 +117,7 @@ class IdentifyViewModel(app: Application) : AndroidViewModel(app) {
                 lineType = apiLineType ?: offline?.lineType,
                 valid = offline?.valid,
                 city = apiCity ?: offline?.location,
-                isSpam = api?.is_spam == true || api?.is_user_spam == true,
+                isSpam = apiResponse?.spam == true || api?.is_spam == true || api?.is_user_spam == true,
                 spamType = api?.spamType,
                 nicknames = nicknames
             )
@@ -118,13 +129,17 @@ class IdentifyViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     /**
-     * Queries the caller-ID API for this number; returns all matching records (may be empty).
+     * Queries the caller-ID API for this number; null when unavailable or failed.
      *
      * Through [CallerDirectory] so the incoming-call card asks the endpoint exactly the way
      * this screen does — see [com.callerid.phonelookupapp.home.services.IdentCard.enrich].
      */
-    private suspend fun fetchFromApi(phone: String): List<DialData> =
-        CallerDirectory.lookup(phone)
+    private suspend fun fetchFromApi(phone: String): DialResponse? =
+        CallerDirectory.lookupResponse(phone)
+
+    /** `IN` → `India`; the raw code when the platform doesn't know it. */
+    private fun isoToCountryName(iso: String): String =
+        Locale("", iso).displayCountry.takeIf { it.isNotBlank() && !it.equals(iso, true) } ?: iso
 
     private fun saveToHistory(result: IdentifyResult) {
         val subtitle = result.country

@@ -201,6 +201,8 @@ class NativePromo() {
         if (!isNetworkConnected(context)
             || !adsPreference.getBoolean("IsAdsON")
             || !adsPreference.getBoolean("NativeAd")
+            // Per-screen visibility: a screen whose ScreenAds entry is off gets no native.
+            || !ScreenPromoConfig.resolve(context, context.javaClass.simpleName).show
         ) {
             layout.removeAllViews()
             layout.invisible()
@@ -332,17 +334,6 @@ class NativePromo() {
             (binding.mainNativeadView.headlineView as TextView).text = nativeAd.headline
             binding.mainNativeadView.mediaView?.mediaContent = nativeAd.mediaContent
 
-            val bgColor = AdsVault.getInstance(context).getString("NativeBgColor")
-            val btnColor = AdsVault.getInstance(context).getString("NativebtnColor")
-            val txtColor = AdsVault.getInstance(context).getString("NativetxtColor") ?: "#000000"
-            val btntxtColor = AdsVault.getInstance(context).getString("NativebtntxtColor") ?: "#FFFFFF"
-
-            binding.mainNativeadView.backgroundTintList = ColorStateList.valueOf(safeParseColor(bgColor, "#FFFFFF"))
-            binding.mainNativeadView.callToActionView?.backgroundTintList = ColorStateList.valueOf(safeParseColor(btnColor, "#000000"))
-
-            (binding.mainNativeadView.headlineView as TextView).setTextColor(safeParseColor(txtColor, "#000000"))
-            (binding.mainNativeadView.bodyView as TextView).setTextColor(safeParseColor(txtColor, "#000000"))
-            (adCallToAction as TextView).setTextColor(safeParseColor(btntxtColor, "#FFFFFF"))
 
             binding.mainNativeadView.bodyView?.apply {
                 visibility = if (nativeAd.body == null) View.GONE else View.VISIBLE
@@ -360,6 +351,9 @@ class NativePromo() {
             }
 
 
+            // Remote Config ad colours (with the layout's own theme as the fallback), the rating line
+            // and the CTA glow — the reference app's NativeAdLook.
+            NativeAdLook.bind(binding.mainNativeadView, nativeAd)
             binding.mainNativeadView.setNativeAd(nativeAd)
         }
     }
@@ -380,17 +374,6 @@ class NativePromo() {
             (binding.mainNativeadView.headlineView as TextView).text = nativeAd.headline
             binding.mainNativeadView.mediaView?.mediaContent = nativeAd.mediaContent
 
-            val bgColor = AdsVault.getInstance(context).getString("NativeBgColor")
-            val btnColor = AdsVault.getInstance(context).getString("NativebtnColor")
-            val txtColor = AdsVault.getInstance(context).getString("NativetxtColor") ?: "#000000"
-            val btntxtColor = AdsVault.getInstance(context).getString("NativebtntxtColor") ?: "#FFFFFF"
-
-            binding.mainNativeadView.backgroundTintList = ColorStateList.valueOf(safeParseColor(bgColor, "#FFFFFF"))
-            binding.mainNativeadView.callToActionView?.backgroundTintList = ColorStateList.valueOf(safeParseColor(btnColor, "#000000"))
-
-            (binding.mainNativeadView.headlineView as TextView).setTextColor(safeParseColor(txtColor, "#000000"))
-            (binding.mainNativeadView.bodyView as TextView).setTextColor(safeParseColor(txtColor, "#000000"))
-            (adCallToAction as TextView).setTextColor(safeParseColor(btntxtColor, "#FFFFFF"))
 
             binding.mainNativeadView.bodyView?.apply {
                 visibility = if (nativeAd.body == null) View.GONE else View.VISIBLE
@@ -408,6 +391,9 @@ class NativePromo() {
             }
 
 
+            // Remote Config ad colours (with the layout's own theme as the fallback), the rating line
+            // and the CTA glow — the reference app's NativeAdLook.
+            NativeAdLook.bind(binding.mainNativeadView, nativeAd)
             binding.mainNativeadView.setNativeAd(nativeAd)
         }
     }
@@ -560,6 +546,7 @@ class NativePromo() {
         if (!isNetworkConnected(context)
             || !adsPref.getBoolean("IsAdsON")
             || !adsPref.getBoolean("NativeAd")
+            || !ScreenPromoConfig.resolve(context, context.javaClass.simpleName).show
         ) {
             layout.removeAllViews()
             layout.invisible()
@@ -806,17 +793,6 @@ class NativePromo() {
 
             (binding.mainNativeadView.headlineView as TextView).text = nativeAd.headline
 
-            val bgColor = AdsVault.getInstance(context).getString("NativeBgColor")
-            val btnColor = AdsVault.getInstance(context).getString("NativebtnColor")
-            val txtColor = AdsVault.getInstance(context).getString("NativetxtColor") ?: "#000000"
-            val btntxtColor = AdsVault.getInstance(context).getString("NativebtntxtColor") ?: "#FFFFFF"
-
-            binding.mainNativeadView.backgroundTintList = ColorStateList.valueOf(safeParseColor(bgColor, "#FFFFFF"))
-            binding.mainNativeadView.callToActionView?.backgroundTintList = ColorStateList.valueOf(safeParseColor(btnColor, "#000000"))
-
-            (binding.mainNativeadView.headlineView as TextView).setTextColor(safeParseColor(txtColor, "#000000"))
-            (binding.mainNativeadView.bodyView as TextView).setTextColor(safeParseColor(txtColor, "#000000"))
-            (adCallToAction as TextView).setTextColor(safeParseColor(btntxtColor, "#FFFFFF"))
 
             binding.mainNativeadView.bodyView?.apply {
                 visibility = if (nativeAd.body == null) View.GONE else View.VISIBLE
@@ -833,6 +809,9 @@ class NativePromo() {
                 (binding.mainNativeadView.callToActionView as TextView).text = nativeAd.callToAction
             }
 
+            // Remote Config ad colours (with the layout's own theme as the fallback), the rating line
+            // and the CTA glow — the reference app's NativeAdLook.
+            NativeAdLook.bind(binding.mainNativeadView, nativeAd)
             binding.mainNativeadView.setNativeAd(nativeAd)
         }
     }
@@ -871,7 +850,9 @@ class NativePromo() {
         if (context.isFinishing || context.isDestroyed) return
 
         // Check network & ad toggle
-        if (!isNetworkConnected(context) || !adsPref.getBoolean("IsAdsON") || !adsPref.getBoolean("NativeAd")) {
+        if (!isNetworkConnected(context) || !adsPref.getBoolean("IsAdsON") || !adsPref.getBoolean("NativeAd")
+            || !ScreenPromoConfig.resolve(context, context.javaClass.simpleName).show
+        ) {
             layout.removeAllViews()
             layout.invisible()
             shimmer?.stopShimmer()
@@ -982,17 +963,6 @@ class NativePromo() {
             (binding.mainNativeadView.headlineView as TextView).text = nativeAd.headline
             binding.mainNativeadView.mediaView?.mediaContent = nativeAd.mediaContent
 
-            val bgColor = AdsVault.getInstance(context).getString("NativeBgColor")
-            val btnColor = AdsVault.getInstance(context).getString("NativebtnColor")
-            val txtColor = AdsVault.getInstance(context).getString("NativetxtColor") ?: "#000000"
-            val btntxtColor = AdsVault.getInstance(context).getString("NativebtntxtColor") ?: "#FFFFFF"
-
-            binding.mainNativeadView.backgroundTintList = ColorStateList.valueOf(safeParseColor(bgColor, "#FFFFFF"))
-            binding.mainNativeadView.callToActionView?.backgroundTintList = ColorStateList.valueOf(safeParseColor(btnColor, "#000000"))
-
-            (binding.mainNativeadView.headlineView as TextView).setTextColor(safeParseColor(txtColor, "#000000"))
-            (binding.mainNativeadView.bodyView as TextView).setTextColor(safeParseColor(txtColor, "#000000"))
-            (adCallToAction as TextView).setTextColor(safeParseColor(btntxtColor, "#FFFFFF"))
 
             binding.mainNativeadView.bodyView?.apply {
                 visibility = if (nativeAd.body == null) View.GONE else View.VISIBLE
@@ -1010,6 +980,9 @@ class NativePromo() {
             }
 
 
+            // Remote Config ad colours (with the layout's own theme as the fallback), the rating line
+            // and the CTA glow — the reference app's NativeAdLook.
+            NativeAdLook.bind(binding.mainNativeadView, nativeAd)
             binding.mainNativeadView.setNativeAd(nativeAd)
         }
     }

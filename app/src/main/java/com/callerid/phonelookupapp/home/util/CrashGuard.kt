@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Process
 import android.util.Log
-import com.callerid.phonelookupapp.home.launcher.extensions.isDefaultLauncher
+import io.launcher.home.extensions.isDefaultLauncher
 import com.callerid.phonelookupapp.home.ui.splash.StartupActivity
 
 /**

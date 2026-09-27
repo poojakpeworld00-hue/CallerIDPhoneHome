@@ -53,12 +53,15 @@ class PeopleAdapter(
         if (position > lastAnimated) {
             lastAnimated = position
             HomeMotion.riseIn(holder.itemView, delay = position * HomeMotion.STAGGER_STEP)
+        } else {
+            // Not this row's turn to animate: never leave it at riseIn's alpha 0.
+            HomeMotion.settle(holder.itemView)
         }
     }
 
     override fun onViewDetachedFromWindow(holder: RecyclerView.ViewHolder) {
         super.onViewDetachedFromWindow(holder)
-        holder.itemView.animate().cancel()
+        HomeMotion.settle(holder.itemView)
     }
 
     override fun getItemCount(): Int = rows.size

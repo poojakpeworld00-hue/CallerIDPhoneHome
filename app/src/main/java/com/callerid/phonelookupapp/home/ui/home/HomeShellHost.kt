@@ -1,7 +1,9 @@
 package com.callerid.phonelookupapp.home.ui.home
 
+import android.app.Activity
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import com.callerid.phonelookupapp.home.launcher.LauncherShellHost
 
 /**
  * Implemented by whichever Activity is hosting [HomeCoreFragment].
@@ -29,9 +31,9 @@ interface HomeShellHost {
     /**
      * Whether the shell is actually the thing the user is looking at right now.
      *
-     * In [com.callerid.phonelookupapp.home.ui.AppCoreActivity] the shell *is* the screen, so
-     * this is always true. In the launcher it is true only while the swipe-right caller panel
-     * is open — the same Activity also draws the home grid, and anything the shell puts on
+     * In [com.callerid.phonelookupapp.home.ui.AppCoreActivity] the shell *is* the screen, so this
+     * is always true. In the launcher it is true only while the swipe-right caller panel is
+     * open — the same Activity also draws the home grid, and anything the shell puts on
      * screen while the panel is shut lands over that grid instead of over its own content.
      */
     val isShellOnScreen: Boolean
@@ -63,7 +65,11 @@ interface HomeShellHost {
 }
 
 /** The shell host, for any fragment or dialog attached inside the home shell. */
-val Fragment.homeShellHost: HomeShellHost? get() = activity as? HomeShellHost
+/** AppCoreActivity itself, or the launcher's stand-in when the shell rides in the launcher panel. */
+val Activity.homeShellHost: HomeShellHost?
+    get() = this as? HomeShellHost ?: LauncherShellHost.of(this)
+
+val Fragment.homeShellHost: HomeShellHost? get() = activity?.homeShellHost
 
 /** The Activity-bound shell controller, or null when not hosted by a shell. */
 val Fragment.homeShellController: HomeShellController? get() = homeShellHost?.homeShellController

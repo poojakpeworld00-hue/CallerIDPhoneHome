@@ -13,7 +13,7 @@ import android.content.Context
 import android.content.Intent
 import android.widget.TextView
 import com.callerid.phonelookupapp.home.R
-import com.callerid.phonelookupapp.home.launcher.extensions.isDefaultLauncher
+import io.launcher.home.extensions.isDefaultLauncher
 import com.callerid.phonelookupapp.home.util.GuardRail
 
 

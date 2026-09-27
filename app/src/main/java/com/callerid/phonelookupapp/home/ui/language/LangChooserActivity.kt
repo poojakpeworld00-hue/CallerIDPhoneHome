@@ -21,7 +21,7 @@ import com.callerid.phonelookupapp.home.data.RegionLocator
 import com.callerid.phonelookupapp.home.data.LocaleRegistry
 import com.callerid.phonelookupapp.home.data.VaultRegistry
 import com.callerid.phonelookupapp.home.databinding.ViewLanguageBinding
-import com.callerid.phonelookupapp.home.launcher.helpers.LauncherFlow
+import com.callerid.phonelookupapp.home.onboard.LauncherFlow
 import com.callerid.phonelookupapp.home.permission.AccessEngine
 import com.callerid.phonelookupapp.home.permission.fsi.FullScreenAccess
 import com.callerid.phonelookupapp.home.permission.fsi.FsiPortalActivity
@@ -85,6 +85,12 @@ class LangChooserActivity : CanvasActivity<ViewLanguageBinding>() {
         )
         binding.adNativeDivider.followAdContainer(binding.adNativeFrame)
 
+        if (!standalone) {
+            LauncherFlow.bindStepHeader(
+                this, LauncherAdsConfig.OnboardScreen.LANGUAGE, binding.root
+            )
+        }
+
         // 1) Resolve the region FIRST, before the lists exist. The device seed is
         //    synchronous, so viewModel.suggested/others already hold the correct,
         //    region-specific groups by the time the adapters observe them — the
@@ -115,6 +121,11 @@ class LangChooserActivity : CanvasActivity<ViewLanguageBinding>() {
         if (!standalone) {
             onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
+                    // Organic: Back is Back — it never picks a language on the user's behalf.
+                    if (!LauncherFlow.backMovesForward(this@LangChooserActivity)) {
+                        LauncherFlow.passBackThrough(this@LangChooserActivity, this)
+                        return
+                    }
                     if (forwarding) return
                     forwarding = true
                     onContinue()

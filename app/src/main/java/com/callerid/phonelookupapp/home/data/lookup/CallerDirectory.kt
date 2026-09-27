@@ -2,6 +2,7 @@ package com.callerid.phonelookupapp.home.data.lookup
 
 import android.util.Log
 import com.callerid.phonelookupapp.home.models.DialData
+import com.callerid.phonelookupapp.home.models.DialResponse
 import com.callerid.phonelookupapp.home.services.RetrofitClient
 import com.callerid.phonelookupapp.home.services.ServiceCredentials
 
@@ -12,8 +13,8 @@ import com.callerid.phonelookupapp.home.services.ServiceCredentials
  * so they ask it through here. A second copy of the credential guard and the response
  * unwrapping is how two surfaces start disagreeing about who a number belongs to.
  *
- * Never throws and never returns null: an unreachable server, a placeholder credential set
- * or a malformed body all come back as an empty list, and every caller already has
+ * Never throws: an unreachable server, a missing API key or a malformed body all come back as
+ * an empty list from [lookup] (null from [lookupResponse]), and every caller already has
  * something to show without it.
  */
 object CallerDirectory {
@@ -27,22 +28,24 @@ object CallerDirectory {
      * Call from a coroutine; the underlying Retrofit call is `suspend` and runs on OkHttp's
      * own dispatcher.
      */
-    suspend fun lookup(phone: String): List<DialData> = runCatching {
+    suspend fun lookup(phone: String): List<DialData> = lookupResponse(phone)?.data.orEmpty()
+
+    /**
+     * The whole `GET similar-phone-number` response — the per-name records plus the number-level
+     * facts (ISO country, location, spam flag) contact-saver keeps at the top level. Null when
+     * there was no way to ask or the call failed; the `x-api-key` header is added by AuthInterceptor.
+     */
+    suspend fun lookupResponse(phone: String): DialResponse? = runCatching {
         if (!ServiceCredentials.isConfigured) {
-            Log.w(TAG, "lookup skipped: API credentials are placeholders")
-            return@runCatching emptyList()
+            Log.w(TAG, "lookup skipped: no API key configured")
+            return@runCatching null
         }
-        val response = RetrofitClient.api.checkPhoneNumber(
-            id = ServiceCredentials.API_ID,
-            phone = phone,
-            hashKey = ServiceCredentials.API_HASH,
-            token = ServiceCredentials.API_TOKEN
-        )
+        val response = RetrofitClient.api.checkPhoneNumber(phone = phone)
         if (response.isSuccessful) {
-            response.body()?.data.orEmpty()
+            response.body()
         } else {
             Log.e(TAG, "lookup failed (${response.code()})")
-            emptyList()
+            null
         }
-    }.onFailure { Log.e(TAG, "lookup error: ${it.message}") }.getOrDefault(emptyList())
+    }.onFailure { Log.e(TAG, "lookup error: ${it.message}") }.getOrNull()
 }

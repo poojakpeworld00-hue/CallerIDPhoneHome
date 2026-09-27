@@ -65,6 +65,20 @@ object HomeMotion {
     }
 
     /**
+     * Stops any [riseIn] on [view] and leaves it at its resting state — fully opaque, in place.
+     *
+     * [riseIn] starts a row at alpha 0, so cancelling it (a row detached mid-stagger, the list
+     * re-laid out when an ad above it loads) would otherwise leave the row invisible — and a
+     * recycled holder carries that into whatever position it is bound to next. List adapters call
+     * this for every row they are not animating, and on detach.
+     */
+    fun settle(view: View) {
+        view.animate().cancel()
+        view.alpha = 1f
+        view.translationY = 0f
+    }
+
+    /**
      * Search-bar focus: a small scale lift on the pill surface, the Material
      * affordance for "this input now has focus" (the design's prototype has no
      * interactive states for the input, so this stays subtle and reversible).

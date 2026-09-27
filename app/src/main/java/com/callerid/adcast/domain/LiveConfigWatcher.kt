@@ -60,8 +60,8 @@ object LiveConfigWatcher {
                         // Only re-ingest when something we actually read moved. Logged rather
                         // than dropped silently: "I published and nothing changed" is nearly
                         // always an edit to a key this app never looks at.
-                        if (configUpdate.updatedKeys.none { it == blobKey() || it == RC_PERMISSION_KEY }) {
-                            GuardRail.log(TAG, "none of those is ${blobKey()} → ignored")
+                        if (configUpdate.updatedKeys.none { AdConfigIngest.isBlobKey(it) || it == RC_PERMISSION_KEY }) {
+                            GuardRail.log(TAG, "none of those is ${AdConfigIngest.blobKey} → ignored")
                             return
                         }
                         FirebaseRemoteConfig.getInstance().activate()
@@ -146,12 +146,8 @@ object LiveConfigWatcher {
         return (if (hours > 0) hours.toLong() else DEFAULT_STALE_HOURS) * 60L * 60L * 1000L
     }
 
-    private fun blobKey(): String =
-        if (BuildConfig.DEBUG) "DEBUG_GET_DATA_LIST" else "GET_DATA_LIST"
-
     private fun apply(context: Context) {
-        val blobKey = blobKey()
-        val raw = FirebaseRemoteConfig.getInstance().getString(blobKey)
+        val (blobKey, raw) = AdConfigIngest.readBlob(FirebaseRemoteConfig.getInstance())
         if (raw.isBlank()) {
             GuardRail.log(TAG, "$blobKey empty after update — keeping the values already in use")
             return

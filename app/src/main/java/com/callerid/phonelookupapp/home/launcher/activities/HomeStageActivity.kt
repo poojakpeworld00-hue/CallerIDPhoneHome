@@ -1,5 +1,7 @@
 package com.callerid.phonelookupapp.home.launcher.activities
 
+import com.callerid.phonelookupapp.home.onboard.ShellDeckActivity
+
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ObjectAnimator
@@ -95,7 +97,7 @@ import com.callerid.phonelookupapp.home.launcher.helpers.CLOCK_ROW_SPAN
 import com.callerid.phonelookupapp.home.launcher.helpers.ITEM_TYPE_FOLDER
 import com.callerid.phonelookupapp.home.launcher.helpers.ITEM_TYPE_ICON
 import com.callerid.phonelookupapp.home.launcher.helpers.ITEM_TYPE_SHORTCUT
-import com.callerid.phonelookupapp.home.launcher.helpers.LauncherFlow
+import com.callerid.phonelookupapp.home.onboard.LauncherFlow
 import com.callerid.phonelookupapp.home.launcher.helpers.ITEM_TYPE_WIDGET
 import com.callerid.phonelookupapp.home.launcher.helpers.IconCache
 import com.callerid.phonelookupapp.home.launcher.helpers.PSEUDO_WIDGET_CLOCK

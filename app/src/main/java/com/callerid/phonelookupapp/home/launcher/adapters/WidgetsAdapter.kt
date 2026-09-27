@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import org.fossify.commons.extensions.getProperTextColor
 import com.callerid.phonelookupapp.home.R
-import com.callerid.phonelookupapp.home.launcher.activities.ShellDeckActivity
+import com.callerid.phonelookupapp.home.onboard.ShellDeckActivity
 import com.callerid.phonelookupapp.home.databinding.TileWidgetListItemsHolderBinding
 import com.callerid.phonelookupapp.home.databinding.TileWidgetListSectionBinding
 import com.callerid.phonelookupapp.home.databinding.TileWidgetPreviewBinding

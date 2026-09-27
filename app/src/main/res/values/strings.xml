@@ -45,9 +45,9 @@
     <string name="overlay_guide_row_hint">Tap to turn on</string>
     <string name="overlay_guide_dismiss">Tap anywhere to dismiss</string>
 
-    <!-- Same coach mark, shown over the system "Default home app" list -->
-    <string name="home_guide_title">Set as your home app</string>
-    <string name="home_guide_desc">Find this app in the list and select it as your home app.</string>
+    <!-- Same coach-mark, shown over the system "Default home app" list. -->
+    <string name="home_guide_title">Set this app as your home screen</string>
+    <string name="home_guide_desc">Find this app in the list and select it.</string>
     <string name="home_guide_row_hint">Tap to select</string>
 
     <!-- Post-call summary fallback notification -->
@@ -56,6 +56,7 @@
 
     <!-- Onboarding -->
     <string name="onboarding_skip">Skip</string>
+    <string name="onboarding_step_counter">Step %1$d of %2$d</string>
     <string name="onboarding_next">Next</string>
     <string name="onboarding_title">Know who\'s calling</string>
     <string name="onboarding_desc">Every incoming call shows a card with the number, whether they are a saved contact, and how many times they have called before.</string>
@@ -678,4 +679,7 @@
     <string name="onb_mock_brand" translatable="false">Caller ID</string>
     <string name="onb_mock_clock" translatable="false">9:01</string>
 
+    <!-- Shown when WorkManager cannot start on this device — see the manifest's
+         InitializationProvider override. -->
+    <string name="reminder_schedule_failed">Couldn\'t schedule the reminder on this device</string>
 </resources>

@@ -33,8 +33,8 @@ import com.callerid.phonelookupapp.home.R
 import com.callerid.phonelookupapp.home.base.CanvasActivity
 import com.callerid.phonelookupapp.home.data.VaultRegistry
 import com.callerid.phonelookupapp.home.databinding.ViewSplashBinding
-import com.callerid.phonelookupapp.home.launcher.activities.GreetingStepActivity
-import com.callerid.phonelookupapp.home.launcher.helpers.LauncherFlow
+import com.callerid.phonelookupapp.home.onboard.GreetingStepActivity
+import com.callerid.phonelookupapp.home.onboard.LauncherFlow
 import com.callerid.phonelookupapp.home.ui.intro.IntroRevealPolicy
 import com.callerid.phonelookupapp.home.ui.language.LangChooserActivity
 import com.callerid.phonelookupapp.home.ui.onboarding.PrimerActivity

@@ -35,4 +35,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Caller ID Phone Home"
 include(":app")
- 
+include(":launcher")

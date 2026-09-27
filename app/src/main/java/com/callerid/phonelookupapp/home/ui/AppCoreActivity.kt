@@ -10,7 +10,7 @@ import androidx.core.view.WindowInsetsCompat
 import com.callerid.phonelookupapp.home.R
 import com.callerid.phonelookupapp.home.base.CanvasActivity
 import com.callerid.phonelookupapp.home.databinding.ViewMainBinding
-import com.callerid.phonelookupapp.home.launcher.activities.HomeStageActivity as LauncherHomeActivity
+import io.launcher.home.activities.LauncherPanel as LauncherHomeActivity
 import com.callerid.phonelookupapp.home.ui.home.HomeShellController
 import com.callerid.phonelookupapp.home.ui.home.HomeCoreFragment
 import com.callerid.phonelookupapp.home.ui.home.HomeShellHost
@@ -18,7 +18,7 @@ import com.callerid.phonelookupapp.home.ui.home.HomeShellHost
 /**
  * The caller-ID app's own home screen. A thin host: the UI is [HomeCoreFragment] and the
  * Activity-bound flows are [HomeShellController], so the launcher's swipe-right panel can show
- * the exact same shell (see the launcher's `CallDeckFragment`) instead of a second copy.
+ * the exact same shell (see LauncherShellFragment) instead of a second copy.
  */
 class AppCoreActivity : CanvasActivity<ViewMainBinding>(), HomeShellHost {
 

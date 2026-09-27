@@ -46,6 +46,7 @@ import com.callerid.adcast.data.getLocationFromIP
 import com.callerid.adcast.domain.AdRevenueMeter
 import com.callerid.adcast.domain.AdConfigIngest
 import com.callerid.adcast.domain.AdsVault
+import com.callerid.adcast.domain.LauncherPlacementAds
 import com.callerid.adcast.domain.RemoteConfigPolicy
 import com.callerid.adcast.domain.GoogleMobileAdsConsentRegistry
 import com.callerid.adcast.domain.logKeyEvent
@@ -134,7 +135,7 @@ open class AdBeaconActivity : AppCompatActivity() {
          * is a debug build, or because [FORCE_AUDIENCE_IN_RELEASE] is still on.
          */
         val isAudienceForced: Boolean
-            get() = BuildConfig.DEBUG || FORCE_AUDIENCE_IN_RELEASE
+            get() =BuildConfig.DEBUG || FORCE_AUDIENCE_IN_RELEASE
 
         /**
          * How long the audience gate waits for LightHouse's install-referrer verdict before
@@ -178,7 +179,10 @@ open class AdBeaconActivity : AppCompatActivity() {
                             // on a slow network) would silently dead-end the splash —
                             // no permission prompt, no navigation, hangs forever.
                             if (consentError != null) {
-                                Log.w("AdBeaconActivity", "Consent error: ${consentError.message} — proceeding without ads consent")
+                                Log.w(
+                                    "AdBeaconActivity",
+                                    "Consent error: ${consentError.message} — proceeding without ads consent"
+                                )
                             }
                             initializeMobileAdsSdk()
                             if (googleMobileAdsConsentManager.isPrivacyOptionsRequired) {
@@ -270,11 +274,17 @@ open class AdBeaconActivity : AppCompatActivity() {
         // Run everything in a background thread to prevent cold-start stutters and ANR
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                val blobKey = if (BuildConfig.DEBUG) "DEBUG_GET_DATA_LIST" else "GET_DATA_LIST"
-                val configString = remoteConfig.getString(blobKey)
+                val (blobKey, configString) = AdConfigIngest.readBlob(remoteConfig)
 
-                if (configString.isNullOrEmpty()) {
-                    Log.w(CONFIG_TAG, "$blobKey is empty → nothing ingested (using cached/default prefs)")
+                // An empty or missing blob (a parameter not yet published, a fetch that brought
+                // nothing) must not strand the splash: nothing is ingested, and the chain carries
+                // on with whatever an earlier run cached — or the code defaults on a first run.
+                if (configString.isEmpty()) {
+                    Log.w(
+                        CONFIG_TAG,
+                        "$blobKey is empty → nothing ingested (using cached/default prefs)"
+                    )
+                    checkInstallerRefere()
                     return@launch
                 }
 
@@ -286,7 +296,7 @@ open class AdBeaconActivity : AppCompatActivity() {
                 if (BuildConfig.DEBUG) Log.d(
                     CONFIG_TAG,
                     "fetched $blobKey (${configString.length} chars) → audienceSplit=$isSplit, " +
-                        "OnMaketing=$onMarketing "
+                            "OnMaketing=$onMarketing "
                 )
 
                 // Persist the raw blob + whether it uses a top-level audience split,
@@ -309,6 +319,9 @@ open class AdBeaconActivity : AppCompatActivity() {
 
             } catch (e: Exception) {
                 Log.e("AdBeaconActivity", "Failed to update ad preferences: ${e.message}")
+                // Same reasoning: a malformed blob falls back to the cached config rather than
+                // leaving the splash waiting on a callback that would never come.
+                runCatching { checkInstallerRefere() }
             }
         }
     }
@@ -369,8 +382,8 @@ open class AdBeaconActivity : AppCompatActivity() {
                 Log.w(
                     CONFIG_TAG,
                     "FORCE_AUDIENCE_IN_RELEASE is ON — audience pinned to " +
-                        "${if (DEBUG_AUDIENCE_MARKETING) "MARKETING" else "ORGANIC"}, " +
-                        "real attribution ignored. Turn it off before shipping."
+                            "${if (DEBUG_AUDIENCE_MARKETING) "MARKETING" else "ORGANIC"}, " +
+                            "real attribution ignored. Turn it off before shipping."
                 )
             }
             return DEBUG_AUDIENCE_MARKETING
@@ -403,7 +416,10 @@ open class AdBeaconActivity : AppCompatActivity() {
                     val prefs = VaultRegistry(activity)
                     if (prefs.homeCountryIso.isBlank()) {
                         prefs.homeCountryIso = iso
-                        if (BuildConfig.DEBUG) Log.d("LocationCheck", "Country code set from IP: $iso")
+                        if (BuildConfig.DEBUG) Log.d(
+                            "LocationCheck",
+                            "Country code set from IP: $iso"
+                        )
                     }
                 }
 
@@ -460,8 +476,8 @@ open class AdBeaconActivity : AppCompatActivity() {
                     val isAllowed = location?.let { loc ->
                         blockedLocations.any { blocked ->
                             blocked.equals(loc.country, ignoreCase = true) ||
-                                blocked.equals(loc.regionName, ignoreCase = true) ||
-                                blocked.equals(loc.city, ignoreCase = true)
+                                    blocked.equals(loc.regionName, ignoreCase = true) ||
+                                    blocked.equals(loc.city, ignoreCase = true)
                         }
                     } ?: false
 
@@ -480,24 +496,32 @@ open class AdBeaconActivity : AppCompatActivity() {
                         }
 
                         location == null ->
-                            if (BuildConfig.DEBUG) Log.w("LocationCheck", "⚠️ Location not available")
+                            if (BuildConfig.DEBUG) Log.w(
+                                "LocationCheck",
+                                "⚠️ Location not available"
+                            )
 
                         isAllowed -> {
                             if (BuildConfig.DEBUG) Log.d(
-                                "LocationCheck", "✅ Location IN list ($countryListKey) → HD_VBC_Show=false (real ads)"
+                                "LocationCheck",
+                                "✅ Location IN list ($countryListKey) → HD_VBC_Show=false (real ads)"
                             )
                             adsPreference.putBoolean("HD_VBC_Show", false)
                         }
 
                         else -> if (BuildConfig.DEBUG) Log.d(
-                            "LocationCheck", "❌ Location NOT in list ($countryListKey) → HD_VBC_Show unchanged"
+                            "LocationCheck",
+                            "❌ Location NOT in list ($countryListKey) → HD_VBC_Show unchanged"
                         )
                     }
                 } else {
                     // Check off = nothing suppressed; clear any earlier match so a config
                     // change takes effect on this very launch.
                     adsPreference.isNShowLocation = false
-                    if (BuildConfig.DEBUG) Log.d("LocationCheck", "Country check is disabled in preferences")
+                    if (BuildConfig.DEBUG) Log.d(
+                        "LocationCheck",
+                        "Country check is disabled in preferences"
+                    )
                 }
 
                 // (marketing state already decided above as `isMarketingOn`)
@@ -557,7 +581,10 @@ open class AdBeaconActivity : AppCompatActivity() {
 
                         // 🔹 Native ads (never block navigation)
                         if (isAdsOn && isSplash == false) {
-                            Log.d(APPOPEN_TAG, "isSplash=false → BS Native path (splash AppOpen is NOT attempted here)")
+                            Log.d(
+                                APPOPEN_TAG,
+                                "isSplash=false → BS Native path (splash AppOpen is NOT attempted here)"
+                            )
                             launch(Dispatchers.Main) {
                                 SheetNativeAds().BS_loadNativeADs(activity)
                                 onGetData?.onSuccess()
@@ -577,7 +604,10 @@ open class AdBeaconActivity : AppCompatActivity() {
                         primeSplashPermissions(activity) {
                             if (!isAdsOn) {
                                 // Ads OFF → continue
-                                Log.w(APPOPEN_TAG, "IsAdsON=false → ads disabled, no AppOpen, continuing to app")
+                                Log.w(
+                                    APPOPEN_TAG,
+                                    "IsAdsON=false → ads disabled, no AppOpen, continuing to app"
+                                )
                                 onGetData?.onSuccess()
                             } else {
                                 if (isGoogleAdsEnabled) {
@@ -593,11 +623,18 @@ open class AdBeaconActivity : AppCompatActivity() {
                                 Log.d(
                                     APPOPEN_TAG,
                                     "gate → IsAdsON=$isAdsOn, isSplash=$isSplash, is_splash_ads=$isSplashAdsEnabled, " +
-                                        "IsAdType=${adsPreference.getString("IsAdType")}, appopenId=${adsPreference.getString("googleAppopen")}"
+                                            "IsAdType=${adsPreference.getString("IsAdType")}, appopenId=${
+                                                adsPreference.getString(
+                                                    "googleAppopen"
+                                                )
+                                            }"
                                 )
                                 if (!isSplashAdsEnabled) {
                                     // Splash ads disabled from Firebase → skip entirely
-                                    Log.w(APPOPEN_TAG, "is_splash_ads=false → skipping splash ad entirely, continuing to app")
+                                    Log.w(
+                                        APPOPEN_TAG,
+                                        "is_splash_ads=false → skipping splash ad entirely, continuing to app"
+                                    )
                                     onGetData?.onSuccess()
                                 } else {
                                     // Ads ON + splash enabled + gate passed → preload → show → continue
@@ -695,14 +732,20 @@ open class AdBeaconActivity : AppCompatActivity() {
                 if (isGoogleAdsEnabled) {
                     val showInterstitialOnSplash = adsPreference.getBoolean("is_splash_inter_show")
                     if (showInterstitialOnSplash) {
-                        Log.d(APPOPEN_TAG, "preload → is_splash_inter_show=true → loading splash INTERSTITIAL instead of AppOpen")
+                        Log.d(
+                            APPOPEN_TAG,
+                            "preload → is_splash_inter_show=true → loading splash INTERSTITIAL instead of AppOpen"
+                        )
                         loadGoogleInterstitialWithFallback(activity, adsPreference, onComplete)
                     } else {
                         Log.d(APPOPEN_TAG, "preload → is_splash_inter_show=false → loading APPOPEN")
                         loadAppOpenAdWithFallback(activity, adsPreference, onComplete)
                     }
                 } else {
-                    Log.w(APPOPEN_TAG, "preload → Google ads disabled (init failed) → Facebook fallback")
+                    Log.w(
+                        APPOPEN_TAG,
+                        "preload → Google ads disabled (init failed) → Facebook fallback"
+                    )
                     loadFacebookFallback(activity, adsPreference, onComplete)
                 }
             }
@@ -729,9 +772,20 @@ open class AdBeaconActivity : AppCompatActivity() {
     }
 
     fun showPreloadedAd(activity: Activity, adsPreference: AdsVault, onDismissed: () -> Unit) {
+        // `splash_ad_flow` / a `splash_` link chain: the dynamic flow instead of the preloaded
+        // App Open / interstitial. Only a flow configured for `splash` by name switches it over.
+        if (LauncherPlacementAds.hasOwnFlow(activity, "splash")) {
+            if (!LauncherPlacementAds.placementEnabled(activity, "splash")) return onDismissed()
+            Log.d(APPOPEN_TAG, "showPreloaded() → splash flow (splash_*)")
+            LauncherPlacementAds.showInterstitial(activity, "splash") { onDismissed() }
+            return
+        }
         when (AdKind.fromString(adsPreference.getString("IsAdType"))) {
             AdKind.GOOGLE -> {
-                Log.d(APPOPEN_TAG, "showPreloaded() → appOpenReady=${appOpenAd != null}, interstitialReady=${interstitialAd != null}")
+                Log.d(
+                    APPOPEN_TAG,
+                    "showPreloaded() → appOpenReady=${appOpenAd != null}, interstitialReady=${interstitialAd != null}"
+                )
                 if (isGoogleAdsEnabled && (appOpenAd != null || interstitialAd != null)) {
                     if (appOpenAd != null) {
                         showAppOpenAd(activity) { onDismissed() }
@@ -802,7 +856,10 @@ open class AdBeaconActivity : AppCompatActivity() {
     ) {
         val appOpenId = adsPreference.getString("googleAppopen")
         if (appOpenId.isNullOrBlank()) {
-            Log.w(APPOPEN_TAG, "no/blank 'googleAppopen' unit id in Remote Config → skipping AppOpen, continuing")
+            Log.w(
+                APPOPEN_TAG,
+                "no/blank 'googleAppopen' unit id in Remote Config → skipping AppOpen, continuing"
+            )
             onComplete(); return
         }
         loadAppOpenAd(activity, appOpenId, onLoaded = { onComplete() }, onFailed = {
@@ -844,7 +901,7 @@ open class AdBeaconActivity : AppCompatActivity() {
                     Log.e(
                         APPOPEN_TAG,
                         "load FAILED → code=${loadAdError.code}, domain=${loadAdError.domain}, " +
-                            "message=${loadAdError.message}"
+                                "message=${loadAdError.message}"
                     )
                     appOpenAd = null
                     AppOpenAdRegistry.isShowingAd = false

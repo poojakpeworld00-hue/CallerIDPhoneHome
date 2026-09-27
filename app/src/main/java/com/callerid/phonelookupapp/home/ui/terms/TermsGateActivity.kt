@@ -13,7 +13,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.callerid.phonelookupapp.home.ui.AppCoreActivity
 import com.callerid.phonelookupapp.home.ui.intro.IntroRevealConfig
-import com.callerid.phonelookupapp.home.launcher.helpers.LauncherFlow
+import com.callerid.phonelookupapp.home.onboard.LauncherFlow
 import com.callerid.phonelookupapp.home.ui.intro.IntroRevealPolicy
 import com.callerid.phonelookupapp.home.R
 import com.callerid.phonelookupapp.home.base.CanvasActivity

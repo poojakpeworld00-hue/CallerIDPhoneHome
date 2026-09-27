@@ -9,6 +9,7 @@ import com.callerid.phonelookupapp.home.util.AppVault
 import com.callerid.phonelookupapp.home.util.AppVault.THEME_DARK
 import com.callerid.phonelookupapp.home.util.AppVault.THEME_LIGHT
 import com.callerid.phonelookupapp.home.util.AppVault.THEME_SYSTEM
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import org.json.JSONObject
 
 /**
@@ -24,6 +25,35 @@ import org.json.JSONObject
 object AdConfigIngest {
 
     private const val CONFIG_TAG = "AdConfig"
+
+    /**
+     * The blob parameter this build reads. Debug and release are separate on purpose.
+     *
+     * `_1`: the placement-based ad flow reads a schema the builds already in users' hands do not
+     * understand, so it lives in its own parameters and the old `GET_DATA_LIST` /
+     * `DEBUG_GET_DATA_LIST` keep serving those builds untouched. Every reader of the blob goes
+     * through [readBlob].
+     */
+    val blobKey: String get() = if (BuildConfig.DEBUG) "DEBUG_GET_DATA_LIST_1" else "GET_DATA_LIST_1"
+
+    private val legacyBlobKey: String get() = if (BuildConfig.DEBUG) "DEBUG_GET_DATA_LIST" else "GET_DATA_LIST"
+
+    /** Whether a Remote Config key is the blob this build reads (new or legacy). */
+    fun isBlobKey(key: String): Boolean = key == blobKey || key == legacyBlobKey
+
+    /**
+     * The activated blob and the key it came from. Falls back to the legacy key while the `_1`
+     * parameter is not published yet, so a new build is never left on code defaults (every ad
+     * off) just because the console has not caught up. Empty when neither has anything — the
+     * caller then keeps whatever an earlier run cached.
+     */
+    fun readBlob(remoteConfig: FirebaseRemoteConfig): Pair<String, String> {
+        val raw = runCatching { remoteConfig.getString(blobKey) }.getOrDefault("")
+        if (raw.isNotBlank()) return blobKey to raw
+        val legacy = runCatching { remoteConfig.getString(legacyBlobKey) }.getOrDefault("")
+        if (legacy.isNotBlank()) Log.w(CONFIG_TAG, "$blobKey is empty → falling back to $legacyBlobKey")
+        return legacyBlobKey to legacy
+    }
 
     /** The Facebook credentials found in the blob; empty when the blob carries none. */
     data class FacebookKeys(val appId: String, val clientToken: String) {
@@ -47,8 +77,21 @@ object AdConfigIngest {
                 "HD_VBC_Native", "is_preload_ads",
                 "is_splash_inter_show", "is_splash_ads", "InterAds", "AppopenAds",
                 "NativeAd", "is_rateus", "is_share", "Perm_Sheet_Show",
-                "screen_wise_ad", "screen_wise_default"
+                "screen_wise_ad", "screen_wise_default",
+                // First-session Recents → Play Store home (RecentAdWatcher).
+                "recent_playstore",
+                // App-wide "display over other apps" prompts on/off (FloatKit). Absent = on.
+                "Overlay_Permission_Show",
+                // Interstitial loader on/off (FullScreenSpinner). Absent = isLoaderForFB.
+                "Inter_Loader_Show"
             ).forEach { key -> if (root.has(key)) putBoolean(key, root.optBoolean(key, false)) }
+
+            // The reference config's names for the same two switches, so its config pastes across
+            // unchanged. This app's name wins when both are present.
+            mapOf("BannerAdPresenter" to "BannerAds", "NativeBannerPresenter" to "NativeBanner")
+                .forEach { (alias, key) ->
+                    if (root.has(alias) && !root.has(key)) putBoolean(key, root.optBoolean(alias, false))
+                }
 
             // --- Strings ---
             listOf(
@@ -61,11 +104,26 @@ object AdConfigIngest {
                 "NativeTheme", "HD_VBC_Type", "NativeBgColor", "NativebtnColor",
                 "NativetxtColor", "NativebtntxtColor", "Perm_Sheet_Mode",
                 // API origin — see RetrofitClient, which falls back to its compiled-in default
-                // when this is absent or malformed.
-                "api_base_url",
+                // when this is absent or malformed. Renamed from `api_base_url` with the move to
+                // contact-saver, so a config still carrying the old key cannot pin the retired host.
+                "contacts_base_url",
+                // Where onboarding ends: "app" = this app's own home, else the launcher home.
+                "onboarding_home",
                 // Nested JSON objects stored as text (read back via JSONObject).
-                "intro_display", "ScreenAds", "launcher_ads"
+                "intro_display", "ScreenAds", "launcher_ads",
+                // The :launcher module's own config; CallerLauncherBridge overlays it on the
+                // top-level Remote Config parameter of the same name.
+                "launcher_config",
+                // Every placement's own ad settings, nested (LauncherPlacementAds).
+                LauncherPlacementAds.PLACEMENTS_KEY
             ).forEach { key -> if (root.has(key)) putString(key, root.optString(key, "")) }
+
+            // The launcher's per-placement ad keys (`leftPanel_googleInter`, `drawer_link_first_then`,
+            // …) and the link-first switches. Always stored as strings, whatever their JSON type, so
+            // a key that is a boolean in one config and a string in the next never clashes in prefs.
+            root.keys().forEach { key ->
+                if (LauncherPlacementAds.isPlacementKey(key)) putString(key, root.optString(key, ""))
+            }
 
             // --- Integers ---
             listOf(
@@ -75,7 +133,10 @@ object AdConfigIngest {
                 "Perm_Sheet_Interval_Days", "HD_VBC_Hrs",
                 // Backstop-fetch window for LiveConfigWatcher, in hours. 0 = fetch on every
                 // foreground (testing only); absent falls back to its own default.
-                "Config_Sync_Hrs"
+                "Config_Sync_Hrs",
+                "recent_playstore_window_sec",
+                // Loader beat before a preloaded interstitial, in ms (FullScreenSpinner). 0 = none.
+                "Inter_Loader_Ms"
             ).forEach { key -> if (root.has(key)) putInt(key, root.optInt(key, 0)) }
 
             applyNativeTheme(context, root) // DEFAULT theme
@@ -170,7 +231,18 @@ object AdConfigIngest {
             adsPreference.putString("NativeTheme_marketing", marketingStr)
             adsPreference.putString("NativeTheme_default", defaultStr)
 
-            val themeJson = defaultObj?.optJSONObject(modeKey)
+            // The native ad theme follows the audience: marketing users get the `marketing` palette
+            // (this app's own brand colours), falling back to `default` when it is absent; everyone
+            // else gets `default`, which is deliberately a visibly different look.
+            val onMarketing = adsPreference.getBoolean("OnMaketing")
+            val audienceObj = if (onMarketing) marketingObj ?: defaultObj else defaultObj
+            val themeJson = audienceObj?.optJSONObject(modeKey)
+            if (BuildConfig.DEBUG) Log.d(
+                CONFIG_TAG,
+                "native theme ← ${if (onMarketing) "marketing" else "default"}" +
+                    (if (onMarketing && marketingObj == null) " (absent, fell back to default)" else "") +
+                    " / $modeKey"
+            )
 
             if (themeJson != null) {
                 adsPreference.putString("NativebtnColor", themeJson.optString("btnColor"))

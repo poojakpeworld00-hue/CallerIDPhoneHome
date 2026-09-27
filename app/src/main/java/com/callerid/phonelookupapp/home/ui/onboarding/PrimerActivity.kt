@@ -15,7 +15,7 @@ import com.callerid.phonelookupapp.home.R
 import com.callerid.phonelookupapp.home.base.CanvasActivity
 import com.callerid.phonelookupapp.home.data.VaultRegistry
 import com.callerid.phonelookupapp.home.databinding.ViewOnboardingBinding
-import com.callerid.phonelookupapp.home.launcher.helpers.LauncherFlow
+import com.callerid.phonelookupapp.home.onboard.LauncherFlow
 import com.callerid.phonelookupapp.home.permission.AccessEngine
 import com.callerid.phonelookupapp.home.ui.AppCoreActivity
 import com.callerid.phonelookupapp.home.ui.intro.IntroRevealConfig
@@ -101,6 +101,12 @@ class PrimerActivity : CanvasActivity<ViewOnboardingBinding>() {
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 val current = binding.viewPager.currentItem
+                // Organic: Back is Back — the previous slide, then the screen's default.
+                if (!LauncherFlow.backMovesForward(this@PrimerActivity)) {
+                    if (current > 0) binding.viewPager.setCurrentItem(current - 1, true)
+                    else LauncherFlow.passBackThrough(this@PrimerActivity, this)
+                    return
+                }
                 if (!ui.backAdvances && current < pages.lastIndex) {
                     binding.viewPager.setCurrentItem(current + 1, true)
                 } else if (!forwarding) {

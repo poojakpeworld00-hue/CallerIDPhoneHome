@@ -20,6 +20,8 @@ import com.callerid.adcast.data.AdKind
 import com.callerid.adcast.domain.AdCounterRegistry.interCounter
 import com.callerid.adcast.domain.AdRevenueMeter
 import com.callerid.adcast.domain.AdsVault
+import com.callerid.adcast.domain.LauncherPlacementAds
+import com.callerid.adcast.presentation.DirectLinkOpener
 import com.callerid.adcast.domain.logKeyEvent
 import com.callerid.adcast.presentation.isNetworkConnected
 import com.callerid.phonelookupapp.home.BuildConfig
@@ -27,6 +29,12 @@ import com.callerid.phonelookupapp.home.R
 class InterstitialNormal {
 
     companion object {
+
+        /**
+         * The app-wide interstitial's own placement name, so its link-first / `ad_flow` /
+         * `inter_fallback` keys live under `app_…` like every other placement's.
+         */
+        private const val APP_PLACEMENT = "app"
 
         private var _isInterShow: Boolean = false
         var isInterShow: Boolean
@@ -103,6 +111,14 @@ class InterstitialNormal {
             val url = AdsVault.getInstance(context).getString("DirectLink")
 
             if (url.isNullOrEmpty()) {
+                onClosed()
+                return
+            }
+
+            // `DirectLinkType` webview / browser: DirectLinkOpener owns those. Only the custom tab
+            // path below needs the close tracking, so it alone stays here.
+            if (DirectLinkOpener.mode(context) != DirectLinkOpener.Mode.CUSTOM_TAB) {
+                DirectLinkOpener.open(context, url)
                 onClosed()
                 return
             }
@@ -263,6 +279,18 @@ class InterstitialNormal {
         }
         interCounter = 0
         act.safeLog("inter_counter_triggered")
+
+        // `app_link_first_then` + `app_DirectLink`: the links first, then the listed follow-ups.
+        if (LauncherPlacementAds.showLinkFirst(act, APP_PLACEMENT) { safeClose("link_first") }) {
+            act.safeLog("inter_link_first")
+            return
+        }
+        // `app_ad_flow`: the whole chain, in the configured order, instead of the interstitial.
+        if (LauncherPlacementAds.showAdFlow(act, APP_PLACEMENT) { safeClose("ad_flow") }) {
+            act.safeLog("inter_ad_flow")
+            return
+        }
+
         val isPreload = pref.getBoolean("is_preload_ads")
 
         when (AdKind.fromString(pref.getString("IsAdType"))) {
@@ -270,7 +298,13 @@ class InterstitialNormal {
             AdKind.GOOGLE -> {
                 act.safeLog("inter_type_google")
                 if (isPreload) {
-                    showGoogleInterstitial(act, pref, ::safeClose)
+                    // A preloaded ad has no load time of its own; `Inter_Loader_Ms` can still put a
+                    // short loader in front of it. Nothing to put it in front of when none is ready.
+                    if (googleInterAd != null) {
+                        FullScreenSpinner.beforeShow(act) { showGoogleInterstitial(act, pref, ::safeClose) }
+                    } else {
+                        showGoogleInterstitial(act, pref, ::safeClose)
+                    }
                 } else {
                     loadAndShowGoogleOnDemand(act, pref, ::safeClose)
                 }
@@ -378,7 +412,7 @@ class InterstitialNormal {
         safeClose: (String) -> Unit
     ) {
         val id = pref.getString("googleInter") ?: return handleGoogleFail(activity, pref, safeClose)
-        val isLoader = pref.getBoolean("isLoaderForFB")
+        val isLoader = FullScreenSpinner.isEnabled(activity)
 
         activity.safeLog("google_inter_ondemand_load_start")
         FullScreenSpinner.show(activity, isLoader)
@@ -453,6 +487,10 @@ class InterstitialNormal {
                     showCustomAfterFacebookFail(activity, pref, safeClose)
                 }
             )
+        } else if (LauncherPlacementAds.hasFallback(activity, APP_PLACEMENT)) {
+            // `inter_fallback`: rewarded / full-screen native / … before giving up on the slot.
+            activity.safeLog("google_fail_fallback_chain")
+            LauncherPlacementAds.runFallback(activity, APP_PLACEMENT) { safeClose("google_fail_fallback") }
         } else {
             if (customEnabled) {
                 activity.safeLog("google_fail_open_custom")
@@ -470,7 +508,7 @@ class InterstitialNormal {
         onFail: () -> Unit
     ) {
         val pref = AdsVault.getInstance(context)
-        val isLoader = pref.getBoolean("isLoaderForFB")
+        val isLoader = FullScreenSpinner.isEnabled(context)
         val fbId = pref.getString("faceB_InterAds") ?: return onFail()
 
         context.safeLog("facebook_inter_load_start")
