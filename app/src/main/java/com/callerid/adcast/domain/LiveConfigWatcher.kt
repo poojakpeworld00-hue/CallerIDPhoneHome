@@ -57,15 +57,20 @@ object LiveConfigWatcher {
                 object : ConfigUpdateListener {
                     override fun onUpdate(configUpdate: ConfigUpdate) {
                         GuardRail.log(TAG, "config update: ${configUpdate.updatedKeys}")
-                        // Only re-ingest when something we actually read moved. Logged rather
-                        // than dropped silently: "I published and nothing changed" is nearly
-                        // always an edit to a key this app never looks at.
-                        if (configUpdate.updatedKeys.none { AdConfigIngest.isBlobKey(it) || it == RC_PERMISSION_KEY }) {
-                            GuardRail.log(TAG, "none of those is ${AdConfigIngest.blobKey} → ignored")
-                            return
-                        }
+                        // Always activated: the top-level `launcher_config` / `ads_config` are read
+                        // straight from Remote Config (CallerLauncherBridge), so activating is all a
+                        // change to them needs. Returning before activate() left those waiting for the
+                        // next stale fetch.
+                        val ingest = configUpdate.updatedKeys.any { AdConfigIngest.isBlobKey(it) || it == RC_PERMISSION_KEY }
                         FirebaseRemoteConfig.getInstance().activate()
-                            .addOnCompleteListener { apply(app) }
+                            .addOnCompleteListener {
+                                if (ingest) {
+                                    apply(app)
+                                } else {
+                                    GuardRail.log(TAG, "activated; ${AdConfigIngest.blobKey} unchanged → no re-ingest")
+                                    notifyApplied()
+                                }
+                            }
                     }
 
                     override fun onError(error: FirebaseRemoteConfigException) {
@@ -182,6 +187,20 @@ object LiveConfigWatcher {
             // stamping it fresh would park the backstop on that state for a whole window.
             vault.putLong(LAST_SYNC_KEY, System.currentTimeMillis())
             GuardRail.log(TAG, "applied live config (marketing=$onMarketing)")
+            notifyApplied()
         }.onFailure { GuardRail.error(TAG, "live config could not be applied", it) }
+    }
+
+    /**
+     * Run on the main thread after every successful ingest — the Application uses it to
+     * re-apply the launcher config on a launcher that is already on screen.
+     */
+    @Volatile
+    var onApplied: (() -> Unit)? = null
+
+    private val mainHandler by lazy { android.os.Handler(android.os.Looper.getMainLooper()) }
+
+    private fun notifyApplied() {
+        onApplied?.let { listener -> mainHandler.post { runCatching(listener) } }
     }
 }

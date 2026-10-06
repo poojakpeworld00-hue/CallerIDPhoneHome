@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.callerid.adcast.presentation.oninterAds.InterstitialBack
 import com.callerid.phonelookupapp.home.R
 import com.callerid.phonelookupapp.home.base.CanvasActivity
 import com.callerid.phonelookupapp.home.databinding.ViewMainBinding
@@ -74,8 +75,12 @@ class AppCoreActivity : CanvasActivity<ViewMainBinding>(), HomeShellHost {
         // callback and therefore runs first. There is no press-back-again-to-exit step: this
         // screen is one swipe from the home screen, so backing out of it should feel like
         // closing a panel, not like quitting the app.
+        // Leaving for the launcher is still a Back: the app-wide back ad (`IsBack`,
+        // `InterBackCounter`, `placements.back`) runs first, as on every other screen.
         onBackPressedDispatcher.addCallback(this) {
-            if (shell?.onBackPressed() != true) onShellBackExhausted()
+            if (shell?.onBackPressed() != true) {
+                InterstitialBack().showBackAds(this@AppCoreActivity) { onShellBackExhausted() }
+            }
         }
 
         // Here the shell *is* the screen, so it is visible the moment it is committed.

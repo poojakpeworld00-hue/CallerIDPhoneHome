@@ -124,13 +124,17 @@ class OverviewFragment : CarrierFragment<PanelHomeBinding>() {
         binding.rvRecent.layoutManager = LinearLayoutManager(requireContext())
         binding.rvRecent.adapter = recentAdapter
 
-        // Native banner above the recent calls.
-        NativePromoBanner().showNativeBannerNative(requireActivity(), binding.adRecentBanner, binding.adRecentShimmer)
+        // Native banner above the recent calls. In the launcher this tab is built while its panel is
+        // still parked off screen; the ad waits for the panel to slide in (onShellShown) instead of
+        // rendering - and counting an impression - where nobody can see it.
+        if (homeShell?.isShellVisible != false) showRecentBanner() else recentBannerPending = true
         binding.adNativeDivider.followAdContainer(binding.adRecentBanner)
         binding.adNativeDivider1.followAdContainer(binding.adRecentBanner)
         binding.btnSettings.setOnClickListener {
             requireActivity().openActivity<PrefsHubActivity>()
         }
+        binding.btnQuiz.visibility = if (QuizIcon.isVisible(requireContext())) View.VISIBLE else View.GONE
+        binding.btnQuiz.setOnClickListener { QuizIcon.open(requireActivity()) }
 
         binding.qaDialer.root.setOnClickListener {
             withCorePermissions { requireActivity().openActivity<NumPadActivity>() }
@@ -285,6 +289,18 @@ class OverviewFragment : CarrierFragment<PanelHomeBinding>() {
     /** Called by [HomeCoreFragment] when the shell reaches the screen, and when it leaves. */
     fun onShellShown() {
         maybeShowSearchHint()
+        if (recentBannerPending && view != null) {
+            recentBannerPending = false
+            showRecentBanner()
+        }
+    }
+
+    /** Set while the native above the recent calls waits for the panel to be on screen. */
+    private var recentBannerPending = false
+
+    private fun showRecentBanner() {
+        val activity = activity ?: return
+        NativePromoBanner().showNativeBannerNative(activity, binding.adRecentBanner, binding.adRecentShimmer)
     }
 
     fun onShellHidden() {
@@ -422,6 +438,16 @@ class OverviewFragment : CarrierFragment<PanelHomeBinding>() {
 
     override fun onResume() {
         super.onResume()
+        // The greeting follows the time of day (it read "Good morning" at 4 pm); same split and
+        // translations as the launcher's apps panel.
+        val hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
+        binding.homeGreeting.text = getString(
+            when {
+                hour < 12 -> io.launcher.home.R.string.launcher_greeting_morning
+                hour < 17 -> io.launcher.home.R.string.launcher_greeting_afternoon
+                else -> io.launcher.home.R.string.launcher_greeting_evening
+            }
+        ) + " 👋"
         loadRecentIfAllowed()
         refreshPermissionHint()
     }

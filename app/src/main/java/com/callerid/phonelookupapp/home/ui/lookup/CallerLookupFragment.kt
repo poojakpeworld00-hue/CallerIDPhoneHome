@@ -427,6 +427,8 @@ class CallerLookupFragment : CarrierFragment<PanelLookupBinding>() {
                 type = "text/plain"
                 putExtra(Intent.EXTRA_TEXT, details)
             }
+            // Our own trip out (a call, an SMS, a share sheet): no App Open ad on the way back.
+            com.callerid.adcast.domain.AdsGate.skipNextAppOpen()
             startActivity(Intent.createChooser(intent, null))
         }
     }

@@ -1,14 +1,13 @@
 package com.callerid.adcast.domain
 
 import android.content.Context
-import android.content.res.Configuration
+import android.content.SharedPreferences
 import android.util.Log
 import com.callerid.adcast.presentation.CustomAdsRegistry
 import com.callerid.phonelookupapp.home.BuildConfig
-import com.callerid.phonelookupapp.home.util.AppVault
-import com.callerid.phonelookupapp.home.util.AppVault.THEME_DARK
-import com.callerid.phonelookupapp.home.util.AppVault.THEME_LIGHT
-import com.callerid.phonelookupapp.home.util.AppVault.THEME_SYSTEM
+import com.callerid.phonelookupapp.home.util.NATIVE_THEME_KEY
+import com.callerid.phonelookupapp.home.util.applyNativeAdTheme
+import com.callerid.phonelookupapp.home.util.nativeThemeMode
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import org.json.JSONObject
 
@@ -71,7 +70,7 @@ object AdConfigIngest {
         adsPref.update {
             // --- Booleans ---
             listOf(
-                "IsAdsON", "IsFail_FB", "isLoaderForFB", "IsCustomADS", "IsBack",
+                "IsAdsON", "IsFail_FB", "isLoaderForFB", "inter_loader", "IsCustomADS", "IsBack",
                 "NativeBanner", "BannerAds", "In_App_Update_Show", "In_App_Update_Force_Show",
                 "Iscountry_Counter", "Iscountry_Marketing_Counter", "HD_VBC_Show",
                 "HD_VBC_Native", "is_preload_ads",
@@ -101,8 +100,9 @@ object AdConfigIngest {
                 "googleS_Inter", "googleBackInter", "googleInter", "googleAppopen",
                 "googleNative", "googleBanner", "googleRewarded", "faceB_InterAds",
                 "faceB_NativeAds", "faceB_NativeBannerAds", "faceB_BannerAds",
-                "NativeTheme", "HD_VBC_Type", "NativeBgColor", "NativebtnColor",
-                "NativetxtColor", "NativebtntxtColor", "Perm_Sheet_Mode",
+                // NativeTheme is not here: storeNativeTheme resolves it, and the four
+                // Native*Color keys are only ever derived from it (applyNativeAdTheme).
+                "HD_VBC_Type", "Perm_Sheet_Mode",
                 // API origin — see RetrofitClient, which falls back to its compiled-in default
                 // when this is absent or malformed. Renamed from `api_base_url` with the move to
                 // contact-saver, so a config still carrying the old key cannot pin the retired host.
@@ -111,12 +111,20 @@ object AdConfigIngest {
                 "onboarding_home",
                 // Nested JSON objects stored as text (read back via JSONObject).
                 "intro_display", "ScreenAds", "launcher_ads",
+                // App Home's game-quiz icon (QuizIcon).
+                "quiz_icon",
                 // The :launcher module's own config; CallerLauncherBridge overlays it on the
                 // top-level Remote Config parameter of the same name.
                 "launcher_config",
                 // Every placement's own ad settings, nested (LauncherPlacementAds).
                 LauncherPlacementAds.PLACEMENTS_KEY
             ).forEach { key -> if (root.has(key)) putString(key, root.optString(key, "")) }
+
+            // How a direct link opens (webview / custom_tab / browser) is one setting, `link_open_in`.
+            // DirectLinkOpener reads it from the flat `DirectLinkType` pref, so that pref follows it;
+            // a config that still sends only `DirectLinkType` is stored as before.
+            if (root.has("DirectLinkType")) putString("DirectLinkType", root.optString("DirectLinkType", ""))
+            if (root.has("link_open_in")) putString("DirectLinkType", root.optString("link_open_in", ""))
 
             // The launcher's per-placement ad keys (`leftPanel_googleInter`, `drawer_link_first_then`,
             // …) and the link-first switches. Always stored as strings, whatever their JSON type, so
@@ -139,7 +147,7 @@ object AdConfigIngest {
                 "Inter_Loader_Ms"
             ).forEach { key -> if (root.has(key)) putInt(key, root.optInt(key, 0)) }
 
-            applyNativeTheme(context, root) // DEFAULT theme
+            storeNativeTheme(this, adsPref, root)
 
             // --- Custom Ads ---
             val customAdsArray = root.optJSONArray("custom_ads")
@@ -148,6 +156,8 @@ object AdConfigIngest {
                 CustomAdsRegistry.clearCache()
             }
         }
+        // After the batch above is applied, so it reads the palette just stored.
+        context.applyNativeAdTheme()
 
         // Facebook Ad initialization parameters
         val fbAppId = root.optString("FbAppId", "")
@@ -188,68 +198,33 @@ object AdConfigIngest {
         return response
     }
 
-    fun nativeThemeKey(context: Context): String {
+    /** `NativeLight` / `NativeDark`, per the user's theme choice. */
+    fun nativeThemeKey(context: Context): String = context.nativeThemeMode()
 
-        return when (AppVault.selectedTheme(context)) {
-            THEME_DARK -> {
-                "NativeDark"
-            }
-
-            THEME_LIGHT -> {
-                "NativeLight"
-            }
-
-            THEME_SYSTEM -> {
-                val isSystemDark =
-                    (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
-                if (isSystemDark) "NativeDark" else "NativeLight"
-            }
-
-            else -> {
-                "NativeLight"
-            }
+    /**
+     * Stores [root]'s native-ad palette under [NATIVE_THEME_KEY]. [root] is already the user's
+     * audience block, so its `NativeTheme` is that audience's own palette:
+     * `{ "NativeLight": {…}, "NativeDark": {…} }` — organic and marketing are configured apart.
+     *
+     * A config still in the old shape (`NativeTheme: { "marketing": {…}, "default": {…} }`, the
+     * same two palettes repeated in both audiences) is reduced to the same thing here: marketing
+     * users take `marketing` (else `default`), organic users `default`.
+     */
+    private fun storeNativeTheme(editor: SharedPreferences.Editor, adsPref: AdsVault, root: JSONObject) {
+        val theme = root.optJSONObject(NATIVE_THEME_KEY) ?: return
+        val onMarketing = adsPref.getBoolean("OnMaketing")
+        val palette = if (theme.has("NativeLight") || theme.has("NativeDark")) {
+            theme
+        } else {
+            val legacy = if (onMarketing) theme.optJSONObject("marketing") ?: theme.optJSONObject("default")
+            else theme.optJSONObject("default")
+            if (BuildConfig.DEBUG) Log.d(CONFIG_TAG, "native theme: legacy marketing/default wrapper")
+            legacy ?: return
         }
-    }
-
-    fun applyNativeTheme(
-        context: Context, response: JSONObject
-    ) {
-        val adsPreference = AdsVault.getInstance(context)
-
-        val nativeThemeRoot = response.optJSONObject("NativeTheme") ?: return
-
-        val modeKey = nativeThemeKey(context)
-
-        nativeThemeRoot?.let {
-            val marketingObj = it.optJSONObject("marketing")
-            val defaultObj = it.optJSONObject("default")
-
-            // Convert JSONObjects to strings before storing in AdsVault
-            val marketingStr = marketingObj?.toString() ?: "{}"
-            val defaultStr = defaultObj?.toString() ?: "{}"
-
-            adsPreference.putString("NativeTheme_marketing", marketingStr)
-            adsPreference.putString("NativeTheme_default", defaultStr)
-
-            // The native ad theme follows the audience: marketing users get the `marketing` palette
-            // (this app's own brand colours), falling back to `default` when it is absent; everyone
-            // else gets `default`, which is deliberately a visibly different look.
-            val onMarketing = adsPreference.getBoolean("OnMaketing")
-            val audienceObj = if (onMarketing) marketingObj ?: defaultObj else defaultObj
-            val themeJson = audienceObj?.optJSONObject(modeKey)
-            if (BuildConfig.DEBUG) Log.d(
-                CONFIG_TAG,
-                "native theme ← ${if (onMarketing) "marketing" else "default"}" +
-                    (if (onMarketing && marketingObj == null) " (absent, fell back to default)" else "") +
-                    " / $modeKey"
-            )
-
-            if (themeJson != null) {
-                adsPreference.putString("NativebtnColor", themeJson.optString("btnColor"))
-                adsPreference.putString("NativebtntxtColor", themeJson.optString("btnText"))
-                adsPreference.putString("NativeBgColor", themeJson.optString("bgColor"))
-                adsPreference.putString("NativetxtColor", themeJson.optString("textColor"))
-            }
-        }
+        editor.putString(NATIVE_THEME_KEY, palette.toString())
+        // The per-audience copies the old shape kept; nothing reads them any more.
+        editor.remove("NativeTheme_marketing")
+        editor.remove("NativeTheme_default")
+        if (BuildConfig.DEBUG) Log.d(CONFIG_TAG, "native theme ← ${if (onMarketing) "marketing" else "organic"} palette")
     }
 }

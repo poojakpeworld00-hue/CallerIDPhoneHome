@@ -177,6 +177,8 @@ class CallReportActivity : CanvasActivity<ViewCallDetailBinding>() {
 
     private fun message() {
         if (number.isBlank()) return
+        // Our own trip out (a call, an SMS, a share sheet): no App Open ad on the way back.
+        com.callerid.adcast.domain.AdsGate.skipNextAppOpen()
         runCatching { startActivity(Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:$number"))) }
     }
 

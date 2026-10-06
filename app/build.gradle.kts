@@ -63,8 +63,8 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = true
-            // Verified: assembleRelease is clean with R8 + resource shrinking on,
-            // and the shrunk APK is 21.4 MB against the debug build's 55.9 MB.
+            // Resource shrinking is on: verify a release build after adding resources that are
+            // only reached by name (getIdentifier) — those need a keep rule.
             isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),

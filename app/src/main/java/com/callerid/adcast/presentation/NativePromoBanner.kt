@@ -14,6 +14,7 @@ import androidx.core.view.isVisible
 import com.callerid.adcast.data.AdKind
 import com.callerid.adcast.domain.AdCounterRegistry.nativeBannerCounter
 import com.callerid.adcast.domain.AdRevenueMeter
+import com.callerid.adcast.domain.AdsGate
 import com.callerid.adcast.domain.AdsVault
 import com.callerid.adcast.domain.ScreenPromoConfig
 import com.callerid.adcast.domain.TAG_EVENT
@@ -35,7 +36,24 @@ import com.google.android.gms.ads.nativead.NativeAdOptions
 
 class NativePromoBanner {
     companion object {
-        private var nativeAdBanner: NativeAd? = null
+        private var cachedBanner: NativeAd? = null
+        private var cachedAt = 0L
+        private var isLoading = false
+        private const val MAX_AGE_MS = 60 * 60_000L
+
+        /** The pooled native banner, or null when there is none or it is older than an hour. */
+        private var nativeAdBanner: NativeAd?
+            get() {
+                if (cachedBanner != null && android.os.SystemClock.elapsedRealtime() - cachedAt > MAX_AGE_MS) {
+                    runCatching { cachedBanner?.destroy() }
+                    cachedBanner = null
+                }
+                return cachedBanner
+            }
+            set(value) {
+                cachedBanner = value
+                if (value != null) cachedAt = android.os.SystemClock.elapsedRealtime()
+            }
     }
 
     fun loadNativeBannerAds(activity: Activity) {
@@ -43,14 +61,20 @@ class NativePromoBanner {
         if (!adsPref.getBoolean("IsAdsON")) return
         // Firebase "NativeBanner" master switch — disable native banner loading
         if (!adsPref.getBoolean("NativeBanner")) return
+        if (!AdsGate.canRequestAds(activity)) return
+        // Called on every foreground now: keep a fresh one, and never stack requests.
+        if (nativeAdBanner != null || isLoading) return
 
 
         when (AdKind.fromString(adsPref.getString("IsAdType"))) {
             AdKind.GOOGLE -> {
-                val adUnitId = adsPref.getString("googleNative") ?: return
+                val adUnitId = adsPref.getString("googleNative").orEmpty()
+                if (adUnitId.isBlank()) return
+                isLoading = true
 
-                val adLoader = AdLoader.Builder(activity, adUnitId).forNativeAd { ad ->
-                    nativeAdBanner?.destroy()
+                val adLoader = AdLoader.Builder(activity.applicationContext, adUnitId).forNativeAd { ad ->
+                    isLoading = false
+                    cachedBanner?.destroy()
                     nativeAdBanner = ad
                     try {
                         activity.logKeyEvent("NativeBanner_Load")
@@ -61,6 +85,7 @@ class NativePromoBanner {
                 }.withAdListener(object : AdListener() {
                     override fun onAdFailedToLoad(error: LoadAdError) {
                         Log.e("NativePromoBanner", "Ad failed to load: ${error.message}")
+                        isLoading = false
                         nativeAdBanner = null
                         // No retry logic
 

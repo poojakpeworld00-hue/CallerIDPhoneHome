@@ -1,5 +1,7 @@
 package com.callerid.phonelookupapp.home.ui.language
 
+import com.callerid.phonelookupapp.home.util.Analytics
+
 import android.content.Context
 import android.content.Intent
 import android.telephony.TelephonyManager
@@ -214,6 +216,7 @@ class LangChooserActivity : CanvasActivity<ViewLanguageBinding>() {
 
     private fun onContinue() {
         val tag = viewModel.selectedTag.value ?: AppVault.LANGUAGE_DEFAULT
+        Analytics.log("language_done_click", "lang" to tag, "source" to if (standalone) "settings" else "flow")
         AppVault.setLanguage(this, tag)  // source of truth for Splash + CanvasActivity.applyLocale
         prefs.isLanguageSelected = true
 

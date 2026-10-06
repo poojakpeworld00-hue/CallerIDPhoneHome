@@ -24,6 +24,7 @@ import com.callerid.phonelookupapp.home.ui.common.HomeMotion
 import com.callerid.phonelookupapp.home.ui.contacts.PhonebookFragment
 import com.callerid.phonelookupapp.home.ui.lookup.CallerLookupFragment
 import com.callerid.phonelookupapp.home.ui.recents.FeedFragment
+import com.callerid.phonelookupapp.home.ui.intro.IntroRevealConfig
 import com.callerid.phonelookupapp.home.ui.terms.FloatKit
 import com.callerid.phonelookupapp.home.util.rateApp
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -318,14 +319,18 @@ class HomeCoreFragment : CarrierFragment<PanelHomeShellBinding>() {
 
     /**
      * The banner is only relevant once the core permissions are in place: show it when
-     * call-log AND contacts are granted but the overlay permission is not.
+     * call-log AND contacts are granted but the overlay permission is not — and only
+     * where the overlay permission may be offered at all ([FloatKit.isOfferable],
+     * the CountryList_Counter_NShow gate), and not while `intro_display.permission_sheet.rows`
+     * leaves `overlay` out.
      */
     fun updateOverlayBanner() {
         val ctx = context ?: return
         if (view == null) return
         val coreGranted = isPermissionGranted(Manifest.permission.READ_CALL_LOG) &&
             isPermissionGranted(Manifest.permission.READ_CONTACTS)
-        val show = coreGranted && FloatKit.isOfferable(ctx) && !FloatKit.isGranted(ctx)
+        val overlayAsked = IntroRevealConfig.permissionSheetRows(ctx)?.contains("overlay") ?: true
+        val show = coreGranted && overlayAsked && FloatKit.isOfferable(ctx) && !FloatKit.isGranted(ctx)
         binding.overlayBanner.visibility = if (show) View.VISIBLE else View.GONE
     }
 

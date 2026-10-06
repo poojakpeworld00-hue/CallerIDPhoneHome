@@ -45,6 +45,12 @@ class TimelineAdapter(
             is TimelineRow.Header -> (holder as HeaderVH).binding.tvHeader.setText(row.titleRes)
             is TimelineRow.Call -> (holder as CallVH).bind(row)
         }
+
+    }
+
+    override fun onViewDetachedFromWindow(holder: RecyclerView.ViewHolder) {
+        super.onViewDetachedFromWindow(holder)
+        holder.itemView.animate().cancel()
     }
 
     override fun getItemCount(): Int = rows.size

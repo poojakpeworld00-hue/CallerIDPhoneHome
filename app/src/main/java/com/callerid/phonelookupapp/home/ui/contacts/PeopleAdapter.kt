@@ -12,7 +12,6 @@ import com.callerid.phonelookupapp.home.R
 import com.callerid.phonelookupapp.home.data.PersonItem
 import com.callerid.phonelookupapp.home.databinding.TileContactBinding
 import com.callerid.phonelookupapp.home.databinding.TileSectionHeaderBinding
-import com.callerid.phonelookupapp.home.ui.common.HomeMotion
 
 class PeopleAdapter(
     private val onCall: (String) -> Unit,
@@ -21,13 +20,9 @@ class PeopleAdapter(
 
     private var rows: List<PersonRow> = emptyList()
 
-    /** Rows animate in once; scrolling back or re-submitting must not replay the stagger. */
-    private var lastAnimated = -1
-
     @SuppressLint("NotifyDataSetChanged")
     fun submit(list: List<PersonRow>) {
         rows = list
-        lastAnimated = -1
         notifyDataSetChanged()
     }
 
@@ -49,19 +44,11 @@ class PeopleAdapter(
             is PersonRow.Item -> (holder as ContactVH).bind(row)
         }
 
-        // Claude Design's cid-rise-in stagger, once per row per submit().
-        if (position > lastAnimated) {
-            lastAnimated = position
-            HomeMotion.riseIn(holder.itemView, delay = position * HomeMotion.STAGGER_STEP)
-        } else {
-            // Not this row's turn to animate: never leave it at riseIn's alpha 0.
-            HomeMotion.settle(holder.itemView)
-        }
     }
 
     override fun onViewDetachedFromWindow(holder: RecyclerView.ViewHolder) {
         super.onViewDetachedFromWindow(holder)
-        HomeMotion.settle(holder.itemView)
+        holder.itemView.animate().cancel()
     }
 
     override fun getItemCount(): Int = rows.size

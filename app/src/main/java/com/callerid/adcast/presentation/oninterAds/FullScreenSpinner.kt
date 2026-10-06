@@ -19,9 +19,17 @@ object FullScreenSpinner {
 
     private var dialog: Dialog? = null
 
-    /** Remote Config: the interstitial loader on/off. Absent → the older `isLoaderForFB`. */
-    private const val LOADER_SHOW_KEY = "Inter_Loader_Show"
-    private const val LEGACY_LOADER_KEY = "isLoaderForFB"
+    /** The activity the dialog is attached to; weak, so a lingering dialog cannot keep it alive. */
+    private var owner: java.lang.ref.WeakReference<Activity>? = null
+
+    private val main = android.os.Handler(android.os.Looper.getMainLooper())
+
+    /** However a load ends - or never ends - the user is never left behind the loader for longer. */
+    private const val MAX_SHOW_MS = 12_000L
+    private val autoHide = Runnable {
+        Log.w("FullScreenSpinner", "loader still up after ${MAX_SHOW_MS}ms - hidden")
+        dismissSafely()
+    }
 
     /**
      * Remote Config: how long (ms) the loader shows before a *preloaded* interstitial opens.
@@ -30,17 +38,8 @@ object FullScreenSpinner {
     private const val LOADER_MS_KEY = "Inter_Loader_Ms"
     private const val MAX_LOADER_MS = 3_000
 
-    /**
-     * Whether the full-screen loader may show while an interstitial loads — `Inter_Loader_Show`,
-     * falling back to `isLoaderForFB` for a config that does not carry the new key yet.
-     */
-    fun isEnabled(context: Context): Boolean {
-        val vault = AdsVault.getInstance(context)
-        val set = vault.getBoolean(LOADER_SHOW_KEY, true)
-        // getBoolean has no "absent" answer, so ask with both defaults: they differ only when absent.
-        val present = set == vault.getBoolean(LOADER_SHOW_KEY, false)
-        return if (present) set else vault.getBoolean(LEGACY_LOADER_KEY)
-    }
+    /** Whether the full-screen loader may show while an interstitial loads — see [InterLoader]. */
+    fun isEnabled(context: Context): Boolean = InterLoader.enabled(AdsVault.getInstance(context))
 
     /**
      * Runs [show] behind the loader for `Inter_Loader_Ms` — the "Loading ad…" beat before an
@@ -100,6 +99,9 @@ object FullScreenSpinner {
                             or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
 
                 show()
+                owner = java.lang.ref.WeakReference(activity)
+                main.removeCallbacks(autoHide)
+                main.postDelayed(autoHide, MAX_SHOW_MS)
 
                 // Restore focusability after show so touches register
                 window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
@@ -118,20 +120,17 @@ object FullScreenSpinner {
         try {
             dialog?.let {
                 if (it.isShowing) {
-                    val context = it.context
-                    if (context is Activity) {
-                        if (!context.isFinishing && !context.isDestroyed) {
-                            it.dismiss()
-                        }
-                    } else {
-                        it.dismiss()
-                    }
+                    // The dialog's own context is a theme wrapper, never the Activity itself.
+                    val host = owner?.get()
+                    if (host == null || (!host.isFinishing && !host.isDestroyed)) it.dismiss()
                 }
             }
         } catch (e: Exception) {
             // Log.e("FullScreenSpinner", "Error dismissing loader", e)
         } finally {
+            main.removeCallbacks(autoHide)
             dialog = null
+            owner = null
         }
     }
 }

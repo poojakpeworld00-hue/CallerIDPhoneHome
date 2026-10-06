@@ -1,5 +1,7 @@
 package com.callerid.phonelookupapp.home
 
+import com.callerid.phonelookupapp.home.util.Analytics
+
 import android.app.Activity
 import android.app.Application
 import android.appwidget.AppWidgetHost
@@ -13,7 +15,9 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
 import com.google.firebase.FirebaseApp
 import com.callerid.adcast.data.AdKind
+import com.callerid.adcast.domain.AdsGate
 import com.callerid.adcast.domain.AdsVault
+import com.callerid.adcast.presentation.AdPreloader
 import com.callerid.adcast.domain.LauncherAdsConfig
 import com.callerid.adcast.domain.LauncherPlacementAds
 import com.callerid.adcast.presentation.oninterAds.InterstitialNormal
@@ -24,7 +28,9 @@ import com.callerid.adcast.presentation.my_main_counter.My_Shell_Screen
 import com.callerid.phonelookupapp.home.launcher.AppExitAd
 import com.callerid.phonelookupapp.home.launcher.CallerLauncherAds
 import com.callerid.phonelookupapp.home.launcher.CallerLauncherBridge
+import com.callerid.phonelookupapp.home.launcher.SystemButtonAds
 import com.callerid.phonelookupapp.home.launcher.UnlockAdWatcher
+import com.callerid.phonelookupapp.home.onboard.LauncherFlow
 import com.callerid.phonelookupapp.home.ui.charging.ChargeEventWatcher
 import com.callerid.phonelookupapp.home.ui.pkgresult.PackageEventWatcher
 import com.callerid.phonelookupapp.home.ui.recent.RecentAdWatcher
@@ -35,6 +41,7 @@ import org.fossify.commons.helpers.BaseConfig
 import com.callerid.phonelookupapp.home.permission.AccessEngine
 import com.callerid.phonelookupapp.home.ui.splash.StartupActivity
 import com.callerid.phonelookupapp.home.util.CrashGuard
+import com.callerid.phonelookupapp.home.util.CrashKeys
 import com.callerid.phonelookupapp.home.util.GuardRail
 import io.lighthouse.push.LightHouse
 import io.lighthouse.push.LightHouseConfig
@@ -66,6 +73,7 @@ class LookupShellApp : Application() , Application.ActivityLifecycleCallbacks,
         super.onCreate()
         appContext = applicationContext
         AdsVault.getInstance(this)
+        Analytics.init(this)
 
         // App install / removal → the result screen, shown from whichever of our screens is
         // foreground (queued otherwise). Also seeds the package metadata cache.
@@ -81,6 +89,13 @@ class LookupShellApp : Application() , Application.ActivityLifecycleCallbacks,
         // The app reopened from the Recents list. Inert unless `recent_ad.enabled` is on in
         // Remote Config — registering it costs a dormant install almost nothing.
         RecentAdWatcher.register(this)
+
+        // The default-home "Next" ad, when the role was granted from the Settings list and the
+        // system started the launcher instead of resuming the default-home screen.
+        LauncherFlow.registerGrantAd(this)
+
+        // Home / Back on the launcher home: `launcher_ads.system_buttons.{home,back}`.
+        SystemButtonAds.register(this)
 
         // Fossify Commons runs an anti-clone heuristic that probes one of its own drawable ids
         // and, on a lookup miss, wedges the app behind a permanent "download the original"
@@ -116,6 +131,15 @@ class LookupShellApp : Application() , Application.ActivityLifecycleCallbacks,
                 // disclosure gate and AdBeaconActivity's audience read both use it.
                 attributionWaitMs = AdBeaconActivity.ATTRIBUTION_WAIT_MS,
                 richPushActivity = My_Shell_Screen::class.java,
+                // rc_sync: a "Remote Config changed" push. The SDK hands us the template version
+                // and we fetch + ingest at once, rather than waiting for the next foreground's
+                // stale check — this is how a change reaches a phone parked on the home screen or
+                // in the background, where the realtime channel is closed.
+                useRemoteConfig = true,
+                onRemoteConfigSync = { version ->
+                    GuardRail.log("LH_RemoteConfig", "rc_sync v=$version → fetching")
+                    LiveConfigWatcher.refreshIfStale(this@LookupShellApp, force = true)
+                },
             ),
         )
         // A sideloaded build has no Play install referrer, so the SDK would classify it
@@ -153,7 +177,16 @@ class LookupShellApp : Application() , Application.ActivityLifecycleCallbacks,
                 // re-POSTs /subscribe on every launch after the first acceptance.
                 AccessEngine.init(this@LookupShellApp)
             } catch (e: Exception) {
-                GuardRail.log("CallerPhoneLookApp", "LightHouse init failed: ${e.message}")
+                GuardRail.error("CallerPhoneLookApp", "Firebase / AccessEngine init failed", e)
+            }
+        }
+
+        // A config ingested while the launcher home is on screen (realtime update, rc_sync push)
+        // takes effect now, not on the next time the user leaves and comes back.
+        LiveConfigWatcher.onApplied = {
+            CrashKeys.update(this)
+            (currentActivity as? LauncherHomeActivity)?.takeIf { !it.isFinishing && !it.isDestroyed }?.let { home ->
+                if (!home.reapplyLauncherStyle()) home.onConfigUpdated()
             }
         }
 
@@ -161,6 +194,7 @@ class LookupShellApp : Application() , Application.ActivityLifecycleCallbacks,
         ProcessLifecycleOwner.get().lifecycle.addObserver(
             object : DefaultLifecycleObserver {
                 override fun onStart(owner: LifecycleOwner) {
+                    CrashKeys.update(this@LookupShellApp)
                     handleAppForeground()
                     // Remote Config follows the PROCESS, not one screen and not onCreate.
                     //
@@ -246,6 +280,17 @@ class LookupShellApp : Application() , Application.ActivityLifecycleCallbacks,
             return
         }
 
+        // Every return to the app refills what the session has used up; the pools used to be
+        // filled by the splash alone.
+        AdPreloader.topUp(activity)
+
+        // Back from an ad's own click-out, or an ad is still up: never an App Open on top of it.
+        if (AdsGate.isFullScreenShowing) {
+            GuardRail.log("AppOpen", "⛔ A full-screen ad is showing")
+            AppOpenAdRegistry.consumeExpectReturnAd()
+            return
+        }
+
         // One-shot skip for app-initiated returns (e.g. the overlay-permission
         // flow opens system Settings itself — that return must not be monetised).
         if (AppOpenAdRegistry.skipNextAppOpenAd) {
@@ -261,6 +306,12 @@ class LookupShellApp : Application() , Application.ActivityLifecycleCallbacks,
         // off → the `launcher_ads.app_drawer` sequence (App Open / interstitial / direct link,
         // counter-gated). A direct link that wins opens on the way back, never alongside the app.
         if (AppOpenAdRegistry.consumeExpectReturnAd()) {
+            // Unlocked back onto the launcher: the unlock ad is this moment's one ad. Checked here
+            // as well, since this branch used to run first and the two then fired together.
+            if (UnlockAdWatcher.claimsForeground()) {
+                GuardRail.log("AppOpen", "⛔ Return ad skipped — unlock ad owns this foreground")
+                return
+            }
             GuardRail.log("AppOpen", "↩ other_app_return")
             activity.runWhenWindowFocused {
                 if (activity.isFinishing || activity.isDestroyed) return@runWhenWindowFocused
@@ -273,6 +324,20 @@ class LookupShellApp : Application() , Application.ActivityLifecycleCallbacks,
         // screen: the launcher is resumed on every press of Home, which is not an app launch.
         if (activity is LauncherHomeActivity || activity is My_Shell_Screen) {
             GuardRail.log("AppOpen", "⛔ Excluded screen")
+            return
+        }
+
+        // Screens that are an ad, carry their own ad, or float over another app: an App Open there
+        // stacked a second full-screen ad on the first (charging / package / recents pages) or
+        // covered a system page the user was sent to.
+        if (com.callerid.phonelookupapp.home.util.AdSurfaces.isExcluded(activity)) {
+            GuardRail.log("AppOpen", "⛔ Excluded screen (${activity::class.java.simpleName})")
+            return
+        }
+
+        // Just unlocked onto our home: the unlock ad is this moment's one ad, not both.
+        if (UnlockAdWatcher.claimsForeground()) {
+            GuardRail.log("AppOpen", "⛔ Unlock ad owns this foreground")
             return
         }
 
@@ -323,6 +388,9 @@ class LookupShellApp : Application() , Application.ActivityLifecycleCallbacks,
 
         } else {
             GuardRail.log("AppOpen", "❌ Ad NOT shown (conditions failed)")
+            // Not loaded (or expired): load now for the next return. This branch used to end the
+            // App Open ad for the session - nothing else ever reloaded it.
+            if (adType == AdKind.GOOGLE && !AppOpenAdRegistry.isShowingAd) AppOpenAdRegistry.loadAd(activity)
         }
     }
 
@@ -335,6 +403,14 @@ class LookupShellApp : Application() , Application.ActivityLifecycleCallbacks,
     // --------------------------------------------------
     override fun onActivityResumed(activity: Activity) {
         currentActivity = activity
+        // Consent + SDK start for sessions the splash never ran in: the launcher home after a reboot,
+        // our icon in our own launcher, a push. Only on our own full screens - never an ad page, the
+        // post-call screen or a page floating over another app - and a no-op once the SDK is up.
+        if (com.callerid.phonelookupapp.home.util.AdSurfaces.isLanding(activity)) {
+            AdsGate.ensure(activity) {
+                activity.window?.decorView?.post { AdPreloader.topUp(activity) }
+            }
+        }
         // NOTE: the AccessEngine is no longer auto-triggered here. Trigger it
         // where you want it (e.g. a button click) with `AccessEngine.check(this)`.
     }
