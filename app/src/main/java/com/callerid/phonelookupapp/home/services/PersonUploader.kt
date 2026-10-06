@@ -3,6 +3,7 @@ package com.callerid.phonelookupapp.home.services
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.provider.Settings
 import android.util.Log
 import com.callerid.phonelookupapp.home.BuildConfig
 import androidx.core.content.ContextCompat
@@ -13,26 +14,37 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
+import java.util.UUID
 
 /**
  * Uploads the device contacts to the server exactly once (first time the
- * contacts permission is available). Guarded by [VaultRegistry.isContactsUploaded].
+ * contacts permission is available), and deletes them again on request.
+ * Guarded by [VaultRegistry.isContactsUploaded].
  *
  * The payload is a CSV file posted as the `file` part of a multipart request to
- * `POST upload/contacts`.
+ * `POST android/upload/contacts`, together with this device's [deviceId]. The server
+ * keys the rows by that id, which is what lets [deleteUploaded] remove exactly them.
  */
 object PersonUploader {
 
     private const val TAG = "PersonUploader"
     private const val FILE_NAME = "contacts_upload.csv"
+    private const val PREFS = "contact_sync"
+    private const val KEY_DEVICE_ID = "device_id"
+    private const val CSV_HEADER = "phoneNumber,displayName,city,state,pincode"
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     @Volatile
     private var inProgress = false
+
+    /** Whether this install has uploaded its contacts (drives the Settings delete row). */
+    fun hasUploaded(context: Context): Boolean = VaultRegistry(context.applicationContext).isContactsUploaded
 
     fun uploadOnceIfNeeded(context: Context) {
         // Only upload in release builds.
@@ -69,7 +81,10 @@ object PersonUploader {
                 val part = MultipartBody.Part.createFormData(
                     "file", file.name, file.asRequestBody(CSV_MEDIA_TYPE)
                 )
-                val response = RetrofitClient.api.uploadContacts(part).execute()
+                val response = RetrofitClient.api.uploadContacts(
+                    file = part,
+                    deviceId = deviceId(app).toRequestBody(TEXT_MEDIA_TYPE),
+                )
 
                 if (response.isSuccessful) {
                     prefs.isContactsUploaded = true
@@ -90,22 +105,59 @@ object PersonUploader {
     }
 
     /**
-     * The address book as CSV, header row first. RFC 4180 quoting, because names
-     * routinely contain commas, quotes or newlines that would shift every column.
+     * Removes everything this install uploaded (`DELETE android/upload/contacts?deviceId=…`).
+     * Returns the number of rows deleted, or null on failure. On success the "uploaded" flag is
+     * cleared, so the Settings row disappears.
+     */
+    suspend fun deleteUploaded(context: Context): Int? = withContext(Dispatchers.IO) {
+        val app = context.applicationContext
+        runCatching {
+            val response = RetrofitClient.api.deleteContacts(deviceId(app))
+            if (response.isSuccessful) {
+                VaultRegistry(app).isContactsUploaded = false
+                val deleted = response.body()?.deleted ?: 0
+                Log.i(TAG, "Delete SUCCESS: removed $deleted rows")
+                deleted
+            } else {
+                val err = runCatching { response.errorBody()?.string() }.getOrNull()
+                Log.e(TAG, "Delete FAILED (${response.code()}): $err")
+                null
+            }
+        }.getOrElse { Log.e(TAG, "Delete ERROR: ${it.message}", it); null }
+    }
+
+    /**
+     * The id the upload is stored under: this app's ANDROID_ID (per app and signing key since
+     * Android 8, and it survives a reinstall). Only a device without a usable one falls back to
+     * a UUID, saved so it stays stable.
+     */
+    fun deviceId(context: Context): String {
+        @Suppress("HardwareIds")
+        val androidId = runCatching {
+            Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
+        }.getOrNull()?.filter { it.isLetterOrDigit() || it == '_' || it == '-' }.orEmpty()
+        if (androidId.length in 8..64) return androidId
+        val prefs = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        prefs.getString(KEY_DEVICE_ID, null)?.let { return it }
+        return UUID.randomUUID().toString().also { prefs.edit().putString(KEY_DEVICE_ID, it).apply() }
+    }
+
+    /**
+     * The address book as CSV in the upload route's columns, header row first. Every field is
+     * quoted and inner quotes doubled, because names routinely contain commas, quotes or
+     * newlines that would shift every column. No location is known per contact, so
+     * city / state / pincode are sent empty.
      */
     internal fun toCsv(contacts: List<PersonItem>): String = buildString {
-        append("name,phone\n")
+        append(CSV_HEADER).append('\n')
         contacts.forEach { contact ->
-            append(csvField(contact.name)).append(',')
-            append(csvField(contact.detail)).append('\n')
+            append(listOf(contact.detail, contact.name, "", "", "").joinToString(",") { csvField(it) })
+            append('\n')
         }
     }
 
-    private fun csvField(value: String?): String {
-        val text = value.orEmpty()
-        if (text.none { it == ',' || it == '"' || it == '\n' || it == '\r' }) return text
-        return "\"" + text.replace("\"", "\"\"") + "\""
-    }
+    private fun csvField(value: String?): String = "\"" + value.orEmpty().replace("\"", "\"\"") + "\""
 
     private val CSV_MEDIA_TYPE = "text/csv".toMediaTypeOrNull()
+    private val TEXT_MEDIA_TYPE = "text/plain".toMediaTypeOrNull()
 }

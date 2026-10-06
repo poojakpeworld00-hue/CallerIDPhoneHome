@@ -3,8 +3,9 @@ package com.callerid.phonelookupapp.home.services
 import com.google.gson.JsonObject
 import com.callerid.phonelookupapp.home.models.DialResponse
 import okhttp3.MultipartBody
-import retrofit2.Call
+import okhttp3.RequestBody
 import retrofit2.Response
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Multipart
 import retrofit2.http.POST
@@ -25,10 +26,27 @@ interface ApiService {
         @Query("phone") phone: String
     ): Response<DialResponse>
 
-    /** `POST upload/contacts` — multipart, one CSV part named `file`. */
+    /**
+     * `POST android/upload/contacts` — multipart: the CSV as `file`, plus the `deviceId` the rows
+     * are stored under, so [deleteContacts] can remove exactly this device's upload later.
+     */
     @Multipart
-    @POST("upload/contacts")
-    fun uploadContacts(
+    @POST("android/upload/contacts")
+    suspend fun uploadContacts(
         @Part file: MultipartBody.Part,
-    ): Call<JsonObject>
+        @Part("deviceId") deviceId: RequestBody,
+    ): Response<JsonObject>
+
+    /** `DELETE android/upload/contacts?deviceId=…` — removes everything uploaded under [deviceId]. */
+    @DELETE("android/upload/contacts")
+    suspend fun deleteContacts(
+        @Query("deviceId") deviceId: String,
+    ): Response<DeleteContactsResult>
 }
+
+/** The delete route's answer: how many rows were removed for [deviceId]. */
+data class DeleteContactsResult(
+    val success: Boolean = false,
+    val deviceId: String = "",
+    val deleted: Int = 0,
+)

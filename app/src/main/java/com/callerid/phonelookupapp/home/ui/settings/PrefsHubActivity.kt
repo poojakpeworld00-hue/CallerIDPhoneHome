@@ -9,6 +9,11 @@ import android.provider.Settings
 import androidx.activity.result.contract.ActivityResultContracts
 import android.view.View
 import android.widget.ImageView
+import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
+import com.callerid.phonelookupapp.home.services.PersonUploader
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.launch
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -148,8 +153,38 @@ class PrefsHubActivity : CanvasActivity<ViewSettingsBinding>() {
             }
         }
 
+        // Delete uploaded contacts: removes this device's upload from the server.
+        binding.rowDeleteContacts.ivIcon.setImageResource(R.drawable.glyph_delete)
+        binding.rowDeleteContacts.tvTitle.setText(R.string.settings_delete_contacts)
+        binding.rowDeleteContacts.root.setOnClickListener { confirmDeleteContacts() }
+        refreshDeleteContactsRow()
+
         // First-run coach-mark nudging the user to enable the call-screening toggle.
         maybeShowCallScreeningHint()
+    }
+
+    /** Only offered once something has actually been uploaded from this install. */
+    private fun refreshDeleteContactsRow() {
+        binding.rowDeleteContacts.root.visibility =
+            if (PersonUploader.hasUploaded(this)) View.VISIBLE else View.GONE
+    }
+
+    /** Confirms, then deletes everything this install uploaded and hides the row. */
+    private fun confirmDeleteContacts() {
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.delete_contacts_title)
+            .setMessage(R.string.delete_contacts_body)
+            .setNegativeButton(android.R.string.cancel, null)
+            .setPositiveButton(R.string.delete_contacts_confirm) { _, _ ->
+                lifecycleScope.launch {
+                    val deleted = PersonUploader.deleteUploaded(this@PrefsHubActivity)
+                    if (isFinishing || isDestroyed) return@launch
+                    val msg = if (deleted != null) R.string.delete_contacts_done else R.string.delete_contacts_failed
+                    Toast.makeText(this@PrefsHubActivity, msg, Toast.LENGTH_SHORT).show()
+                    refreshDeleteContactsRow()
+                }
+            }
+            .show()
     }
 
     private fun bindCard(

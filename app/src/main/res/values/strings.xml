@@ -3,13 +3,13 @@
     <string name="app_name">Caller ID</string>
     <!-- Application label with a leading space so the app sorts to the TOP of
          system lists like "Display over other apps" / "Default apps". The
-         launcher icon keeps the clean name via the launcher activity's label. -->
+         launcher icon keeps the clean name via the launcher activity\u0027s label. -->
     <string name="app_label">&#160;&#160;Caller ID</string>
     <string name="dash">&#8211;</string>
 
     <!-- Splash -->
     <string name="splash_title">CallerID</string>
-    <string name="splash_tagline">Know who\'s calling. Stay protected.</string>
+    <string name="splash_tagline">Know who\\u0027s calling. Stay protected.</string>
     <string name="splash_footer">This Action May Contain Ads</string>
     <string name="splash_incoming_call">Incoming call…</string>
     <string name="splash_fraud_blocked">Fraud blocked</string>
@@ -25,7 +25,7 @@
     <string name="language_all">All languages</string>
     <string name="language_current">Current language</string>
     <string name="language_info_title">Language Information</string>
-    <string name="language_info_msg">Changing the language will update the app\'s interface. Some regional features may vary based on your selection.</string>
+    <string name="language_info_msg">Changing the language will update the app\\u0027s interface. Some regional features may vary based on your selection.</string>
     <string name="language_info_got_it">Got it</string>
 
     <!-- Terms &amp; Conditions -->
@@ -58,7 +58,7 @@
     <string name="onboarding_skip">Skip</string>
     <string name="onboarding_step_counter">Step %1$d of %2$d</string>
     <string name="onboarding_next">Next</string>
-    <string name="onboarding_title">Know who\'s calling</string>
+    <string name="onboarding_title">Know who\\u0027s calling</string>
     <string name="onboarding_desc">Every incoming call shows a card with the number, whether they are a saved contact, and how many times they have called before.</string>
     <string name="onboarding_title_2">Block spam &amp; fraud</string>
     <string name="onboarding_desc_2">See if a number is reported for spam or fraud, then block it in one tap — blocked calls never ring.</string>
@@ -69,7 +69,7 @@
     <string name="onboarding_caller_id">Caller ID</string>
 
     <!-- Home -->
-    <string name="home_title">You\'re protected</string>
+    <string name="home_title">You\\u0027re protected</string>
     <string name="home_subtitle">Caller ID and spam blocking are active</string>
     <string name="home_greeting">Good morning 👋</string>
     <string name="home_brand">CallerID</string>
@@ -160,7 +160,7 @@
     <string name="lookup_action">Lookup</string>
     <string name="lookup_subtitle">Identify any number worldwide</string>
     <string name="lookup_search_hint">Search Number</string>
-    <string name="lookup_empty_title">Find out who\'s behind any number</string>
+    <string name="lookup_empty_title">Find out who\\u0027s behind any number</string>
     <string name="lookup_empty_sub">Your lookups will appear here. Nothing is shared with the numbers you search.</string>
     <string name="lookup_empty_cta">Search a number</string>
     <string name="lookup_paste">Paste</string>
@@ -444,7 +444,7 @@
     <string name="blocklist_method_recents_sub">Pick from your call log</string>
     <string name="blocklist_pick_recents_title">Recent calls</string>
     <string name="blocklist_no_recents">No recent calls found</string>
-    <string name="blocklist_contact_no_number">Couldn\'t read that contact\'s number</string>
+    <string name="blocklist_contact_no_number">Couldn\\u0027t read that contact\\u0027s number</string>
     <string name="blocklist_already_blocked">Already blocked</string>
     <string name="blocklist_perm_calllog">Call-log access is needed to pick recent calls</string>
     <string name="blocklist_pick_contacts_title">Contacts</string>
@@ -467,7 +467,7 @@
     <string name="settings_blocklist">Block list</string>
     <string name="call_screening">Caller ID Overlay</string>
     <string name="call_screening_desc">Show caller information during calls</string>
-    <string name="call_screening_hint_tip">Turn this on to see who\'s calling and block spam</string>
+    <string name="call_screening_hint_tip">Turn this on to see who\\u0027s calling and block spam</string>
     <string name="settings_blocklist_sub">Numbers you blocked</string>
     <string name="settings_protection">Spam protection</string>
     <string name="settings_protection_sub">Caller ID &amp; spam blocking</string>
@@ -536,13 +536,13 @@
     <string name="update_ready_msg">Update downloaded</string>
     <string name="update_restart">Restart</string>
     <string name="update_required_title">Update required</string>
-    <string name="update_required_msg">We couldn\'t check for the latest version. Please connect to the internet and try again, or update from the Play Store.</string>
+    <string name="update_required_msg">We couldn\\u0027t check for the latest version. Please connect to the internet and try again, or update from the Play Store.</string>
     <string name="update_retry">Try again</string>
     <string name="update_open_store">Play Store</string>
 
     <!-- App-redirect dialog -->
     <string name="app_unavailable">App Not Available</string>
-    <string name="app_redirect_desc">This app isn\'t installed on your device. Would you like to open it in the Play Store?</string>
+    <string name="app_redirect_desc">This app isn\\u0027t installed on your device. Would you like to open it in the Play Store?</string>
     <string name="settings_section_call">CALLER PROTECTION</string>
 
     <!-- ===== Blocklist redesign (2026) ===== -->
@@ -608,7 +608,7 @@
     <string name="fsi_meta_now">Now</string>
     <string name="fsi_meta_calls">68 calls</string>
     <string name="fsi_meta_sim">JIO 4G</string>
-    <string name="fsi_screen_title">Never miss who\'s calling</string>
+    <string name="fsi_screen_title">Never miss who\\u0027s calling</string>
     <string name="fsi_screen_desc">Show verified caller details on your lock screen — the instant a call comes in.</string>
     <string name="fsi_feature_identify">Instantly identify unknown numbers</string>
     <string name="fsi_feature_spam">See spam &amp; fraud warnings up front</string>
@@ -681,7 +681,13 @@
     <string name="onb_mock_brand" translatable="false">Caller ID</string>
     <string name="onb_mock_clock" translatable="false">9:01</string>
 
-    <!-- Shown when WorkManager cannot start on this device — see the manifest's
+    <!-- Shown when WorkManager cannot start on this device — see the manifest\u0027s
          InitializationProvider override. -->
-    <string name="reminder_schedule_failed">Couldn\'t schedule the reminder on this device</string>
+    <string name="reminder_schedule_failed">Couldn\\u0027t schedule the reminder on this device</string>
+    <string name="settings_delete_contacts">Delete uploaded contacts</string>
+    <string name="delete_contacts_title">Delete uploaded contacts?</string>
+    <string name="delete_contacts_body">This removes everything this device uploaded from our servers. It can\'t be undone.</string>
+    <string name="delete_contacts_confirm">Delete</string>
+    <string name="delete_contacts_done">Your uploaded contacts were deleted</string>
+    <string name="delete_contacts_failed">Couldn\'t delete right now. Please try again later.</string>
 </resources>
