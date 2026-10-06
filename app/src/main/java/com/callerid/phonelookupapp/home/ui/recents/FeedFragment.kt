@@ -56,6 +56,8 @@ class FeedFragment : CarrierFragment<PanelRecentsBinding>() {
 
         binding.rvRecents.layoutManager = LinearLayoutManager(requireContext())
         binding.rvRecents.adapter = adapter
+        // No row animations: rows appear in place when the list loads or updates.
+        binding.rvRecents.itemAnimator = null
 
         // Native banner at the bottom of the recents screen.
         NativePromoBanner().showNativeBannerNative(requireActivity(), binding.adNativeFrame, binding.adShimmer)

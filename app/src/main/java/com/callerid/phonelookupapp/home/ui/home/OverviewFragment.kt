@@ -123,6 +123,8 @@ class OverviewFragment : CarrierFragment<PanelHomeBinding>() {
 
         binding.rvRecent.layoutManager = LinearLayoutManager(requireContext())
         binding.rvRecent.adapter = recentAdapter
+        // No row animations: rows appear in place when the list loads or updates.
+        binding.rvRecent.itemAnimator = null
 
         // Native banner above the recent calls. In the launcher this tab is built while its panel is
         // still parked off screen; the ad waits for the panel to slide in (onShellShown) instead of

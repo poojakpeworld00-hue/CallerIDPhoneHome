@@ -56,6 +56,8 @@ class PhonebookFragment : CarrierFragment<PanelContactsBinding>() {
         layoutManager = LinearLayoutManager(requireContext())
         binding.rvContacts.layoutManager = layoutManager
         binding.rvContacts.adapter = adapter
+        // No row animations: rows appear in place when the list loads or updates.
+        binding.rvContacts.itemAnimator = null
 
         // Native banner at the bottom of the contacts screen.
         NativePromoBanner().showNativeBannerNative(requireActivity(), binding.adNativeFrame, binding.adShimmer)
