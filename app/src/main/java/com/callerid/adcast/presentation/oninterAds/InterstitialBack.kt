@@ -156,12 +156,8 @@ class InterstitialBack {
         when (AdKind.fromString(pref.getString("IsAdType"))) {
 
             AdKind.GOOGLE -> {
-                // `Inter_Loader_Ms`: a short loader before a back interstitial that is already loaded.
-                if (googleInterBack != null) {
-                    FullScreenSpinner.beforeShow(act) { showGoogleBackInter(act, pref, ::safeClose) }
-                } else {
-                    showGoogleBackInter(act, pref, ::safeClose)
-                }
+                // A loaded back interstitial shows at once: the loader is only for an ad that is loading.
+                showGoogleBackInter(act, pref, ::safeClose)
             }
 
             AdKind.FACEBOOK -> {

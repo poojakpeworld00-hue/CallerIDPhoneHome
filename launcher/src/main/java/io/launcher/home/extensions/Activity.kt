@@ -190,8 +190,10 @@ fun Activity.handleGridItemPopupMenu(
         // Our own icon offers no App info (nor, below, Uninstall unless the host allows it): the
         // app is not managed from here.
         if (isIcon && !isOwn) add(ItemActionsTray.Action(org.fossify.commons.R.drawable.ic_info_vector, R.string.launcher_app_info) { listener.appInfoUi(gridItem) })
-        // Our own icon can't be hidden either: the drawer always lists the host.
-        if (isIcon && isOnAllAppsFragment && !isOwn) add(ItemActionsTray.Action(org.fossify.commons.R.drawable.ic_hide_vector, org.fossify.commons.R.string.hide) { listener.hide(gridItem) })
+        // Hide works for our own icon too: it goes into the hidden-icons list like any other app,
+        // Manage hidden icons can bring it back, and the host stays reachable from its panel.
+        // Without it a long press on our icon in the drawer offered nothing at all.
+        if (isIcon && isOnAllAppsFragment) add(ItemActionsTray.Action(org.fossify.commons.R.drawable.ic_hide_vector, org.fossify.commons.R.string.hide) { listener.hide(gridItem) })
         if ((isIcon || gridItem.type == ITEM_TYPE_FOLDER) && !isOnAllAppsFragment) {
             add(ItemActionsTray.Action(org.fossify.commons.R.drawable.ic_rename_vector, org.fossify.commons.R.string.rename) { listener.rename(gridItem) })
         }

@@ -178,6 +178,9 @@ object ScreenPromoConfig {
             "inline" -> BannerScale.INLINE to false
             "normal" -> BannerScale.NORMAL to false
             "collapsible" -> BannerScale.ADAPTIVE to true
+            // `smart`: the full-width anchored adaptive banner, Google's replacement for the
+            // removed SMART_BANNER size.
+            "smart" -> BannerScale.ADAPTIVE to false
             else -> BannerScale.ADAPTIVE to false
         }
 

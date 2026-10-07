@@ -91,6 +91,8 @@ class LangChooserActivity : CanvasActivity<ViewLanguageBinding>() {
             LauncherFlow.bindStepHeader(
                 this, LauncherAdsConfig.OnboardScreen.LANGUAGE, binding.root
             )
+            // Ready by the time Done is tapped, so its ad shows without the loader.
+            LauncherAdsConfig.preloadExitAd(this, LauncherAdsConfig.OnboardScreen.LANGUAGE)
         }
 
         // 1) Resolve the region FIRST, before the lists exist. The device seed is

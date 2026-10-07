@@ -39,9 +39,8 @@ Each file has an `organic` and a `marketing` block. Beyond the keys the old blob
 - `Overlay_Permission_Show` — app-wide switch for the "display over other apps" prompts (Terms
   step, permission sheet row, Home's Enable banner). `false` = never ask; absent = on. Users who
   already granted it keep the caller-ID card.
-- `Inter_Loader_Show` — full-screen loader while an interstitial loads (absent = `isLoaderForFB`);
-  `Inter_Loader_Ms` — loader shown this long (0–3000 ms) before a *preloaded* interstitial opens,
-  `0` = none.
+- `inter_loader` — full-screen loader while an ad is **loading** (falls back to `Inter_Loader_Show`,
+  then `isLoaderForFB`). It never shows for an ad that is already loaded: that one opens at once.
 - `launcher_ads.app_drawer.applist_app_click` — the ad on a drawer / home app tap, per format:
   `ads.<inter|appopen|directlink|rewarded|fullscreen_native>.enabled`, the order in `sequence`,
   `show_all_ads` / `always_start_first`, own `ad_counter`, `on_demand` (the first format in line that is not

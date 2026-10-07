@@ -5,13 +5,13 @@ import android.app.Dialog
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import android.os.Handler
-import android.os.Looper
+import android.os.Build
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import android.view.WindowManager
+import androidx.core.view.WindowCompat
 import com.callerid.adcast.domain.AdsVault
 import com.callerid.phonelookupapp.home.R
 
@@ -32,29 +32,10 @@ object FullScreenSpinner {
     }
 
     /**
-     * Remote Config: how long (ms) the loader shows before a *preloaded* interstitial opens.
-     * `0` / absent = open it straight away. Clamped to 3 s so a typo cannot park the user.
+     * Whether the full-screen loader may show while an ad loads — see [InterLoader]. The loader is
+     * only ever shown for an ad that is being loaded; an ad already in hand shows at once.
      */
-    private const val LOADER_MS_KEY = "Inter_Loader_Ms"
-    private const val MAX_LOADER_MS = 3_000
-
-    /** Whether the full-screen loader may show while an interstitial loads — see [InterLoader]. */
     fun isEnabled(context: Context): Boolean = InterLoader.enabled(AdsVault.getInstance(context))
-
-    /**
-     * Runs [show] behind the loader for `Inter_Loader_Ms` — the "Loading ad…" beat before an
-     * interstitial that is already loaded. Runs [show] immediately when the loader is off, the
-     * delay is 0, or the activity is going away. [show] runs exactly once.
-     */
-    fun beforeShow(activity: Activity, show: () -> Unit) {
-        val ms = AdsVault.getInstance(activity).getInt(LOADER_MS_KEY).coerceIn(0, MAX_LOADER_MS)
-        if (ms == 0 || !isEnabled(activity) || activity.isFinishing || activity.isDestroyed) return show()
-        show(activity, true)
-        Handler(Looper.getMainLooper()).postDelayed({
-            hide()
-            if (!activity.isFinishing && !activity.isDestroyed) show()
-        }, ms.toLong())
-    }
 
     /**
      * Shows a full-screen transparent loader.
@@ -82,6 +63,8 @@ object FullScreenSpinner {
                 )
 
                 window?.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
+
+                window?.let(::coverWholeScreen)
 
                 // FLAG_NOT_FOCUSABLE before show() prevents status-bar flicker
                 window?.setFlags(
@@ -114,6 +97,28 @@ object FullScreenSpinner {
 
     fun hide() {
         dismissSafely()
+    }
+
+    /**
+     * Lets a loader dialog's window cover the whole screen, status bar and camera cutout included.
+     * Without it the window stops below the cutout strip and the screen behind (its toolbar) shows
+     * through above the loader.
+     */
+    fun coverWholeScreen(window: Window) {
+        window.addFlags(
+            WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+        )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            window.attributes = window.attributes.apply {
+                layoutInDisplayCutoutMode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
+                } else {
+                    WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+                }
+            }
+        }
+        WindowCompat.setDecorFitsSystemWindows(window, false)
     }
 
     private fun dismissSafely() {

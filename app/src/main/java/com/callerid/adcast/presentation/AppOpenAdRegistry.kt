@@ -88,6 +88,18 @@ object AppOpenAdRegistry {
             return appOpenAd != null
         }
 
+    /**
+     * Hands over the loaded App Open ad when it is fresh and for [unitId], emptying the slot (the
+     * next [loadAd] refills it). Lets the launcher's ad chains show an ad that is already here
+     * instead of fetching the same unit again behind a loader.
+     */
+    fun takePreloaded(unitId: String): AppOpenAd? {
+        if (isShowingAd || !isAdAvailable) return null
+        val ad = appOpenAd?.takeIf { it.adUnitId == unitId } ?: return null
+        appOpenAd = null
+        return ad
+    }
+
     fun loadAd(context: Context?) {
         if (context == null) return
         if (isLoadingAd || isAdAvailable) return

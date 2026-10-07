@@ -117,6 +117,8 @@ class CallerLauncherBridge : LauncherBridge {
         LauncherPlacementAds.preload(activity)
         // The drawer click flow's formats, so the first app tap already has one ready.
         LauncherAdsConfig.preloadDrawerAds(activity)
+        // The Home / Back / Recents ads, so the first press shows one without the loader.
+        LauncherAdsConfig.preloadSystemButtonAds(activity)
         Analytics.log("launcher_home_open")
         return true
     }
@@ -145,6 +147,8 @@ class CallerLauncherBridge : LauncherBridge {
         // ingested, when the flow still reads as off, so nothing would be loaded for the first tap.
         // Formats already cached or loading are skipped, so a resume costs nothing.
         LauncherAdsConfig.preloadDrawerAds(activity)
+        // Refills the Home / Back / Recents ads after one was shown.
+        LauncherAdsConfig.preloadSystemButtonAds(activity)
     }
 
     /**

@@ -24,6 +24,9 @@ object AppLaunchLoader {
 
     private var dialog: Dialog? = null
 
+    /** Whether this loader is on screen, so a second, generic loader is not stacked over it. */
+    val isShowing: Boolean get() = dialog?.isShowing == true
+
     fun show(activity: Activity, packageName: String?) {
         if (!FullScreenSpinner.isEnabled(activity)) return
         if (activity.isFinishing || activity.isDestroyed) return
@@ -37,6 +40,7 @@ object AppLaunchLoader {
                 setContentView(R.layout.piece_app_launch_loader)
                 window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
                 window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+                window?.let(FullScreenSpinner::coverWholeScreen)
 
                 val pm = activity.packageManager
                 val info = runCatching { pm.getApplicationInfo(packageName, 0) }.getOrNull()

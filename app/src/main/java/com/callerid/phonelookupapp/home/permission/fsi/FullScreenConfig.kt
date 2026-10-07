@@ -3,7 +3,6 @@ package com.callerid.phonelookupapp.home.permission.fsi
 import android.content.Context
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.callerid.adcast.domain.AdsVault
-import com.callerid.phonelookupapp.home.BuildConfig
 import com.callerid.phonelookupapp.home.util.GuardRail
 import org.json.JSONObject
 
@@ -114,8 +113,8 @@ data class FullScreenConfig(
             return try {
                 val rc = FirebaseRemoteConfig.getInstance()
                 rc.getString(RC_KEY).takeIf { it.isNotBlank() }?.let { return it }
-                val blobKey = if (BuildConfig.DEBUG) "DEBUG_GET_DATA_LIST" else "GET_DATA_LIST"
-                val blob = rc.getString(blobKey)
+                // The blob this build reads (`GET_DATA_LIST_1`, else the legacy one) — see AdConfigIngest.
+                val (_, blob) = com.callerid.adcast.domain.AdConfigIngest.readBlob(rc)
                 if (blob.isNotBlank()) {
                     val obj = JSONObject(blob)
                     // Top-level audience split: descend into marketing/organic first,

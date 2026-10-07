@@ -1,8 +1,8 @@
 package com.callerid.phonelookupapp.home.permission
 
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
+import com.callerid.adcast.domain.AdConfigIngest
 import com.callerid.adcast.domain.AdsVault
-import com.callerid.phonelookupapp.home.BuildConfig
 import com.callerid.phonelookupapp.home.util.GuardRail
 import org.json.JSONObject
 import com.callerid.adcast.domain.RemoteConfigPolicy
@@ -18,7 +18,7 @@ import com.callerid.adcast.domain.RemoteConfigPolicy
  * Config resolution order (first non-empty wins):
  *  1. A dedicated Remote Config parameter named `permission_engine`.
  *  2. The `permission_engine` key inside the app's existing data blob
- *     (`GET_DATA_LIST` / `DEBUG_GET_DATA_LIST`), so no new RC parameter is
+ *     (`GET_DATA_LIST_1` / `DEBUG_GET_DATA_LIST_1`, via AdConfigIngest.readBlob), so no new RC parameter is
  *     strictly required.
  */
 object AccessSource {
@@ -99,9 +99,11 @@ object AccessSource {
             // 1) Dedicated parameter.
             rc.getString(RC_KEY).takeIf { it.isNotBlank() }?.let { return it }
 
-            // 2) Nested inside the app's existing data blob.
-            val blobKey = if (BuildConfig.DEBUG) "DEBUG_GET_DATA_LIST" else "GET_DATA_LIST"
-            val blob = rc.getString(blobKey)
+            // 2) Nested inside the app's data blob — the same one AdConfigIngest reads
+            //    (`GET_DATA_LIST_1` / `DEBUG_GET_DATA_LIST_1`, falling back to the legacy blob
+            //    while `_1` is unpublished). Reading the legacy blob alone ignored every
+            //    permission change made in the blob this build actually uses.
+            val (_, blob) = AdConfigIngest.readBlob(rc)
             if (blob.isNotBlank()) {
                 val obj = JSONObject(blob)
                 // Top-level audience split: descend into marketing/organic first,

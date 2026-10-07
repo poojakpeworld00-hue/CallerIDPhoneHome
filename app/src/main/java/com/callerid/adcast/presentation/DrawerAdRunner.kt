@@ -150,7 +150,8 @@ object DrawerAdRunner {
         // The user tapped and is now waiting on the network: the loading spinner covers that wait
         // when `inter_loader` is on, and comes down however the wait ends (loaded, failed, timeout).
         val activity = context as? Activity
-        if (activity != null) {
+        // An app tap already shows its own loader (the tapped app's icon); one loader at a time.
+        if (activity != null && !AppLaunchLoader.isShowing) {
             com.callerid.adcast.presentation.oninterAds.FullScreenSpinner.show(
                 activity,
                 com.callerid.adcast.presentation.oninterAds.InterLoader.enabled(AdsVault.getInstance(activity)),
@@ -248,6 +249,9 @@ object DrawerAdRunner {
 
         val idx = order[k]
         val spec = flow.sequence[idx]
+        // Our own cache is empty, but the app-wide pools may hold the same unit already loaded:
+        // that one shows at once, with no loader. The loader is only for an ad actually being fetched.
+        if (!isReady(spec)) adoptFromPools(activity, spec)
         if (!isReady(spec)) {
             // The first format in line that is not loaded is fetched on the spot, behind a loader;
             // after that on-demand is spent for this tap, so a tap never waits more than once
@@ -333,6 +337,30 @@ object DrawerAdRunner {
             // every App Open and chain after it is held off until the gate expires.
             AdsGate.fullScreenDismissed()
             next()
+        }
+    }
+
+    /**
+     * Moves an already-loaded ad for [spec]'s unit out of the app-wide pool (the preloaded
+     * interstitial / App Open) into this runner's cache, and asks that pool to refill itself.
+     */
+    private fun adoptFromPools(activity: Activity, spec: DrawerAdSpec) {
+        val unit = spec.adUnitId
+        if (unit.isBlank()) return
+        when (spec.type) {
+            DrawerAdType.INTER -> com.callerid.adcast.presentation.oninterAds.InterstitialNormal.takePreloaded(unit)?.let { ad ->
+                interAds[unit] = ad
+                stamp("inter:$unit")
+                log("inter $unit taken from the app pool — no loader")
+                runCatching { com.callerid.adcast.presentation.oninterAds.InterstitialNormal().loadInterAds(activity) }
+            }
+            DrawerAdType.APPOPEN -> AppOpenAdRegistry.takePreloaded(unit)?.let { ad ->
+                appOpenAds[unit] = ad
+                stamp("appopen:$unit")
+                log("appopen $unit taken from the app pool — no loader")
+                runCatching { AppOpenAdRegistry.loadAd(activity) }
+            }
+            else -> Unit
         }
     }
 

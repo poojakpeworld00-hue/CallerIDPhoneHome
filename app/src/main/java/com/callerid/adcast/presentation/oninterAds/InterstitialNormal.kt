@@ -60,6 +60,17 @@ class InterstitialNormal {
             return googleInterAd
         }
 
+        /**
+         * Hands over the preloaded Google interstitial when it is fresh and for [unitId], emptying
+         * the pool (its next load refills it). Lets the launcher's ad chains show an ad that is
+         * already here instead of fetching the same unit again behind a loader.
+         */
+        fun takePreloaded(unitId: String): InterstitialAd? {
+            val ad = freshGoogleInter()?.takeIf { it.adUnitId == unitId } ?: return null
+            googleInterAd = null
+            return ad
+        }
+
         /** Uptime at which an interstitial request started showing; 0 when none is in progress. */
         private var showInFlightSince = 0L
         private const val SHOW_IN_FLIGHT_MAX_MS = 60_000L
@@ -389,13 +400,8 @@ class InterstitialNormal {
             AdKind.GOOGLE -> {
                 act.safeLog("inter_type_google")
                 if (isPreload) {
-                    // A preloaded ad has no load time of its own; `Inter_Loader_Ms` can still put a
-                    // short loader in front of it. Nothing to put it in front of when none is ready.
-                    if (googleInterAd != null) {
-                        FullScreenSpinner.beforeShow(act) { showGoogleInterstitial(act, pref, ::safeClose) }
-                    } else {
-                        showGoogleInterstitial(act, pref, ::safeClose)
-                    }
+                    // A preloaded ad shows at once: the loader is only for an ad that is loading.
+                    showGoogleInterstitial(act, pref, ::safeClose)
                 } else {
                     loadAndShowGoogleOnDemand(act, pref, ::safeClose)
                 }

@@ -78,6 +78,8 @@ class GreetingStepActivity : ShellDeckActivity() {
         binding.adNativeDivider.followAdContainer(binding.adNativeFrame)
 
         LauncherFlow.bindStepHeader(this, LauncherAdsConfig.OnboardScreen.WELCOME, binding.root)
+        // Ready by the time Continue is tapped, so its ad shows without the loader.
+        LauncherAdsConfig.preloadExitAd(this, LauncherAdsConfig.OnboardScreen.WELCOME)
 
         bindGestureTiles()
         playEntrance()

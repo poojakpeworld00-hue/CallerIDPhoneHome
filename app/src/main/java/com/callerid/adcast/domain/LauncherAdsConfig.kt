@@ -642,6 +642,9 @@ object LauncherAdsConfig {
                 "inline" -> BannerScale.INLINE to false
                 "normal" -> BannerScale.NORMAL to false
                 "collapsible" -> BannerScale.ADAPTIVE to true
+                // `smart`: the full-width anchored adaptive banner, Google's replacement for the
+                // removed SMART_BANNER size.
+                "smart" -> BannerScale.ADAPTIVE to false
                 else -> BannerScale.ADAPTIVE to false
             }
             log("slot: banner type=${slot.bannerType} collapsible=$collapsible")
@@ -913,6 +916,43 @@ object LauncherAdsConfig {
     fun exitAdFlow(context: Context, screen: OnboardScreen): DrawerAdFlow? {
         val exit = onboardingBlock(context, screen)?.optJSONObject("exit_ad") ?: return null
         return flowFrom(context, exit, "onboarding.${screen.key}.exit_ad")
+    }
+
+    /**
+     * Loads [screen]'s exit ad while the user is still on the screen, so Next / Done shows it
+     * straight away instead of waiting behind the loader. Call when the screen opens.
+     */
+    fun preloadExitAd(context: Context, screen: OnboardScreen) {
+        if (!AdsVault.getInstance(context).getBoolean("IsAdsON") || !onboardingAdsOn(context, screen)) return
+        val flow = exitAdFlow(context, screen)?.takeIf { it.enabled && it.sequence.isNotEmpty() } ?: return
+        log("onboarding.${screen.key}: preloading exit ad ${flow.sequence.map { it.type.key }}")
+        DrawerAdRunner.preload(context, flow)
+    }
+
+    /**
+     * Loads the ads behind the system Home / Back / Recents buttons (`system_buttons.*.ad`) and the
+     * Recents page's close ad (`recent_ad.close_ad`), so a press shows its ad at once. Formats
+     * already cached or loading are skipped, so calling it on every launcher resume costs nothing.
+     */
+    fun preloadSystemButtonAds(context: Context) {
+        if (!AdsVault.getInstance(context).getBoolean("IsAdsON")) return
+        val flows = buildList {
+            listOf("home", "back", "recents").forEach { button ->
+                val settings = systemButtonSettings(context, button)
+                val block = settings.flow
+                if (settings.enabled && block != null) add(flowFrom(context, block, "system_buttons.$button.ad"))
+            }
+            // `system_buttons.recents.enabled`, when present, decides whether the Recents page runs.
+            val recentsOn = if (hasSystemButton(context, "recents")) {
+                systemButtonSettings(context, "recents").enabled
+            } else {
+                recentAdSettings(context).enabled
+            }
+            config(context).optJSONObject("recent_ad")?.optJSONObject("close_ad")
+                ?.takeIf { recentsOn }
+                ?.let { add(flowFrom(context, it, "recent_ad.close_ad")) }
+        }
+        flows.filter { it.enabled && it.sequence.isNotEmpty() }.forEach { DrawerAdRunner.preload(context, it) }
     }
 
     /**

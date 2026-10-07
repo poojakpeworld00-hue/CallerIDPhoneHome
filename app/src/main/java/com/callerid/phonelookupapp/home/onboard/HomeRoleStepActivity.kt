@@ -121,6 +121,8 @@ class HomeRoleStepActivity : ShellDeckActivity() {
         LauncherFlow.bindStepHeader(
             this, LauncherAdsConfig.OnboardScreen.SET_DEFAULT, binding.root
         )
+        // Ready by the time the role is granted, so the "Next" ad shows without the loader.
+        LauncherAdsConfig.preloadExitAd(this, LauncherAdsConfig.OnboardScreen.SET_DEFAULT)
 
         // A fresh arrival opens the system default-app page straight away rather than waiting
         // for the CTA — the user's first decision is made in the place it can actually be made.

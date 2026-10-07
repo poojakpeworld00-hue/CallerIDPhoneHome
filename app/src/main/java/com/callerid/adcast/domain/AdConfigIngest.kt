@@ -142,9 +142,7 @@ object AdConfigIngest {
                 // Backstop-fetch window for LiveConfigWatcher, in hours. 0 = fetch on every
                 // foreground (testing only); absent falls back to its own default.
                 "Config_Sync_Hrs",
-                "recent_playstore_window_sec",
-                // Loader beat before a preloaded interstitial, in ms (FullScreenSpinner). 0 = none.
-                "Inter_Loader_Ms"
+                "recent_playstore_window_sec"
             ).forEach { key -> if (root.has(key)) putInt(key, root.optInt(key, 0)) }
 
             storeNativeTheme(this, adsPref, root)

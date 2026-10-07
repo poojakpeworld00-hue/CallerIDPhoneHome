@@ -60,6 +60,8 @@ class PrimerActivity : CanvasActivity<ViewOnboardingBinding>() {
             shimmer = binding.adShimmer,
         )
         binding.adNativeDivider.followAdContainer(binding.adNativeFrame)
+        // Ready by the time the last page is left, so its ad shows without the loader.
+        LauncherAdsConfig.preloadExitAd(this, LauncherAdsConfig.OnboardScreen.INTRO)
 
         binding.viewPager.adapter = IntroAdapter(pages)
         binding.viewPager.offscreenPageLimit = 1

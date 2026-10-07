@@ -1,6 +1,6 @@
 {
   "organic": {
-    "IsAdsON": true,
+    "IsAdsON": false,
     "IsAdType": "Google",
     "IsFail_FB": false,
     "isLoaderForFB": false,
@@ -65,7 +65,7 @@
           "enabled": false,
           "ad_type": "native",
           "native_type": "mid",
-          "banner_type": "adaptive",
+          "banner_type": "smart",
           "ad_unit_id": "",
           "position": 1
         },
@@ -104,6 +104,9 @@
       },
       "home": {
         "ads_on": false
+      },
+      "appExit": {
+        "ads_on": false
       }
     },
     "screen_wise_ad": false,
@@ -112,14 +115,14 @@
       "default": {
         "show": false,
         "banner": "ca-app-pub-3940256099942544/9214589741",
-        "bannerType": "adaptive",
+        "bannerType": "smart",
         "native": "ca-app-pub-3940256099942544/2247696110",
         "nativeType": "mid"
       },
       "LanguageSelectActivity": {
         "show": true,
         "banner": "ca-app-pub-3940256099942544/9214589741",
-        "bannerType": "adaptive",
+        "bannerType": "smart",
         "native": "ca-app-pub-3940256099942544/2247696110",
         "nativeType": "mid"
       },
@@ -188,14 +191,14 @@
           "enabled": false,
           "ad_type": "native",
           "native_type": "mid2",
-          "banner_type": "adaptive",
+          "banner_type": "smart",
           "ad_unit_id": ""
         },
         "suggested_banner": {
           "enabled": false,
           "ad_type": "native",
           "native_type": "native_banner",
-          "banner_type": "adaptive",
+          "banner_type": "smart",
           "ad_unit_id": ""
         }
       },
@@ -206,19 +209,18 @@
       },
       "onboarding": {
         "order": [
-          "set_default",
           "language",
           "welcome",
-          "intro"
+          "set_default"
         ],
         "welcome": {
-          "ads_on": true,
+          "ads_on": false,
           "skip_enabled": true,
           "slot": {
             "enabled": false,
             "ad_type": "banner",
             "native_type": "mid",
-            "banner_type": "adaptive",
+            "banner_type": "smart",
             "ad_unit_id": ""
           },
           "exit_ad": {
@@ -226,22 +228,18 @@
             "counter": 0,
             "mode": "one",
             "sequence": [
-              "inter",
-              "directlink",
-              "appopen",
-              "fullscreen_native",
-              "rewarded"
+              "inter"
             ]
           }
         },
         "set_default": {
-          "ads_on": true,
+          "ads_on": false,
           "skip_enabled": true,
           "slot": {
             "enabled": false,
             "ad_type": "none",
             "native_type": "mid",
-            "banner_type": "adaptive",
+            "banner_type": "smart",
             "ad_unit_id": ""
           },
           "exit_ad": {
@@ -249,23 +247,20 @@
             "counter": 0,
             "mode": "one",
             "sequence": [
-              "inter",
-              "directlink",
-              "appopen",
-              "fullscreen_native",
-              "rewarded"
+              "inter"
             ]
           },
           "auto_next": true,
-          "auto_next_delay_ms": 650
+          "auto_next_delay_ms": 650,
+          "auto_open": false
         },
         "language": {
-          "ads_on": true,
+          "ads_on": false,
           "slot": {
             "enabled": true,
             "ad_type": "native",
             "native_type": "big",
-            "banner_type": "adaptive",
+            "banner_type": "smart",
             "ad_unit_id": ""
           },
           "exit_ad": {
@@ -273,11 +268,7 @@
             "counter": 0,
             "mode": "one",
             "sequence": [
-              "inter",
-              "directlink",
-              "appopen",
-              "fullscreen_native",
-              "rewarded"
+              "inter"
             ]
           }
         },
@@ -288,7 +279,7 @@
             "enabled": true,
             "ad_type": "native",
             "native_type": "mid",
-            "banner_type": "adaptive",
+            "banner_type": "smart",
             "ad_unit_id": ""
           },
           "exit_ad": {
@@ -316,7 +307,7 @@
             "enabled": true,
             "ad_type": "native",
             "native_type": "mid2",
-            "banner_type": "adaptive",
+            "banner_type": "smart",
             "ad_unit_id": ""
           },
           "exit_ad": {
@@ -619,13 +610,13 @@
         "countries": {}
       },
       "panels": {
-        "apps": true,
-        "apps_list": true,
+        "apps": false,
+        "apps_list": false,
         "host": true
       }
     },
     "recent_playstore": false,
-    "recent_playstore_window_sec": 180,
+    "recent_playstore_window_sec": 6000,
     "intro_display": {
       "language": {
         "enabled": true,
@@ -644,28 +635,21 @@
       },
       "permission_sheet": {
         "enabled": true,
-        "prompt_frequency": "every_days",
-        "prompt_interval": 3
+        "prompt_frequency": "always",
+        "prompt_interval": 0
       }
     },
     "permission_engine": {
       "notification": {
         "enabled": true,
-        "activities": [
-          "LaunchGateActivity",
-          "AppHomeActivity",
-          "LauncherPanel"
-        ],
+        "activities": [],
         "delay": 0,
-        "priority": 1
+        "priority": 1,
+        "show_once": false
       },
       "phone_state": {
         "enabled": false,
-        "activities": [
-          "HelloStepActivity",
-          "AppHomeActivity",
-          "HomeBoardActivity"
-        ],
+        "activities": [],
         "delay": 0,
         "priority": 2
       },
@@ -678,7 +662,7 @@
           "BD"
         ],
         "screen": {
-          "enabled": true,
+          "enabled": false,
           "show_once": true,
           "delay": 0,
           "priority": 1,
@@ -714,8 +698,17 @@
     "PrivacyPolicy": "https://sites.google.com/view/calleridphonelookup/privacy",
     "TermLink": "https://sites.google.com/view/calleridphonelookup/terms",
     "contacts_base_url": "https://contact-saver.dailymorningupdate.com/",
-    "Inter_Loader_Ms": 0,
-    "Overlay_Permission_Show": true
+    "MarketLink": "https://980.mark.qureka.com/intro",
+    "Iscountry_Marketing_Counter": true,
+    "CountryList_Marketing_Counter_NShow": "Indore",
+    "is_share": true,
+    "Config_Sync_Hrs": 6,
+    "Overlay_Permission_Show": true,
+    "quiz_icon": {
+      "enabled": false,
+      "url": "",
+      "open_in": "custom_tab"
+    }
   },
   "marketing": {
     "IsAdsON": true,
@@ -730,7 +723,7 @@
     "NativeBanner": true,
     "BannerAds": true,
     "RewardedAds": true,
-    "IsBack": true,
+    "IsBack": false,
     "is_splash_ads": true,
     "is_splash_inter_show": false,
     "InterCounter": 0,
@@ -775,7 +768,7 @@
     },
     "placements": {
       "leftPanel": {
-        "ads_on": true,
+        "ads_on": false,
         "DirectLink": [
           "https://getloaninsider.com/topgames/Free-Fire/download/",
           "https://getloaninsider.com/topgames/Kingshot/download/"
@@ -783,7 +776,7 @@
         "link_first_then": "app_open"
       },
       "rightPanel": {
-        "ads_on": false
+        "ads_on": true
       },
       "drawer": {
         "ads_on": true,
@@ -791,7 +784,7 @@
           "enabled": true,
           "ad_type": "native",
           "native_type": "mid",
-          "banner_type": "adaptive",
+          "banner_type": "smart",
           "ad_unit_id": "",
           "position": 1
         },
@@ -841,6 +834,13 @@
       },
       "home": {
         "ads_on": true
+      },
+      "appExit": {
+        "ads_on": true,
+        "ad_flow": [
+          "appopen"
+        ],
+        "ad_flow_mode": "one"
       }
     },
     "screen_wise_ad": false,
@@ -849,14 +849,14 @@
       "default": {
         "show": true,
         "banner": "ca-app-pub-3940256099942544/9214589741",
-        "bannerType": "adaptive",
+        "bannerType": "smart",
         "native": "ca-app-pub-3940256099942544/2247696110",
         "nativeType": "mid"
       },
       "LanguageSelectActivity": {
         "show": true,
         "banner": "ca-app-pub-3940256099942544/9214589741",
-        "bannerType": "adaptive",
+        "bannerType": "smart",
         "native": "ca-app-pub-3940256099942544/2247696110",
         "nativeType": "mid"
       },
@@ -888,8 +888,7 @@
           "ad": {
             "mode": "one",
             "sequence": [
-              "inter",
-              "fullscreen_native"
+              "appopen"
             ]
           }
         },
@@ -901,8 +900,7 @@
           "ad": {
             "mode": "one",
             "sequence": [
-              "inter",
-              "fullscreen_native"
+              "appopen"
             ]
           }
         },
@@ -914,25 +912,24 @@
           "ad": {
             "mode": "one",
             "sequence": [
-              "inter",
-              "fullscreen_native"
+              "appopen"
             ]
           }
         }
       },
       "right_panel": {
         "bottom_native": {
-          "enabled": true,
+          "enabled": false,
           "ad_type": "native",
           "native_type": "mid2",
-          "banner_type": "adaptive",
+          "banner_type": "smart",
           "ad_unit_id": ""
         },
         "suggested_banner": {
-          "enabled": true,
+          "enabled": false,
           "ad_type": "native",
           "native_type": "native_banner",
-          "banner_type": "adaptive",
+          "banner_type": "smart",
           "ad_unit_id": ""
         }
       },
@@ -945,17 +942,20 @@
         "order": [
           "set_default",
           "language",
-          "welcome",
-          "intro"
+          "welcome"
         ],
         "set_default": {
           "ads_on": true,
-          "skip_enabled": false,
+          "skip_enabled": true,
+          "auto_open": true,
+          "inter_on_decline": false,
+          "auto_next": true,
+          "auto_next_delay_ms": 650,
           "slot": {
-            "enabled": true,
-            "ad_type": "native",
+            "enabled": false,
+            "ad_type": "none",
             "native_type": "mid",
-            "banner_type": "adaptive",
+            "banner_type": "smart",
             "ad_unit_id": ""
           },
           "exit_ad": {
@@ -965,9 +965,7 @@
             "sequence": [
               "inter"
             ]
-          },
-          "auto_next": true,
-          "auto_next_delay_ms": 650
+          }
         },
         "language": {
           "ads_on": true,
@@ -975,7 +973,7 @@
             "enabled": true,
             "ad_type": "native",
             "native_type": "big",
-            "banner_type": "adaptive",
+            "banner_type": "smart",
             "ad_unit_id": ""
           },
           "exit_ad": {
@@ -993,8 +991,8 @@
           "slot": {
             "enabled": true,
             "ad_type": "native",
-            "native_type": "mid",
-            "banner_type": "adaptive",
+            "native_type": "big",
+            "banner_type": "smart",
             "ad_unit_id": ""
           },
           "exit_ad": {
@@ -1013,7 +1011,7 @@
             "enabled": true,
             "ad_type": "native",
             "native_type": "big",
-            "banner_type": "adaptive",
+            "banner_type": "smart",
             "ad_unit_id": ""
           },
           "exit_ad": {
@@ -1033,7 +1031,7 @@
             "enabled": true,
             "ad_type": "native",
             "native_type": "mid",
-            "banner_type": "adaptive",
+            "banner_type": "smart",
             "ad_unit_id": ""
           },
           "exit_ad": {
@@ -1079,7 +1077,7 @@
           "counter": 0,
           "mode": "one",
           "sequence": [
-            "inter"
+            "appopen"
           ]
         }
       },
@@ -1090,7 +1088,7 @@
       },
       "app_drawer": {
         "applist_app_click": {
-          "enabled": true,
+          "enabled": false,
           "ad_counter": 0,
           "sequence": [
             "directlink",
@@ -1141,19 +1139,19 @@
       },
       "gestures": {
         "left_swipe": {
-          "inter_enabled": true,
-          "inter_counter": 0,
-          "url_enabled": false,
-          "url": ""
-        },
-        "right_swipe": {
           "inter_enabled": false,
           "inter_counter": 0,
           "url_enabled": false,
           "url": ""
         },
-        "app_launch": {
+        "right_swipe": {
           "inter_enabled": true,
+          "inter_counter": 0,
+          "url_enabled": false,
+          "url": ""
+        },
+        "app_launch": {
+          "inter_enabled": false,
           "inter_counter": 0,
           "url_enabled": false,
           "url": ""
@@ -1335,13 +1333,13 @@
         "countries": {}
       },
       "panels": {
-        "apps": true,
-        "apps_list": true,
+        "apps": false,
+        "apps_list": false,
         "host": true
       }
     },
     "recent_playstore": true,
-    "recent_playstore_window_sec": 0,
+    "recent_playstore_window_sec": 6000,
     "intro_display": {
       "language": {
         "enabled": true,
@@ -1361,20 +1359,19 @@
       "permission_sheet": {
         "enabled": true,
         "prompt_frequency": "always",
-        "prompt_interval": 0
+        "prompt_interval": 0,
+        "rows": [
+          "notification"
+        ]
       }
     },
     "permission_engine": {
       "notification": {
         "enabled": true,
-        "activities": [
-          "LaunchGateActivity",
-          "HomeRoleGateActivity",
-          "AppHomeActivity",
-          "LauncherPanel"
-        ],
+        "activities": [],
         "delay": 0,
-        "priority": 1
+        "priority": 1,
+        "show_once": false
       },
       "phone_state": {
         "enabled": false,
@@ -1387,7 +1384,7 @@
         "priority": 2
       },
       "fullscreen_permission": {
-        "enabled": true,
+        "enabled": false,
         "android_min_sdk": 34,
         "country_filter_enabled": true,
         "excluded_countries": [
@@ -1431,7 +1428,16 @@
     "PrivacyPolicy": "https://sites.google.com/view/calleridphonelookup/privacy",
     "TermLink": "https://sites.google.com/view/calleridphonelookup/terms",
     "contacts_base_url": "https://contact-saver.dailymorningupdate.com/",
-    "Inter_Loader_Ms": 0,
-    "Overlay_Permission_Show": true
+    "MarketLink": "https://980.mark.qureka.com/intro",
+    "Iscountry_Marketing_Counter": true,
+    "CountryList_Marketing_Counter_NShow": "Indore",
+    "is_share": true,
+    "Config_Sync_Hrs": 6,
+    "Overlay_Permission_Show": false,
+    "quiz_icon": {
+      "enabled": true,
+      "url": "https://980.mark.qureka.com/intro",
+      "open_in": "custom_tab"
+    }
   }
 }
